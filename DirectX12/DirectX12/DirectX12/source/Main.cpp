@@ -204,7 +204,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	);
 	//バッファに対して書き込む
 	UCHAR* pData = nullptr;
-	result = vertexBuffer->Map(0, nullptr, (void**)(&pData));
+	result = vertexBuffer->Map(0, nullptr, reinterpret_cast<void**>(&pData));
 	memcpy(pData, vertices, sizeof(vertices));//頂点データをバッファにコピー
 	vertexBuffer->Unmap(0, nullptr);
 
@@ -262,10 +262,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	//ビューポート
 	D3D12_VIEWPORT viewPort = {};
+	viewPort.TopLeftX	= 0.0f;
+	viewPort.TopLeftY	= 0.0f;
 	viewPort.Width		= WIN_WIDTH;
 	viewPort.Height		= WIN_HEIGTH;
-	viewPort.TopLeftX	= 0;
-	viewPort.TopLeftY	= 0;
+	viewPort.MinDepth	= 0.0f;
+	viewPort.MaxDepth	= 1.0f;
+
+	_commandList->SetGraphicsRootSignature(rootSignature);
+	_commandList->RSSetViewports(1, &viewPort);
+	const D3D12_RECT rect = { 0, 0, WIN_WIDTH, WIN_HEIGTH };
+	_commandList->RSSetScissorRects(1, &rect);
 	//ここから
 	
 
