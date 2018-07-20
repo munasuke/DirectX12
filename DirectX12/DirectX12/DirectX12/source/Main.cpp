@@ -1,5 +1,3 @@
-using namespace DirectX;
-
 #include <Windows.h>	//ウィンドウ表示するのに必要
 #include <d3d12.h>		//DirectX12を使うのに必要
 #include "d3dx12.h"		//DirectX12を使いやすくするヘッダ
@@ -9,8 +7,11 @@ using namespace DirectX;
 #include <tchar.h>
 #include <vector>
 
+using namespace DirectX;
+
 #pragma comment(lib,"d3d12.lib")
 #pragma comment(lib,"dxgi.lib")
+#pragma comment(lib, "d3dcompiler.lib")
 
 #define WIN_WIDTH	(640)	//ウィンドウサイズ幅
 #define WIN_HEIGTH	(480)	//ウィンドウサイズ高
@@ -171,17 +172,102 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	struct VERTEX {
 		XMFLOAT3 pos;//座標
 	};
+	VERTEX vertex;
 	//頂点情報の作成
 	VERTEX vertices[] = {
 		{{0.0f, 0.0f, 0.0f}},
 		{{1.0f, 0.0f, 0.0f}},
 		{{0.0f, -1.0f, 0.0f}}
 	};
-	D3D12_INPUT_ELEMENT_DESC ieDesc = {};
-	ieDesc.SemanticName = "POSITION";
-	ieDesc.SemanticIndex = 0;
-	ieDesc.Format = DXGI_FORMAT_R32G32B32_FLOAT;
-	//構造体の続きをやる
+	//頂点レイアウトの定義
+	D3D12_INPUT_ELEMENT_DESC input[] = {
+		{
+			"POSITION",									//SemanticName
+			0,											//SemanticIndex
+			DXGI_FORMAT_R32G32B32_FLOAT,				//Format
+			0,											//InputSlot
+			D3D12_APPEND_ALIGNED_ELEMENT,				//AlignedByteoffset
+			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, //InputSlotClass
+			0											//InstanceDataStepRate
+		},
+	};
+
+	//頂点バッファの作成
+	ID3D12Resource* vertexBuffer = nullptr;
+	result = dev->CreateCommittedResource(
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),//CPUからGPUへ転送する用
+		D3D12_HEAP_FLAG_NONE,
+		&CD3DX12_RESOURCE_DESC::Buffer(sizeof(vertices)),//サイズ
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(&vertexBuffer)
+	);
+	//バッファに対して書き込む
+	UCHAR* pData = nullptr;
+	result = vertexBuffer->Map(0, nullptr, (void**)(&pData));
+	memcpy(pData, vertices, sizeof(vertices));//頂点データをバッファにコピー
+	vertexBuffer->Unmap(0, nullptr);
+
+	//頂点バッファビューの作成
+	D3D12_VERTEX_BUFFER_VIEW vbView = {};
+	vbView.BufferLocation			= vertexBuffer->GetGPUVirtualAddress();//頂点アドレスのGPUにあるアドレスを記憶
+	vbView.StrideInBytes			= sizeof(vertex);//頂点1つあたりのバイト数を指定
+	vbView.SizeInBytes				= sizeof(vertices);//データ全体のサイズを指定
+
+	//シェーダーの読み込み
+	ID3DBlob* vertexShader	= nullptr;//頂点シェーダー
+	ID3DBlob* pixelShader	= nullptr;//ピクセルシェーダー
+	//シェーダーのコンパイルを行う
+	result = D3DCompileFromFile(
+			_T("Shader.hlsl"), 
+			nullptr, 
+			nullptr, 
+			"BasicVS", 
+			"vs_5_0", 
+			D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, 
+			0, 
+			&vertexShader, 
+			&error
+		);
+	result = D3DCompileFromFile(
+			_T("Shader.hlsl"), 
+			nullptr, 
+			nullptr, 
+			"BasicPS", 
+			"ps_5_0", 
+			D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, 
+			0, 
+			&pixelShader, 
+			&error
+		);
+	
+	//パイプラインステートオブジェクト(PSO)
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsDesc	= {};
+	gpsDesc.BlendState							= CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+	gpsDesc.DepthStencilState.DepthEnable		= false;
+	gpsDesc.DepthStencilState.StencilEnable		= false;
+	gpsDesc.VS									= CD3DX12_SHADER_BYTECODE(vertexShader);
+	gpsDesc.PS									= CD3DX12_SHADER_BYTECODE(pixelShader);
+	gpsDesc.InputLayout.NumElements				= _countof(input);
+	gpsDesc.InputLayout.pInputElementDescs		= input;
+	gpsDesc.pRootSignature						= rootSignature;
+	gpsDesc.RasterizerState						= CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+	gpsDesc.RTVFormats[0]						= DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	gpsDesc.PrimitiveTopologyType				= D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	gpsDesc.SampleDesc.Count					= 1;
+	gpsDesc.NumRenderTargets					= 1;
+	gpsDesc.SampleMask							= UINT_MAX;
+	ID3D12PipelineState* piplineState			= nullptr;
+	result = dev->CreateGraphicsPipelineState(&gpsDesc, IID_PPV_ARGS(&piplineState));
+
+	//ビューポート
+	D3D12_VIEWPORT viewPort = {};
+	viewPort.Width		= WIN_WIDTH;
+	viewPort.Height		= WIN_HEIGTH;
+	viewPort.TopLeftX	= 0;
+	viewPort.TopLeftY	= 0;
+	//ここから
+	
 
 	MSG msg = {};
 	while (msg.message != WM_QUIT) {
@@ -193,8 +279,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		_commandAllocator->Reset();
 		_commandList->Reset(_commandAllocator, nullptr);
 
+
 		_commandList->SetGraphicsRootSignature(rootSignature);
 
+		//リソースバリア
+		_commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(renderTarget[swapChain->GetCurrentBackBufferIndex()], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
 		
 		UINT bbIndex = swapChain->GetCurrentBackBufferIndex();
 		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(descriptorHeap->GetCPUDescriptorHandleForHeapStart(), bbIndex, descriptorSize);
