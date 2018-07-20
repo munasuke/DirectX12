@@ -269,11 +269,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	viewPort.MinDepth	= 0.0f;
 	viewPort.MaxDepth	= 1.0f;
 
+	//ルートシグネチャをセット
 	_commandList->SetGraphicsRootSignature(rootSignature);
+	//ビューポートをセット
 	_commandList->RSSetViewports(1, &viewPort);
+	//シザーをセット
 	const D3D12_RECT rect = { 0, 0, WIN_WIDTH, WIN_HEIGTH };
 	_commandList->RSSetScissorRects(1, &rect);
-	//ここから
 	
 
 	MSG msg = {};
@@ -317,7 +319,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Release(error);
 	Release(signature);
 	Release(rootSignature);
-	for (int i = 0; i < renderTarget.size(); i++){
+	for (UINT i = 0; i < renderTarget.size(); i++){
 		Release(renderTarget[i]);
 	}
 	Release(descriptorHeap);
