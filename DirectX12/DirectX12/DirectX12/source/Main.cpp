@@ -171,16 +171,22 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//頂点構造体
 	struct VERTEX {
 		XMFLOAT3 pos;//座標
+		XMFLOAT2 uv;//uv座標
 	};
 	VERTEX vertex;
 	//頂点情報の作成
 	VERTEX vertices[] = {
-		{{0.0f, 0.0f, 0.0f}},
-		{{1.0f, 0.0f, 0.0f}},
-		{{0.0f, -1.0f, 0.0f}}
+		{{-1.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+		{{1.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
+		{{-1.0f, -1.0f, 0.0f}, {0.0f, 1.0f}},
+
+		{{1.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
+		{{1.0f, -1.0f, 0.0f}, {1.0f, 1.0f}},
+		{{-1.0f, -1.0f, 0.0f}, {0.0f, 1.0f}}
 	};
 	//頂点レイアウトの定義
 	D3D12_INPUT_ELEMENT_DESC input[] = {
+		//頂点
 		{
 			"POSITION",									//SemanticName
 			0,											//SemanticIndex
@@ -190,6 +196,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, //InputSlotClass
 			0											//InstanceDataStepRate
 		},
+		//uv
+		{
+			"TEXCOORD",
+			0,
+			DXGI_FORMAT_R32G32B32_FLOAT,
+			0,
+			D3D12_APPEND_ALIGNED_ELEMENT,
+			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,
+			0
+		}
 	};
 
 	//頂点バッファの作成
@@ -211,8 +227,80 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//頂点バッファビューの作成
 	D3D12_VERTEX_BUFFER_VIEW vbView = {};
 	vbView.BufferLocation			= vertexBuffer->GetGPUVirtualAddress();//頂点アドレスのGPUにあるアドレスを記憶
-	vbView.StrideInBytes			= sizeof(vertex);//頂点1つあたりのバイト数を指定
+	vbView.StrideInBytes			= sizeof(VERTEX);//頂点1つあたりのバイト数を指定
 	vbView.SizeInBytes				= sizeof(vertices);//データ全体のサイズを指定
+
+
+	//テクスチャリソースの作成
+	CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+	D3D12_RESOURCE_DESC texResourceDesc = {};
+	texResourceDesc.Dimension			= D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+	texResourceDesc.Width				= 256;
+	texResourceDesc.Height				= 256;
+	texResourceDesc.DepthOrArraySize	= 1;
+	texResourceDesc.Format				= DXGI_FORMAT_R8G8B8A8_UNORM;
+	texResourceDesc.SampleDesc.Count	= 1;
+	texResourceDesc.Flags				= D3D12_RESOURCE_FLAG_NONE;
+	texResourceDesc.Layout				= D3D12_TEXTURE_LAYOUT_UNKNOWN;
+
+	D3D12_HEAP_PROPERTIES hprop = {};
+	hprop.Type					= D3D12_HEAP_TYPE_CUSTOM;
+	hprop.CPUPageProperty		= D3D12_CPU_PAGE_PROPERTY_WRITE_BACK;
+	hprop.MemoryPoolPreference	= D3D12_MEMORY_POOL_L0;
+	hprop.CreationNodeMask		= 1;
+	hprop.VisibleNodeMask		= 1;
+
+	ID3D12Resource* textureBuffer = nullptr;
+	result = dev->CreateCommittedResource(
+		&hprop,
+		D3D12_HEAP_FLAG_NONE,
+		&texResourceDesc,
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(&textureBuffer)
+	);
+
+	//テクスチャの読み込み
+	BITMAPFILEHEADER bmpFileHeader = {};
+	BITMAPINFOHEADER bmpInfoHeader = {};
+	FILE* fp = nullptr;
+	if (fopen_s(&fp, "image/aoba.bmp", "rb") != 0){
+		return -1;
+	}
+	//bmpFileHeader
+	fread(&bmpFileHeader, sizeof(bmpFileHeader), 1, fp);
+	//bmpInfoHeader
+	fread(&bmpInfoHeader, sizeof(bmpInfoHeader), 1, fp);
+
+	DWORD rgb[3];
+	fread(&rgb[0], sizeof(rgb), 1, fp);
+
+	std::vector<CHAR> data;
+	data.resize(bmpInfoHeader.biSizeImage);//領域確保
+	//bmpデータをすべて読み込む
+	for(UINT i = 0; i < data.size(); ++i)
+	{
+		fread(&data[i], sizeof(UCHAR), 1, fp);
+	}
+	fclose(fp);
+
+	//テクスチャバッファへの書き込み
+	D3D12_BOX box = {};
+	box.left = 0;
+	box.top = 0;
+	box.front = 0;
+	box.right = 256;
+	box.bottom = 256;
+	box.back = 1;
+	ID3D12Resource* resource = nullptr;
+	//result = resource->WriteToSubresource(
+	//	0,
+	//	&box,
+	//	&data,
+	//	,
+	//	data.size()
+	//);
+
 
 	//シェーダーの読み込み
 	ID3DBlob* vertexShader	= nullptr;//頂点シェーダー
@@ -262,20 +350,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	//ビューポート
 	D3D12_VIEWPORT viewPort = {};
-	viewPort.TopLeftX	= 0.0f;
-	viewPort.TopLeftY	= 0.0f;
-	viewPort.Width		= WIN_WIDTH;
-	viewPort.Height		= WIN_HEIGTH;
-	viewPort.MinDepth	= 0.0f;
-	viewPort.MaxDepth	= 1.0f;
+	viewPort.TopLeftX		= 0.0f;
+	viewPort.TopLeftY		= 0.0f;
+	viewPort.Width			= WIN_WIDTH;
+	viewPort.Height			= WIN_HEIGTH;
+	viewPort.MinDepth		= 0.0f;
+	viewPort.MaxDepth		= 1.0f;
 
-	//ルートシグネチャをセット
-	_commandList->SetGraphicsRootSignature(rootSignature);
-	//ビューポートをセット
-	_commandList->RSSetViewports(1, &viewPort);
-	//シザーをセット
-	const D3D12_RECT rect = { 0, 0, WIN_WIDTH, WIN_HEIGTH };
-	_commandList->RSSetScissorRects(1, &rect);
 	
 
 	MSG msg = {};
@@ -288,17 +369,36 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		_commandAllocator->Reset();
 		_commandList->Reset(_commandAllocator, nullptr);
 
-
+		//ルートシグネチャのセット
 		_commandList->SetGraphicsRootSignature(rootSignature);
 
-		//リソースバリア
-		_commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(renderTarget[swapChain->GetCurrentBackBufferIndex()], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
+		//パイプラインのセット
+		_commandList->SetPipelineState(piplineState);
+
+		//ビューポートをセット
+		_commandList->RSSetViewports(1, &viewPort);
+		//シザーをセット
+		const D3D12_RECT rect = { 0, 0, WIN_WIDTH, WIN_HEIGTH };
+		_commandList->RSSetScissorRects(1, &rect);
+
+		//頂点バッファのセット
+		_commandList->IASetVertexBuffers(0, 1, &vbView);
 		
 		UINT bbIndex = swapChain->GetCurrentBackBufferIndex();
 		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(descriptorHeap->GetCPUDescriptorHandleForHeapStart(), bbIndex, descriptorSize);
 		_commandList->OMSetRenderTargets(1, &rtvHandle, false, nullptr);
 		const FLOAT color[] = { 0.0f, 1.0f, 0.0f, 1.0f };
 		_commandList->ClearRenderTargetView(rtvHandle, color, 0, nullptr);
+
+		//リソースバリア
+		_commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(renderTarget[swapChain->GetCurrentBackBufferIndex()], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
+		
+		//三角ポリゴン描画にする
+		_commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		
+		//頂点描画
+		_commandList->DrawInstanced(6, 1, 0, 0);
+
 		_commandList->Close();
 
 		ID3D12CommandList* commandList[] = { _commandList };
