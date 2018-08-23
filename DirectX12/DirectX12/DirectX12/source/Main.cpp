@@ -127,8 +127,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	descriptor.NodeMask = 0;
 	ID3D12DescriptorHeap* descriptorHeap = nullptr;
 	result = dev->CreateDescriptorHeap(&descriptor, IID_PPV_ARGS(&descriptorHeap));
-	//ディスクリプタヒープサイズを計算
-	UINT heapSize = dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 	//ディスクリプタハンドルの作成
 	CD3DX12_CPU_DESCRIPTOR_HANDLE descriptorHandle(descriptorHeap->GetCPUDescriptorHandleForHeapStart());
 
@@ -143,6 +141,31 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		dev->CreateRenderTargetView(renderTarget[i], nullptr, descriptorHandle);//キャンバスとビューを紐づけ
 		descriptorHandle.Offset(descriptorSize);//キャンバスとビューのぶん次のところまでオフセット
 	}
+
+	//サンプラの設定
+	D3D12_STATIC_SAMPLER_DESC samplerDesc = {};
+	samplerDesc.Filter = D3D12_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+	samplerDesc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	samplerDesc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	samplerDesc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	samplerDesc.MaxLOD = D3D12_FLOAT32_MAX;
+	samplerDesc.MinLOD = 0.0f;
+	samplerDesc.MipLODBias = 0.0f;
+	samplerDesc.BorderColor = D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK;
+	samplerDesc.ShaderRegister = 0;
+	samplerDesc.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+	samplerDesc.RegisterSpace = 0;
+	samplerDesc.MaxAnisotropy = 0;
+	samplerDesc.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
+
+	//ディスクリプタレンジの設定
+	D3D12_DESCRIPTOR_RANGE dRange[1];
+	SecureZeroMemory(&dRange, sizeof(dRange));
+
+	//ルートパラメータの設定
+	D3D12_ROOT_PARAMETER parameter[1];
+	SecureZeroMemory(&parameter, sizeof(parameter));
+	//ここから
 
 	//ルートシグネチャ
 	ID3D12RootSignature* rootSignature = nullptr;
@@ -260,6 +283,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		IID_PPV_ARGS(&textureBuffer)
 	);
 
+	ID3D12DescriptorHeap* texHeap = nullptr;
+	D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
+	heapDesc.NumDescriptors = 1;
+	heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	result = dev->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&texHeap));
+
+	D3D12_SHADER_RESOURCE_VIEW_DESC sDesc = {};
+	sDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	sDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	sDesc.Texture2D.MipLevels = 1;
+	sDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+
+	dev->CreateShaderResourceView(textureBuffer, &sDesc, texHeap->GetCPUDescriptorHandleForHeapStart());
+
 	//テクスチャの読み込み
 	BITMAPFILEHEADER bmpFileHeader = {};
 	BITMAPINFOHEADER bmpInfoHeader = {};
@@ -283,23 +320,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		fread(&data[i], sizeof(UCHAR), 1, fp);
 	}
 	fclose(fp);
-
-	//テクスチャバッファへの書き込み
-	D3D12_BOX box = {};
-	box.left = 0;
-	box.top = 0;
-	box.front = 0;
-	box.right = 256;
-	box.bottom = 256;
-	box.back = 1;
-	ID3D12Resource* resource = nullptr;
-	//result = resource->WriteToSubresource(
-	//	0,
-	//	&box,
-	//	&data,
-	//	,
-	//	data.size()
-	//);
 
 
 	//シェーダーの読み込み
@@ -395,7 +415,23 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		
 		//三角ポリゴン描画にする
 		_commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		
+
+		//テクスチャバッファへの書き込み
+		D3D12_BOX box = {};
+		box.left = 0;
+		box.top = 0;
+		box.front = 0;
+		box.right = 256;
+		box.bottom = 256;
+		box.back = 1;
+		result = textureBuffer->WriteToSubresource(
+			0,
+			&box,
+			data.data(),
+			box.right * 4,
+			box.bottom * 4
+		);
+
 		//頂点描画
 		_commandList->DrawInstanced(6, 1, 0, 0);
 
