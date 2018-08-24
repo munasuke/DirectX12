@@ -136,7 +136,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	renderTarget.resize(reanderNum);
 	//ディスクリプタ1個あたりのサイズを取得
 	UINT descriptorSize = dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-	for(int i = 0; i < reanderNum; ++i){
+	for(UINT i = 0; i < reanderNum; ++i){
 		result = swapChain->GetBuffer(i, IID_PPV_ARGS(&renderTarget[i]));//スワップチェインからキャンバスを取得
 		dev->CreateRenderTargetView(renderTarget[i], nullptr, descriptorHandle);//キャンバスとビューを紐づけ
 		descriptorHandle.Offset(descriptorSize);//キャンバスとビューのぶん次のところまでオフセット
@@ -153,7 +153,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	samplerDesc.MipLODBias = 0.0f;
 	samplerDesc.BorderColor = D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK;
 	samplerDesc.ShaderRegister = 0;
-	samplerDesc.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+	samplerDesc.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 	samplerDesc.RegisterSpace = 0;
 	samplerDesc.MaxAnisotropy = 0;
 	samplerDesc.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
@@ -165,13 +165,27 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//ルートパラメータの設定
 	D3D12_ROOT_PARAMETER parameter[1];
 	SecureZeroMemory(&parameter, sizeof(parameter));
-	//ここから
+
+	dRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	dRange[0].NumDescriptors = 1;
+	dRange[0].BaseShaderRegister = 0;
+	dRange[0].RegisterSpace = 0;
+	dRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+	parameter[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	parameter[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+	parameter[0].DescriptorTable.NumDescriptorRanges = 1;
+	parameter[0].DescriptorTable.pDescriptorRanges = &dRange[0];
 
 	//ルートシグネチャ
 	ID3D12RootSignature* rootSignature = nullptr;
 	ID3DBlob* signature = nullptr;
 	ID3DBlob* error = nullptr;
 	D3D12_ROOT_SIGNATURE_DESC rsDesc = {};
+	rsDesc.NumParameters = _countof(parameter);
+	rsDesc.NumStaticSamplers = 1;
+	rsDesc.pParameters = parameter;
+	rsDesc.pStaticSamplers = &samplerDesc;
 	rsDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 	result = D3D12SerializeRootSignature(
 		&rsDesc,
@@ -196,7 +210,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		XMFLOAT3 pos;//座標
 		XMFLOAT2 uv;//uv座標
 	};
-	VERTEX vertex;
+	
 	//頂点情報の作成
 	VERTEX vertices[] = {
 		{{-1.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
@@ -349,6 +363,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			&error
 		);
 	
+
 	//パイプラインステートオブジェクト(PSO)
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsDesc	= {};
 	gpsDesc.BlendState							= CD3DX12_BLEND_DESC(D3D12_DEFAULT);
@@ -360,7 +375,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	gpsDesc.InputLayout.pInputElementDescs		= input;
 	gpsDesc.pRootSignature						= rootSignature;
 	gpsDesc.RasterizerState						= CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-	gpsDesc.RTVFormats[0]						= DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	gpsDesc.RTVFormats[0]						= DXGI_FORMAT_R8G8B8A8_UNORM;
 	gpsDesc.PrimitiveTopologyType				= D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 	gpsDesc.SampleDesc.Count					= 1;
 	gpsDesc.NumRenderTargets					= 1;
@@ -387,7 +402,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		}
 
 		_commandAllocator->Reset();
-		_commandList->Reset(_commandAllocator, nullptr);
+		_commandList->Reset(_commandAllocator, piplineState);
 
 		//ルートシグネチャのセット
 		_commandList->SetGraphicsRootSignature(rootSignature);
@@ -401,6 +416,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		const D3D12_RECT rect = { 0, 0, WIN_WIDTH, WIN_HEIGTH };
 		_commandList->RSSetScissorRects(1, &rect);
 
+		_commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(renderTarget[swapChain->GetCurrentBackBufferIndex()], D3D12_RESOURCE_STATE_PRESENT,  D3D12_RESOURCE_STATE_RENDER_TARGET));
+
+
 		//頂点バッファのセット
 		_commandList->IASetVertexBuffers(0, 1, &vbView);
 		
@@ -409,9 +427,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		_commandList->OMSetRenderTargets(1, &rtvHandle, false, nullptr);
 		const FLOAT color[] = { 0.0f, 1.0f, 0.0f, 1.0f };
 		_commandList->ClearRenderTargetView(rtvHandle, color, 0, nullptr);
-
-		//リソースバリア
-		_commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(renderTarget[swapChain->GetCurrentBackBufferIndex()], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
 		
 		//三角ポリゴン描画にする
 		_commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -435,23 +450,33 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		//頂点描画
 		_commandList->DrawInstanced(6, 1, 0, 0);
 
+		//リソースバリア
+		_commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(renderTarget[swapChain->GetCurrentBackBufferIndex()], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
+
 		_commandList->Close();
 
 		ID3D12CommandList* commandList[] = { _commandList };
-		_commandQueue->ExecuteCommandLists(_countof(commandList), (ID3D12CommandList* const*)commandList);
+		_commandQueue->ExecuteCommandLists(_countof(commandList), commandList);
 
-		swapChain->Present(1, 0);
+
+
+		result = swapChain->Present(1, 0);
+		if (FAILED(result)) 
+		{
+
+			result = dev->GetDeviceRemovedReason();
+		}
 
 		++fenceValue;
 		_commandQueue->Signal(fence, fenceValue);
 		while (fence->GetCompletedValue() != fenceValue) {
 			//待機
 		}
-
-		
 	}
 
 	//解放
+	Release(piplineState);
+	Release(fence);
 	Release(error);
 	Release(signature);
 	Release(rootSignature);
