@@ -215,11 +215,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	VERTEX vertices[] = {
 		{{-1.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
 		{{1.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
-		{{-1.0f, -1.0f, 0.0f}, {0.0f, 1.0f}},
-
-		{{1.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
 		{{1.0f, -1.0f, 0.0f}, {1.0f, 1.0f}},
-		{{-1.0f, -1.0f, 0.0f}, {0.0f, 1.0f}}
+
+		{{1.0f, -1.0f, 0.0f}, {1.0f, 1.0f}},
+		{{-1.0f, -1.0f, 0.0f}, {0.0f, 1.0f}},
+		{{-1.0f, 1.0f, 0.0f}, {0.0f, 0.0f}}
 	};
 	//頂点レイアウトの定義
 	D3D12_INPUT_ELEMENT_DESC input[] = {
@@ -297,12 +297,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		IID_PPV_ARGS(&textureBuffer)
 	);
 
-	ID3D12DescriptorHeap* texHeap = nullptr;
+	//シェーダリソースビューの作成
 	D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
 	heapDesc.NumDescriptors = 1;
 	heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	ID3D12DescriptorHeap* texHeap = nullptr;
 	result = dev->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&texHeap));
 
+	UINT stride = dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	D3D12_SHADER_RESOURCE_VIEW_DESC sDesc = {};
 	sDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	sDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
@@ -327,11 +330,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	fread(&rgb[0], sizeof(rgb), 1, fp);
 
 	std::vector<CHAR> data;
-	data.resize(bmpInfoHeader.biSizeImage);//領域確保
+	data.resize(bmpInfoHeader.biWidth * bmpInfoHeader.biHeight * 4);//領域確保
 	//bmpデータをすべて読み込む
-	for(UINT i = 0; i < data.size(); ++i)
-	{
-		fread(&data[i], sizeof(UCHAR), 1, fp);
+	for(INT line = bmpInfoHeader.biHeight - 1; line >= 0; --line) {//下から1ラインずつ上がる
+		for (INT count = 0; count < bmpInfoHeader.biWidth * 4; count += 4){//左から右へ
+			UINT address = line * bmpInfoHeader.biWidth * 4;
+			data[address + count] = 0;
+			fread(&data[address + count + 1], sizeof(UCHAR), 3, fp);
+		}
 	}
 	fclose(fp);
 
@@ -394,6 +400,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	
 
+	//ループ
 	MSG msg = {};
 	while (msg.message != WM_QUIT) {
 		if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {//OSから投げられてるメッセージをmsgに格納
@@ -416,7 +423,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		const D3D12_RECT rect = { 0, 0, WIN_WIDTH, WIN_HEIGTH };
 		_commandList->RSSetScissorRects(1, &rect);
 
-		_commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(renderTarget[swapChain->GetCurrentBackBufferIndex()], D3D12_RESOURCE_STATE_PRESENT,  D3D12_RESOURCE_STATE_RENDER_TARGET));
+		//シェーダリソースビュー用のデスクリプタをセット
+		_commandList->SetDescriptorHeaps(1, (ID3D12DescriptorHeap* const*)&texHeap);
+		_commandList->SetGraphicsRootDescriptorTable(0, texHeap->GetGPUDescriptorHandleForHeapStart());
+
+		_commandList->ResourceBarrier(
+			1,
+			&CD3DX12_RESOURCE_BARRIER::Transition(renderTarget[swapChain->GetCurrentBackBufferIndex()], D3D12_RESOURCE_STATE_PRESENT,  D3D12_RESOURCE_STATE_RENDER_TARGET)
+		);
 
 
 		//頂点バッファのセット
@@ -451,7 +465,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		_commandList->DrawInstanced(6, 1, 0, 0);
 
 		//リソースバリア
-		_commandList->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(renderTarget[swapChain->GetCurrentBackBufferIndex()], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
+		_commandList->ResourceBarrier(
+			1,
+			&CD3DX12_RESOURCE_BARRIER::Transition(textureBuffer, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE)
+		);
 
 		_commandList->Close();
 
@@ -467,8 +484,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			result = dev->GetDeviceRemovedReason();
 		}
 
-		++fenceValue;
-		_commandQueue->Signal(fence, fenceValue);
+		_commandQueue->Signal(fence, ++fenceValue);
 		while (fence->GetCompletedValue() != fenceValue) {
 			//待機
 		}
