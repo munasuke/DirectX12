@@ -213,13 +213,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	
 	//頂点情報の作成
 	VERTEX vertices[] = {
-		{{-1.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
-		{{1.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},
-		{{1.0f, -1.0f, 0.0f}, {1.0f, 1.0f}},
+		{{-0.7f,  0.7f, 0.0f}, {0.0f, 0.0f}},
+		{{ 0.7f,  0.7f, 0.0f}, {1.0f, 0.0f}},
+		{{ 0.7f, -0.7f, 0.0f}, {1.0f, 1.0f}},
 
-		{{1.0f, -1.0f, 0.0f}, {1.0f, 1.0f}},
-		{{-1.0f, -1.0f, 0.0f}, {0.0f, 1.0f}},
-		{{-1.0f, 1.0f, 0.0f}, {0.0f, 0.0f}}
+		{{ 0.7f, -0.7f, 0.0f}, {1.0f, 1.0f}},
+		{{-0.7f, -0.7f, 0.0f}, {0.0f, 1.0f}},
+		{{-0.7f,  0.7f, 0.0f}, {0.0f, 0.0f}}
 	};
 	//頂点レイアウトの定義
 	D3D12_INPUT_ELEMENT_DESC input[] = {
@@ -330,13 +330,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	fread(&rgb[0], sizeof(rgb), 1, fp);
 
 	std::vector<CHAR> data;
-	data.resize(bmpInfoHeader.biWidth * bmpInfoHeader.biHeight * 4);//領域確保
+	data.resize(bmpInfoHeader.biSizeImage);//領域確保
 	//bmpデータをすべて読み込む
 	for(INT line = bmpInfoHeader.biHeight - 1; line >= 0; --line) {//下から1ラインずつ上がる
 		for (INT count = 0; count < bmpInfoHeader.biWidth * 4; count += 4){//左から右へ
 			UINT address = line * bmpInfoHeader.biWidth * 4;
-			data[address + count] = 0;
-			fread(&data[address + count + 1], sizeof(UCHAR), 3, fp);
+			fread(&data[address + count], sizeof(UCHAR), 4, fp);
 		}
 	}
 	fclose(fp);
