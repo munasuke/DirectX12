@@ -22,11 +22,11 @@ using namespace DirectX;
 LRESULT WindowProcedure(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
-	WNDCLASSEX w = {};
-	w.cbSize = sizeof(WNDCLASSEX);
-	w.lpfnWndProc = (WNDPROC)WindowProcedure;//コールバック関数の指定
+	WNDCLASSEX w	= {};
+	w.cbSize		= sizeof(WNDCLASSEX);
+	w.lpfnWndProc	= (WNDPROC)WindowProcedure;//コールバック関数の指定
 	w.lpszClassName = _T("DirectX12");//アプリケーションクラス名
-	w.hInstance = GetModuleHandle(0);//ハンドルの取得
+	w.hInstance		= GetModuleHandle(0);//ハンドルの取得
 	RegisterClassEx(&w);//アプリケーションクラス
 
 	//ウィンドウサイズ設定
@@ -57,12 +57,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		D3D_FEATURE_LEVEL_11_0
 	};
 	D3D_FEATURE_LEVEL level = {};
-	ID3D12Device* dev = nullptr;
-	HRESULT result = S_OK;
+	ID3D12Device* dev		= nullptr;
+	HRESULT result			= S_OK;
 	//エラーを出力に表示させる
 #ifdef _DEBUG
-	ID3D12Debug *debug = nullptr;
-	result = D3D12GetDebugInterface(IID_PPV_ARGS(&debug));
+	ID3D12Debug *debug	= nullptr;
+	result				= D3D12GetDebugInterface(IID_PPV_ARGS(&debug));
 	if (FAILED(result))
 		int i = 0;
 	debug->EnableDebugLayer();
@@ -87,28 +87,28 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	result = dev->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, _commandAllocator, nullptr, IID_PPV_ARGS(&_commandList));
 	_commandList->Close();
 	//コマンドキューの作成
-	D3D12_COMMAND_QUEUE_DESC desc = {};
-	desc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
-	desc.NodeMask = 0;
-	desc.Priority = 0;
-	desc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
+	D3D12_COMMAND_QUEUE_DESC desc	= {};
+	desc.Flags						= D3D12_COMMAND_QUEUE_FLAG_NONE;
+	desc.NodeMask					= 0;
+	desc.Priority					= 0;
+	desc.Type						= D3D12_COMMAND_LIST_TYPE_DIRECT;
 	result = dev->CreateCommandQueue(&desc, IID_PPV_ARGS(&_commandQueue));
 
 	//スワップチェイン周り
 	IDXGIFactory4* factory = nullptr;
 	result = CreateDXGIFactory1(IID_PPV_ARGS(&factory));
 	DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
-	swapChainDesc.Width = WIN_WIDTH;
-	swapChainDesc.Height = WIN_HEIGTH;
-	swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	swapChainDesc.Stereo = 0;
-	swapChainDesc.SampleDesc.Count = 1;
-	swapChainDesc.SampleDesc.Quality = 0;
-	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	swapChainDesc.BufferCount = 2;
-	swapChainDesc.Scaling = DXGI_SCALING_STRETCH;
-	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-	swapChainDesc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
+	swapChainDesc.Width					= WIN_WIDTH;
+	swapChainDesc.Height				= WIN_HEIGTH;
+	swapChainDesc.Format				= DXGI_FORMAT_R8G8B8A8_UNORM;
+	swapChainDesc.Stereo				= 0;
+	swapChainDesc.SampleDesc.Count		= 1;
+	swapChainDesc.SampleDesc.Quality	= 0;
+	swapChainDesc.BufferUsage			= DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	swapChainDesc.BufferCount			= 2;
+	swapChainDesc.Scaling				= DXGI_SCALING_STRETCH;
+	swapChainDesc.SwapEffect			= DXGI_SWAP_EFFECT_FLIP_DISCARD;
+	swapChainDesc.AlphaMode				= DXGI_ALPHA_MODE_UNSPECIFIED;
 	IDXGISwapChain3* swapChain = nullptr;
 	result = factory->CreateSwapChainForHwnd(_commandQueue,
 		hwnd,
@@ -120,11 +120,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	UINT reanderNum = swapChainDesc.BufferCount;
 
 	//ディスクリプタヒープの作成
-	D3D12_DESCRIPTOR_HEAP_DESC descriptor = {};
-	descriptor.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-	descriptor.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-	descriptor.NumDescriptors = 2;
-	descriptor.NodeMask = 0;
+	D3D12_DESCRIPTOR_HEAP_DESC descriptor	= {};
+	descriptor.Type							= D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+	descriptor.Flags						= D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+	descriptor.NumDescriptors				= 2;
+	descriptor.NodeMask						= 0;
 	ID3D12DescriptorHeap* descriptorHeap = nullptr;
 	result = dev->CreateDescriptorHeap(&descriptor, IID_PPV_ARGS(&descriptorHeap));
 	//ディスクリプタハンドルの作成
@@ -143,20 +143,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	}
 
 	//サンプラの設定
-	D3D12_STATIC_SAMPLER_DESC samplerDesc = {};
-	samplerDesc.Filter = D3D12_FILTER_MIN_MAG_LINEAR_MIP_POINT;
-	samplerDesc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	samplerDesc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	samplerDesc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-	samplerDesc.MaxLOD = D3D12_FLOAT32_MAX;
-	samplerDesc.MinLOD = 0.0f;
-	samplerDesc.MipLODBias = 0.0f;
-	samplerDesc.BorderColor = D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK;
-	samplerDesc.ShaderRegister = 0;
-	samplerDesc.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	samplerDesc.RegisterSpace = 0;
-	samplerDesc.MaxAnisotropy = 0;
-	samplerDesc.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
+	D3D12_STATIC_SAMPLER_DESC samplerDesc	= {};
+	samplerDesc.Filter						= D3D12_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+	samplerDesc.AddressU					= D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	samplerDesc.AddressV					= D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	samplerDesc.AddressW					= D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	samplerDesc.MaxLOD						= D3D12_FLOAT32_MAX;
+	samplerDesc.MinLOD						= 0.0f;
+	samplerDesc.MipLODBias					= 0.0f;
+	samplerDesc.BorderColor					= D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK;
+	samplerDesc.ShaderRegister				= 0;
+	samplerDesc.ShaderVisibility			= D3D12_SHADER_VISIBILITY_PIXEL;
+	samplerDesc.RegisterSpace				= 0;
+	samplerDesc.MaxAnisotropy				= 0;
+	samplerDesc.ComparisonFunc				= D3D12_COMPARISON_FUNC_NEVER;
 
 	//ディスクリプタレンジの設定
 	D3D12_DESCRIPTOR_RANGE dRange[1];
@@ -166,27 +166,27 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	D3D12_ROOT_PARAMETER parameter[1];
 	SecureZeroMemory(&parameter, sizeof(parameter));
 
-	dRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-	dRange[0].NumDescriptors = 1;
-	dRange[0].BaseShaderRegister = 0;
-	dRange[0].RegisterSpace = 0;
+	dRange[0].RangeType							= D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	dRange[0].NumDescriptors					= 1;
+	dRange[0].BaseShaderRegister				= 0;
+	dRange[0].RegisterSpace						= 0;
 	dRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	parameter[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	parameter[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-	parameter[0].DescriptorTable.NumDescriptorRanges = 1;
-	parameter[0].DescriptorTable.pDescriptorRanges = &dRange[0];
+	parameter[0].ParameterType							= D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	parameter[0].ShaderVisibility						= D3D12_SHADER_VISIBILITY_ALL;
+	parameter[0].DescriptorTable.NumDescriptorRanges	= 1;
+	parameter[0].DescriptorTable.pDescriptorRanges		= &dRange[0];
 
 	//ルートシグネチャ
-	ID3D12RootSignature* rootSignature = nullptr;
-	ID3DBlob* signature = nullptr;
-	ID3DBlob* error = nullptr;
-	D3D12_ROOT_SIGNATURE_DESC rsDesc = {};
-	rsDesc.NumParameters = _countof(parameter);
-	rsDesc.NumStaticSamplers = 1;
-	rsDesc.pParameters = parameter;
-	rsDesc.pStaticSamplers = &samplerDesc;
-	rsDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+	ID3D12RootSignature* rootSignature	= nullptr;
+	ID3DBlob* signature					= nullptr;
+	ID3DBlob* error						= nullptr;
+	D3D12_ROOT_SIGNATURE_DESC rsDesc	= {};
+	rsDesc.NumParameters				= _countof(parameter);
+	rsDesc.NumStaticSamplers			= 1;
+	rsDesc.pParameters					= parameter;
+	rsDesc.pStaticSamplers				= &samplerDesc;
+	rsDesc.Flags						= D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 	result = D3D12SerializeRootSignature(
 		&rsDesc,
 		D3D_ROOT_SIGNATURE_VERSION_1,
@@ -201,8 +201,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	);
 
 	//フェンス
-	ID3D12Fence* fence = nullptr;
-	UINT64 fenceValue = 0;
+	ID3D12Fence* fence	= nullptr;
+	UINT64 fenceValue	= 0;
 	result = dev->CreateFence(fenceValue, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence));
 
 	//頂点構造体
@@ -299,18 +299,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	//シェーダリソースビューの作成
 	D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
-	heapDesc.NumDescriptors = 1;
-	heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-	heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	heapDesc.NumDescriptors				= 1;
+	heapDesc.Type						= D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	heapDesc.Flags						= D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+
 	ID3D12DescriptorHeap* texHeap = nullptr;
 	result = dev->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&texHeap));
 
 	UINT stride = dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-	D3D12_SHADER_RESOURCE_VIEW_DESC sDesc = {};
-	sDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	sDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-	sDesc.Texture2D.MipLevels = 1;
-	sDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	D3D12_SHADER_RESOURCE_VIEW_DESC sDesc	= {};
+	sDesc.Format							= DXGI_FORMAT_R8G8B8A8_UNORM;
+	sDesc.ViewDimension						= D3D12_SRV_DIMENSION_TEXTURE2D;
+	sDesc.Texture2D.MipLevels				= 1;
+	sDesc.Shader4ComponentMapping			= D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 
 	dev->CreateShaderResourceView(textureBuffer, &sDesc, texHeap->GetCPUDescriptorHandleForHeapStart());
 
@@ -438,20 +439,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		UINT bbIndex = swapChain->GetCurrentBackBufferIndex();
 		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(descriptorHeap->GetCPUDescriptorHandleForHeapStart(), bbIndex, descriptorSize);
 		_commandList->OMSetRenderTargets(1, &rtvHandle, false, nullptr);
-		const FLOAT color[] = { 0.0f, 1.0f, 0.0f, 1.0f };
+		const FLOAT color[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 		_commandList->ClearRenderTargetView(rtvHandle, color, 0, nullptr);
 		
 		//三角ポリゴン描画にする
 		_commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 		//テクスチャバッファへの書き込み
-		D3D12_BOX box = {};
-		box.left = 0;
-		box.top = 0;
-		box.front = 0;
-		box.right = 256;
-		box.bottom = 256;
-		box.back = 1;
+		D3D12_BOX box	= {};
+		box.left		= 0;
+		box.top			= 0;
+		box.front		= 0;
+		box.right		= 256;
+		box.bottom		= 256;
+		box.back		= 1;
 		result = textureBuffer->WriteToSubresource(
 			0,
 			&box,
