@@ -398,8 +398,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	viewPort.MinDepth		= 0.0f;
 	viewPort.MaxDepth		= 1.0f;
 
-	//行列
-	XMMATRIX matrix = XMMatrixIdentity();//単位行列で初期化
+
+	//ワールド行列
+	XMMATRIX world = XMMatrixIdentity();//単位行列で初期化
 
 	XMVECTOR eye = { 0.0f, 0.0f, -10.0f };//視点
 	XMVECTOR target = { 0.0f, 0.0f, 0.0f };//注視点
@@ -408,7 +409,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//ビュー行列
 	XMMATRIX camera = XMMatrixLookAtLH(eye, target, upper);
 	//プロジェクション行列
-	//XMMATRIX pMatrix = XMMatrixPerspectiveFovLH(0.0f, )
+	XMMATRIX projection = XMMatrixPerspectiveFovLH(0.0f, static_cast<float>(WIN_HEIGTH / WIN_WIDTH), 0.01f, 1000.0f);
+
+	//行列の合成
+	XMMATRIX matrix = world * camera * projection;
 
 
 	//ループ
