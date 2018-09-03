@@ -6,9 +6,6 @@
 
 ///--------------------
 
-namespace{
-}
-
 Application::Application() {
 }
 

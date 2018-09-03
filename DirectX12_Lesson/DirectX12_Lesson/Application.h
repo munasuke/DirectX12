@@ -1,5 +1,4 @@
 #pragma once
-#include <Windows.h>
 
 class Application {
 public:
@@ -17,8 +16,5 @@ private:
 	Application();							//ê∂ê¨ã÷é~
 	Application(const Application&);		//ÉRÉsÅ[ã÷é~
 	void operator=(const Application&) {};	//ë„ì¸ã÷é~
-
-
-	WNDCLASSEX w;
 };
 
