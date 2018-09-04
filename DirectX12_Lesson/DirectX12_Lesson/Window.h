@@ -7,6 +7,10 @@
 class Window {
 public:
 	Window();
+
+	void InitWindow();//ウィンドウ初期化
+	void Show();//ウィンドウ表示
+
 	~Window();
 private:
 	WNDCLASSEX w = {};

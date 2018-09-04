@@ -13,13 +13,16 @@ LRESULT WindowProcedure(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
 }
 
 Window::Window() {
+}
+
+void Window::InitWindow() {
 	w.cbSize		= sizeof(WNDCLASSEX);
 	w.lpfnWndProc	= (WNDPROC)WindowProcedure;	//コールバック関数の指定
 	w.lpszClassName	= _T("DirectX12");			//アプリケーションクラス名
 	w.hInstance		= GetModuleHandle(0);		//ハンドルの取得
 	RegisterClassEx(&w);						//OSに伝える
 
-	//ウィンドウサイズの補正
+												//ウィンドウサイズの補正
 	AdjustWindowRect(&wrc, WS_OVERLAPPEDWINDOW, false);
 	//ウィンドウ生成
 	hwnd = CreateWindow(
@@ -35,11 +38,28 @@ Window::Window() {
 		w.hInstance,			//呼び出しアプリケーションハンドル
 		nullptr					//追加パラメータ
 	);
-	
+
+	//失敗キャッチ
 	if (hwnd == nullptr){
-		
+		LPVOID messageBuffer = nullptr;
+		FormatMessage(
+			FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+			nullptr,
+			GetLastError(),
+			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+			(LPWSTR)messageBuffer,
+			0,
+			nullptr
+		);
 	}
 }
 
-Window::~Window() {
+void Window::Show() {
+	//ウィンドウ表示
+	ShowWindow(hwnd, SW_SHOW);
 }
+
+Window::~Window() {
+	UnregisterClass(w.lpszClassName, w.hInstance);//登録解除
+}
+

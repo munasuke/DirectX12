@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 
 class Application {
 public:
@@ -16,5 +17,7 @@ private:
 	Application();							//ê∂ê¨ã÷é~
 	Application(const Application&);		//ÉRÉsÅ[ã÷é~
 	void operator=(const Application&) {};	//ë„ì¸ã÷é~
+
+	std::shared_ptr<Window> window;
 };
 
