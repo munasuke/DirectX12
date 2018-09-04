@@ -36,6 +36,9 @@ Window::Window() {
 		nullptr					//’Ç‰Áƒpƒ‰ƒ[ƒ^
 	);
 	
+	if (hwnd == nullptr){
+		
+	}
 }
 
 Window::~Window() {
