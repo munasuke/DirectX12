@@ -8,7 +8,6 @@ namespace{
 Application::Application() {
 }
 
-
 void Application::Initialize() {
 	window = std::make_shared<Window>();
 	window->InitWindow();

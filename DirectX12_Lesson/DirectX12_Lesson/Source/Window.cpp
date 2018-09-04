@@ -22,7 +22,7 @@ void Window::InitWindow() {
 	w.hInstance		= GetModuleHandle(0);		//ハンドルの取得
 	RegisterClassEx(&w);						//OSに伝える
 
-												//ウィンドウサイズの補正
+	//ウィンドウサイズの補正
 	AdjustWindowRect(&wrc, WS_OVERLAPPEDWINDOW, false);
 	//ウィンドウ生成
 	hwnd = CreateWindow(
@@ -39,9 +39,10 @@ void Window::InitWindow() {
 		nullptr					//追加パラメータ
 	);
 
-	//失敗キャッチ
+	//失敗をキャッチ
 	if (hwnd == nullptr){
 		LPVOID messageBuffer = nullptr;
+		//エラーが起きたらコマンドプロンプトに出力
 		FormatMessage(
 			FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
 			nullptr,
@@ -60,6 +61,7 @@ void Window::Show() {
 }
 
 Window::~Window() {
-	UnregisterClass(w.lpszClassName, w.hInstance);//登録解除
+	//登録解除
+	UnregisterClass(w.lpszClassName, w.hInstance);
 }
 

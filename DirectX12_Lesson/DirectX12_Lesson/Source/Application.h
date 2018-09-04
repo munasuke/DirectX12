@@ -1,6 +1,8 @@
 #pragma once
 #include <memory>
 
+class Window;
+
 class Application {
 public:
 	static Application& Instance(){
@@ -18,6 +20,6 @@ private:
 	Application(const Application&);		//コピー禁止
 	void operator=(const Application&) {};	//代入禁止
 
-	std::shared_ptr<Window> window;
+	std::shared_ptr<Window> window;//ウィンドウ
 };
 
