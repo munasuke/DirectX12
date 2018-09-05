@@ -414,6 +414,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//行列の合成
 	XMMATRIX matrix = world * camera * projection;
 
+	//定数バッファの作成
+	ID3D12Resource* constantBuffer = nullptr;
+
+	D3D12_DESCRIPTOR_HEAP_DESC cbvHeapDesc	= {};
+	cbvHeapDesc.NumDescriptors				= 1;
+	cbvHeapDesc.Flags						= D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;//シェーダから見えるようにする
+	cbvHeapDesc.Type						= D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;	//コンスタントバッファ
+	ID3D12DescriptorHeap* cbvDescHeap = nullptr;
+	result = dev->CreateDescriptorHeap(&cbvHeapDesc, IID_PPV_ARGS(&cbvDescHeap));
+
+	D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
+	D3D12_HEAP_PROPERTIES heapProperties = {};
+
 
 	//ループ
 	MSG msg = {};
