@@ -8,9 +8,10 @@ int main(){
 
 	cout << "‚Ô‚½" << endl;
 
-	Application::Instance().Initialize();
-	Application::Instance().Run();
-	Application::Instance().Terminate();
+	auto& app = Application::Instance();
+	app.Initialize();
+	app.Run();
+	app.Terminate();
 
 	return 0;
 }

@@ -2,6 +2,8 @@
 #include <memory>
 
 class Window;
+class Device;
+class Command;
 
 class Application {
 public:
@@ -21,5 +23,7 @@ private:
 	void operator=(const Application&) {};	//代入禁止
 
 	std::shared_ptr<Window> window;//ウィンドウ
+	std::shared_ptr<Device> device;
+	std::shared_ptr<Command> command;
 };
 

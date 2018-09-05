@@ -1,8 +1,8 @@
 #pragma once
 #include <Windows.h>
 
-constexpr int WIN_WIDTH		= 640;
-constexpr int WIN_HEIGHT = 480;
+constexpr int WIN_WIDTH		= 1280;
+constexpr int WIN_HEIGHT	= 720;
 
 class Window {
 public:
