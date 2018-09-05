@@ -2,9 +2,9 @@
 #include <d3d12.h>
 
 //コマンド周り
-class Command {
+class Command : public Result {
 public:
-	Command(ID3D12Device* _dev, HRESULT _result);
+	Command(ID3D12Device* _dev);
 	~Command();
 private:
 	ID3D12CommandAllocator*		commandAllocator;//コマンドアロケータ

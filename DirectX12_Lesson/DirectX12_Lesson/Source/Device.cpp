@@ -1,3 +1,4 @@
+#include "Result.h"
 #include "Device.h"
 #include <d3d12.h>
 #include <dxgi1_4.h>
@@ -14,9 +15,8 @@ namespace{
 	};
 	D3D_FEATURE_LEVEL level = {};
 }
-#define Release(X)	{if((X) != nullptr) (X)->Release();}
 
-Device::Device() : dev(nullptr), result(S_OK)
+Device::Device() : dev(nullptr)
 {
 	//エラーを出力に表示させる
 #ifdef _DEBUG

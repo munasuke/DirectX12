@@ -1,5 +1,6 @@
 #include "Application.h"
 #include "Window.h"
+#include "Result.h"
 #include "Device.h"
 #include "Command.h"
 
@@ -10,7 +11,7 @@ namespace{
 Application::Application() {
 	window = std::make_shared<Window>();
 	device = std::make_shared<Device>();
-	command = std::make_shared<Command>(device->dev, device->result);
+	command = std::make_shared<Command>(device->dev);
 }
 
 void Application::Initialize() {
