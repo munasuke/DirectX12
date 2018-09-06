@@ -38,6 +38,11 @@ Device::Device() : dev(nullptr)
 	}
 }
 
+ID3D12Device * Device::GetDevice() {
+	return dev;
+}
+
 
 Device::~Device() {
+	Release(dev);
 }

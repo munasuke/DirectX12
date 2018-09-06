@@ -3,6 +3,8 @@
 #include "Result.h"
 #include "Device.h"
 #include "Command.h"
+#include "SwapChain.h"
+#include "Descriptor.h"
 
 namespace{
 	MSG msg = {};
@@ -11,13 +13,20 @@ namespace{
 Application::Application() {
 	window = std::make_shared<Window>();
 	device = std::make_shared<Device>();
-	command = std::make_shared<Command>(device->dev);
+	command = std::make_shared<Command>();
+	swapChain = std::make_shared<SwapChain>();
+	descriptor = std::make_shared<Descriptor>();
 }
 
+//初期化
 void Application::Initialize() {
 	window->InitWindow();
+	command->InitCommand(device->GetDevice());
+	swapChain->InitSwapChain(command->GetCommandQueue(), window->GetHandleWindow());
+	descriptor->InitDescriptor(device->GetDevice());
 }
 
+//メインループ
 void Application::Run() {
 	window->Show();
 	while(msg.message != WM_QUIT){
@@ -25,9 +34,15 @@ void Application::Run() {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
+		command->GetCommandAllocator()->Reset();
+
+		//ゲームの処理
+		//ゲームの進行
+		//描画処理
 	}
 }
 
+//終了
 void Application::Terminate() {
 }
 

@@ -60,6 +60,10 @@ void Window::Show() {
 	ShowWindow(hwnd, SW_SHOW);
 }
 
+HWND Window::GetHandleWindow() {
+	return hwnd;
+}
+
 Window::~Window() {
 	//ìoò^âèú
 	UnregisterClass(w.lpszClassName, w.hInstance);

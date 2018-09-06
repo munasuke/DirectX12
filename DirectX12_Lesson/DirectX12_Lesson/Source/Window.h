@@ -11,6 +11,8 @@ public:
 	void InitWindow();	//初期化
 	void Show();		//表示
 
+	HWND GetHandleWindow();//ウィンドウハンドルを返す
+
 	~Window();
 private:
 	//ウィンドウ
