@@ -2,11 +2,9 @@
 #include <Windows.h>
 #include <iostream>
 
-using namespace std;
-
 int main(){
 
-	cout << "‚Ô‚½" << endl;
+	std::cout << "‚Ô‚½" << std::endl;
 
 	auto& app = Application::Instance();
 	app.Initialize();

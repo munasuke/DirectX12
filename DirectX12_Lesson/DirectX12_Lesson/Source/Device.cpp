@@ -7,6 +7,7 @@
 #pragma comment(lib,"dxgi.lib")
 
 namespace{
+	//フューチャーレベル
 	D3D_FEATURE_LEVEL levels[] = {
 		D3D_FEATURE_LEVEL_12_1,
 		D3D_FEATURE_LEVEL_12_0,

@@ -32,6 +32,16 @@ void SwapChain::InitSwapChain(ID3D12CommandQueue* _commandQueue, HWND _hwnd) {
 		(IDXGISwapChain1**)(&swapChain));
 }
 
+DXGI_SWAP_CHAIN_DESC1 SwapChain::GetSwapChainDesc()
+{
+	return swapChainDesc;
+}
+
+IDXGISwapChain3 * SwapChain::GetSwapChain()
+{
+	return swapChain;
+}
+
 
 SwapChain::~SwapChain() {
 	Release(swapChain);

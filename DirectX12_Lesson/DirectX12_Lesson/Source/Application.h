@@ -6,6 +6,8 @@ class Device;
 class Command;
 class SwapChain;
 class Descriptor;
+class RenderTarget;
+class Sampler;
 
 class Application {
 public:
@@ -24,10 +26,12 @@ private:
 	Application(const Application&);		//コピー禁止
 	void operator=(const Application&) {};	//代入禁止
 
-	std::shared_ptr<Window> window;			//ウィンドウ
-	std::shared_ptr<Device> device;			//デバイス
-	std::shared_ptr<Command> command;		//コマンド
-	std::shared_ptr<SwapChain> swapChain;	//スワップチェイン
-	std::shared_ptr<Descriptor> descriptor;
+	std::shared_ptr<Window> window;				//ウィンドウ
+	std::shared_ptr<Device> device;				//デバイス
+	std::shared_ptr<Command> command;			//コマンド
+	std::shared_ptr<SwapChain> swapChain;		//スワップチェイン
+	std::shared_ptr<Descriptor> descriptor;		//デスクリプタ
+	std::shared_ptr<RenderTarget> renderTarget;	//レンダーターゲット
+	std::shared_ptr<Sampler> sampler;			//サンプラ
 };
 

@@ -5,17 +5,20 @@
 #include "Command.h"
 #include "SwapChain.h"
 #include "Descriptor.h"
+#include "RenderTarget.h"
+#include "Sampler.h"
 
 namespace{
 	MSG msg = {};
 }
 
 Application::Application() {
-	window = std::make_shared<Window>();
-	device = std::make_shared<Device>();
-	command = std::make_shared<Command>();
-	swapChain = std::make_shared<SwapChain>();
-	descriptor = std::make_shared<Descriptor>();
+	window			= std::make_shared<Window>();
+	device			= std::make_shared<Device>();
+	command			= std::make_shared<Command>();
+	swapChain		= std::make_shared<SwapChain>();
+	descriptor		= std::make_shared<Descriptor>();
+	renderTarget	= std::make_shared<RenderTarget>();
 }
 
 //‰Šú‰»
@@ -24,6 +27,8 @@ void Application::Initialize() {
 	command->InitCommand(device->GetDevice());
 	swapChain->InitSwapChain(command->GetCommandQueue(), window->GetHandleWindow());
 	descriptor->InitDescriptor(device->GetDevice());
+	renderTarget->InitRenderTarget(swapChain->GetSwapChainDesc().BufferCount, device->GetDevice(), swapChain->GetSwapChain(), descriptor->GetDescriptorHandle(), descriptor->GetDescriptorSize());
+	sampler->InitSampler();
 }
 
 //ƒƒCƒ“ƒ‹[ƒv

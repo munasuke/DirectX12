@@ -5,6 +5,8 @@ public:
 	Descriptor();
 
 	void InitDescriptor(ID3D12Device* _dev);//èâä˙âª
+	CD3DX12_CPU_DESCRIPTOR_HANDLE GetDescriptorHandle();
+	UINT GetDescriptorSize();
 
 	~Descriptor();
 private:

@@ -8,6 +8,8 @@ public:
 	SwapChain();
 
 	void InitSwapChain(ID3D12CommandQueue* _commandQueue, HWND _hwnd);//èâä˙âª
+	DXGI_SWAP_CHAIN_DESC1 GetSwapChainDesc();
+	IDXGISwapChain3* GetSwapChain();
 
 	~SwapChain();
 private:
