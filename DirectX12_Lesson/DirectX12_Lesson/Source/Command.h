@@ -8,9 +8,11 @@ public:
 
 	void InitCommand(ID3D12Device* _dev);//初期化
 
-	ID3D12CommandAllocator* GetCommandAllocator();	//コマンドアロケータを返す
-	ID3D12CommandQueue* GetCommandQueue();			//コマンドキューを返す
-	ID3D12GraphicsCommandList* GetCommandList();	//コマンドリストを返す
+	void Execute();
+
+	ID3D12CommandAllocator*		GetCommandAllocator();	//コマンドアロケータを返す
+	ID3D12CommandQueue*			GetCommandQueue();		//コマンドキューを返す
+	ID3D12GraphicsCommandList*	GetCommandList();		//コマンドリストを返す
 
 	~Command();
 private:

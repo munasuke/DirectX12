@@ -22,6 +22,11 @@ void Command::InitCommand(ID3D12Device* _dev) {
 	result = _dev->CreateCommandQueue(&desc, IID_PPV_ARGS(&commandQueue));
 }
 
+void Command::Execute() {
+	ID3D12CommandList* commandLists[] = { commandList };
+	commandQueue->ExecuteCommandLists(_countof(commandLists), commandLists);
+}
+
 ID3D12CommandAllocator * Command::GetCommandAllocator() {
 	return commandAllocator;
 }

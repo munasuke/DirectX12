@@ -8,6 +8,7 @@ public:
 	Sampler();
 
 	void InitSampler();
+	D3D12_STATIC_SAMPLER_DESC GetSamplerDesc();
 
 	~Sampler();
 private:

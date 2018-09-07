@@ -8,6 +8,10 @@ class SwapChain;
 class Descriptor;
 class RenderTarget;
 class Sampler;
+class DescriptorRange;
+class Parameter;
+class RootSignature;
+class Fence;
 
 class Application {
 public:
@@ -33,5 +37,9 @@ private:
 	std::shared_ptr<Descriptor> descriptor;		//デスクリプタ
 	std::shared_ptr<RenderTarget> renderTarget;	//レンダーターゲット
 	std::shared_ptr<Sampler> sampler;			//サンプラ
+	std::shared_ptr<DescriptorRange> dRange;	//デスクリプタレンジ
+	std::shared_ptr<Parameter> parameter;		//パラメータ
+	std::shared_ptr<RootSignature> root;		//ルートシグネチャ
+	std::shared_ptr<Fence> fence;				//フェンス
 };
 
