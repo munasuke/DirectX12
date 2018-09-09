@@ -11,6 +11,8 @@
 #include "Parameter.h"
 #include "RootSignature.h"
 #include "Fence.h"
+#include "Vertex.h"
+#include "TextureResource.h"
 
 namespace{
 	MSG msg = {};
@@ -24,24 +26,35 @@ Application::Application() {
 	descriptor		= std::make_shared<Descriptor>();
 	renderTarget	= std::make_shared<RenderTarget>();
 	sampler			= std::make_shared<Sampler>();
-	dRange			= std::make_shared<DescriptorRange>();
-	parameter		= std::make_shared<Parameter>();
 	root			= std::make_shared<RootSignature>();
 	fence			= std::make_shared<Fence>();
+	vertex			= std::make_shared<Vertex>();
+	tex				= std::make_shared<TextureResource>();
 }
 
 //初期化
 void Application::Initialize() {
+	//ウィンドウ
 	window->InitWindow();
+	//コマンド
 	command->InitCommand(device->GetDevice());
+	//スワップチェイン
 	swapChain->InitSwapChain(command->GetCommandQueue(), window->GetHandleWindow());
+	//デスクリプタ
 	descriptor->InitDescriptor(device->GetDevice());
-	renderTarget->InitRenderTarget(swapChain->GetSwapChainDesc().BufferCount, device->GetDevice(), swapChain->GetSwapChain(), descriptor->GetDescriptorHandle(), descriptor->GetDescriptorSize());
+	//レンダーターゲット
+	renderTarget->InitRenderTarget(swapChain->GetSwapChainDesc().BufferCount, 
+		device->GetDevice(), swapChain->GetSwapChain(), descriptor->GetDescriptorHandle(), descriptor->GetDescriptorSize());
+	//サンプラ
 	sampler->InitSampler();
-	dRange->InitDescriptorRange();
-	parameter->InitParameter(D3D12_SHADER_VISIBILITY_ALL, dRange->GetDescriptorRange(0));
-	root->InitRootSignature(parameter->GetParamatorSize(), parameter->GetParameter(), sampler->GetSamplerDesc(), device->GetDevice());
+	//ルートシグネチャ
+	root->InitRootSignature(sampler->GetSamplerDesc(), device->GetDevice(), D3D12_SHADER_VISIBILITY_ALL);
+	//フェンス
 	fence->InitFence(device->GetDevice());
+	//頂点バッファ
+	vertex->Initialize(device->GetDevice());
+	//テクスチャリソース
+	tex->Initialize(device->GetDevice());
 }
 
 //メインループ

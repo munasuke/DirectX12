@@ -12,6 +12,8 @@ class DescriptorRange;
 class Parameter;
 class RootSignature;
 class Fence;
+class Vertex;
+class TextureResource;
 
 class Application {
 public:
@@ -37,9 +39,9 @@ private:
 	std::shared_ptr<Descriptor> descriptor;		//デスクリプタ
 	std::shared_ptr<RenderTarget> renderTarget;	//レンダーターゲット
 	std::shared_ptr<Sampler> sampler;			//サンプラ
-	std::shared_ptr<DescriptorRange> dRange;	//デスクリプタレンジ
-	std::shared_ptr<Parameter> parameter;		//パラメータ
 	std::shared_ptr<RootSignature> root;		//ルートシグネチャ
 	std::shared_ptr<Fence> fence;				//フェンス
+	std::shared_ptr<Vertex> vertex;				//頂点バッファ
+	std::shared_ptr<TextureResource> tex;		//テクスチャリソース
 };
 

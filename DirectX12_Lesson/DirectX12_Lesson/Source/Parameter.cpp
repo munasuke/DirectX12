@@ -1,7 +1,6 @@
 #include "Parameter.h"
 
 
-
 Parameter::Parameter() {
 	SecureZeroMemory(&parameter, sizeof(parameter));
 }
