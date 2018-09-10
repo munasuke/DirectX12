@@ -35,6 +35,10 @@ void TextureResource::Initialize(ID3D12Device * _dev)
 		IID_PPV_ARGS(&textureBuffer));
 }
 
+ID3D12Resource * TextureResource::GetTextureBuffer() {
+	return textureBuffer;
+}
+
 
 TextureResource::~TextureResource()
 {

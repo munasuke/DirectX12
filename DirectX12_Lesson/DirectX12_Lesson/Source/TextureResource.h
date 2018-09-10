@@ -5,6 +5,7 @@ class TextureResource : public Result {
 public:
 	TextureResource();
 	void Initialize(ID3D12Device* _dev);//‰Šú‰»
+	ID3D12Resource* GetTextureBuffer();
 	~TextureResource();
 private:
 	D3D12_RESOURCE_DESC texResourceDesc = {};

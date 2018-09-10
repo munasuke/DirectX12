@@ -22,7 +22,7 @@
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{78AA7BD3-A183-4FC5-95C6-569BC12DA411}</ProjectGuid>
     <RootNamespace>DirectX12Lesson</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -118,15 +118,19 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Source\Application.cpp" />
+    <ClCompile Include="Source\BmpLoader.cpp" />
     <ClCompile Include="Source\Command.cpp" />
     <ClCompile Include="Source\Descriptor.cpp" />
     <ClCompile Include="Source\Device.cpp" />
     <ClCompile Include="Source\Fence.cpp" />
     <ClCompile Include="Source\main.cpp" />
+    <ClCompile Include="Source\PipelineState.cpp" />
     <ClCompile Include="Source\RenderTarget.cpp" />
     <ClCompile Include="Source\Result.cpp" />
     <ClCompile Include="Source\RootSignature.cpp" />
     <ClCompile Include="Source\Sampler.cpp" />
+    <ClCompile Include="Source\ShaderLoader.cpp" />
+    <ClCompile Include="Source\ShaderResourceView.cpp" />
     <ClCompile Include="Source\SwapChain.cpp" />
     <ClCompile Include="Source\TextureResource.cpp" />
     <ClCompile Include="Source\Vertex.cpp" />
@@ -134,18 +138,27 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Application.h" />
+    <ClInclude Include="Source\BmpLoader.h" />
     <ClInclude Include="Source\Command.h" />
     <ClInclude Include="Source\Descriptor.h" />
     <ClInclude Include="Source\Device.h" />
     <ClInclude Include="Source\Fence.h" />
+    <ClInclude Include="Source\PipelineState.h" />
     <ClInclude Include="Source\RenderTarget.h" />
     <ClInclude Include="Source\Result.h" />
     <ClInclude Include="Source\RootSignature.h" />
     <ClInclude Include="Source\Sampler.h" />
+    <ClInclude Include="Source\ShaderLoader.h" />
+    <ClInclude Include="Source\ShaderResourceView.h" />
     <ClInclude Include="Source\SwapChain.h" />
     <ClInclude Include="Source\TextureResource.h" />
     <ClInclude Include="Source\Vertex.h" />
     <ClInclude Include="Source\Window.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Shader.hlsl">
+      <FileType>Document</FileType>
+    </ClInclude>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

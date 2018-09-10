@@ -1,0 +1,29 @@
+#include "Result.h"
+#include "ShaderResourceView.h"
+
+
+
+ShaderResourceView::ShaderResourceView() : textureHeap(nullptr)
+{
+}
+
+void ShaderResourceView::Initialize(ID3D12Device* _dev, ID3D12Resource* _texBuffer) {
+	//シェーダリソースビューの作成
+	heapDesc.NumDescriptors = 1;
+	heapDesc.Type			= D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	heapDesc.Flags			= D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	result = _dev->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&textureHeap));
+
+	auto stride = _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	srvDesc.Format					= DXGI_FORMAT_R8G8B8A8_UNORM;
+	srvDesc.ViewDimension			= D3D12_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MipLevels		= 1;
+	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+
+	_dev->CreateShaderResourceView(_texBuffer, &srvDesc, textureHeap->GetCPUDescriptorHandleForHeapStart());
+}
+
+
+ShaderResourceView::~ShaderResourceView() {
+	Release(textureHeap);
+}

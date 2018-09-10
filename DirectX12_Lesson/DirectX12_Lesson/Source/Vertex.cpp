@@ -64,6 +64,14 @@ void Vertex::Initialize(ID3D12Device * _dev)
 	vbView.SizeInBytes		= sizeof(vertices);						//データ全体のサイズを指定
 }
 
+D3D12_INPUT_ELEMENT_DESC * Vertex::GetInputDesc() {
+	return inputDesc;
+}
+
+UINT Vertex::GetInputDescNum() {
+	return _countof(inputDesc);
+}
+
 
 Vertex::~Vertex()
 {

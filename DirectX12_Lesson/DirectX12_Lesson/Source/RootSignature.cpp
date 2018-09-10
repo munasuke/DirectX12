@@ -14,17 +14,17 @@ RootSignature::RootSignature() :
 
 void RootSignature::InitRootSignature(D3D12_STATIC_SAMPLER_DESC _samplerDesc, ID3D12Device* _dev, D3D12_SHADER_VISIBILITY _shaderVisibility) {
 	//デスクリプタレンジ
-	descriptorRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-	descriptorRange[0].NumDescriptors = 1;
-	descriptorRange[0].BaseShaderRegister = 0;
-	descriptorRange[0].RegisterSpace = 0;
-	descriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+	descriptorRange[0].RangeType							= D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	descriptorRange[0].NumDescriptors						= 1;
+	descriptorRange[0].BaseShaderRegister					= 0;
+	descriptorRange[0].RegisterSpace						= 0;
+	descriptorRange[0].OffsetInDescriptorsFromTableStart	= D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 	//パラメータ
-	parameter[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	parameter[0].ShaderVisibility = _shaderVisibility;
-	parameter[0].DescriptorTable.NumDescriptorRanges = 1;
-	parameter[0].DescriptorTable.pDescriptorRanges = &descriptorRange[0];
+	parameter[0].ParameterType							= D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	parameter[0].ShaderVisibility						= _shaderVisibility;
+	parameter[0].DescriptorTable.NumDescriptorRanges	= 1;
+	parameter[0].DescriptorTable.pDescriptorRanges		= &descriptorRange[0];
 
 	//ルートシグネチャ
 	rsDesc.NumParameters		= _countof(parameter);
@@ -49,6 +49,10 @@ void RootSignature::InitRootSignature(D3D12_STATIC_SAMPLER_DESC _samplerDesc, ID
 
 ID3D12RootSignature * RootSignature::GetRootSignature() {
 	return rootSignature;
+}
+
+ID3DBlob * RootSignature::GetError() {
+	return error;
 }
 
 

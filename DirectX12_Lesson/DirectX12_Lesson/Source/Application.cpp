@@ -13,6 +13,10 @@
 #include "Fence.h"
 #include "Vertex.h"
 #include "TextureResource.h"
+#include "ShaderResourceView.h"
+#include "BmpLoader.h"
+#include "ShaderLoader.h"
+#include "PipelineState.h"
 
 namespace{
 	MSG msg = {};
@@ -30,6 +34,10 @@ Application::Application() {
 	fence			= std::make_shared<Fence>();
 	vertex			= std::make_shared<Vertex>();
 	tex				= std::make_shared<TextureResource>();
+	srv				= std::make_shared<ShaderResourceView>();
+	bmp				= std::make_shared<BmpLoader>();
+	shader			= std::make_shared<ShaderLoader>();
+	pipline			= std::make_shared<PipelineState>();
 }
 
 //初期化
@@ -55,6 +63,15 @@ void Application::Initialize() {
 	vertex->Initialize(device->GetDevice());
 	//テクスチャリソース
 	tex->Initialize(device->GetDevice());
+	//シェーダリソースビュー
+	srv->Initialize(device->GetDevice(), tex->GetTextureBuffer());
+	//BMP
+	bmp->Load("img/aoba.bmp");
+	//シェーダ
+	shader->Load(root->GetError());
+	//パイプラインステートオブジェクト
+	pipline->Initialize(device->GetDevice(), shader->GetVS(), shader->GetPS(), 
+		vertex->GetInputDescNum(), vertex->GetInputDesc(), root->GetRootSignature());
 }
 
 //メインループ
@@ -68,6 +85,14 @@ void Application::Run() {
 		command->GetCommandAllocator()->Reset();
 		//ルートシグネチャのセット
 		command->GetCommandList()->SetGraphicsRootSignature(root->GetRootSignature());
+
+		//画面に色を付ける
+		auto bbIndex = swapChain->GetSwapChain()->GetCurrentBackBufferIndex();
+		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(descriptor->GetDescriptorHeap()->GetCPUDescriptorHandleForHeapStart(), 
+			bbIndex, descriptor->GetDescriptorSize());
+		command->GetCommandList()->OMSetRenderTargets(1, &rtvHandle, false, nullptr);
+		const FLOAT color[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+		command->GetCommandList()->ClearRenderTargetView(rtvHandle, color, 0, nullptr);
 
 
 		command->Execute();

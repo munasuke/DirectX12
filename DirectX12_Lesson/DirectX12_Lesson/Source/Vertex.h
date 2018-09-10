@@ -13,6 +13,8 @@ class Vertex : public Result {
 public:
 	Vertex();
 	void Initialize(ID3D12Device* _dev);//初期化
+	D3D12_INPUT_ELEMENT_DESC* GetInputDesc();
+	UINT GetInputDescNum();
 	~Vertex();
 private:
 	ID3D12Resource* vertexBuffer;//頂点バッファ

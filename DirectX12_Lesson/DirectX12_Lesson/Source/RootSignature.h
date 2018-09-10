@@ -6,6 +6,7 @@ public:
 	RootSignature();
 	void InitRootSignature(D3D12_STATIC_SAMPLER_DESC _samplerDesc, ID3D12Device* _dev, D3D12_SHADER_VISIBILITY _shaderVisibility);
 	ID3D12RootSignature* GetRootSignature();
+	ID3DBlob* GetError();
 	~RootSignature();
 private:
 	D3D12_DESCRIPTOR_RANGE descriptorRange[1];
