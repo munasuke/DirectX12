@@ -27,7 +27,7 @@ namespace {
 		},
 		//uv
 		{
-			"TEXCORD",
+			"TEXCOORD",
 			0,
 			DXGI_FORMAT_R32G32B32_FLOAT,
 			0,

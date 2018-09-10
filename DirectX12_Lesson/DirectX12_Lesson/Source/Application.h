@@ -18,6 +18,7 @@ class ShaderResourceView;
 class BmpLoader;
 class ShaderLoader;
 class PipelineState;
+class ViewPort;
 
 class Application {
 public:
@@ -51,5 +52,6 @@ private:
 	std::shared_ptr<BmpLoader>			bmp;			//BMP
 	std::shared_ptr<ShaderLoader>		shader;			//シェーダ
 	std::shared_ptr<PipelineState>		pipline;		//パイプラインステートオブジェクト
+	std::shared_ptr<ViewPort>			viewPort;		//ビューポート
 };
 

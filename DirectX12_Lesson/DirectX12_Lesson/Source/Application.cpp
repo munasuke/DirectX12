@@ -17,6 +17,7 @@
 #include "BmpLoader.h"
 #include "ShaderLoader.h"
 #include "PipelineState.h"
+#include "ViewPort.h"
 
 namespace{
 	MSG msg = {};
@@ -38,6 +39,7 @@ Application::Application() {
 	bmp				= std::make_shared<BmpLoader>();
 	shader			= std::make_shared<ShaderLoader>();
 	pipline			= std::make_shared<PipelineState>();
+	viewPort		= std::make_shared<ViewPort>();
 }
 
 //初期化
@@ -72,6 +74,8 @@ void Application::Initialize() {
 	//パイプラインステートオブジェクト
 	pipline->Initialize(device->GetDevice(), shader->GetVS(), shader->GetPS(), 
 		vertex->GetInputDescNum(), vertex->GetInputDesc(), root->GetRootSignature());
+	//ビューポート
+	viewPort->Initialize();
 }
 
 //メインループ
