@@ -16,6 +16,11 @@ void ViewPort::Initialize() {
 	viewPort.MinDepth	= 0.0f;
 }
 
+D3D12_VIEWPORT* ViewPort::GetViewPort()
+{
+	return &viewPort;
+}
+
 
 ViewPort::~ViewPort() {
 }

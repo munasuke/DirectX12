@@ -25,6 +25,11 @@ void PipelineState::Initialize(ID3D12Device* _dev, CD3DX12_SHADER_BYTECODE _vs, 
 	result = _dev->CreateGraphicsPipelineState(&gpsDesc, IID_PPV_ARGS(&piplineState));
 }
 
+ID3D12PipelineState * PipelineState::GetPiplineState()
+{
+	return piplineState;
+}
+
 
 PipelineState::~PipelineState() {
 }

@@ -12,6 +12,7 @@ public:
 	void Show();		//表示
 
 	HWND GetHandleWindow();//ウィンドウハンドルを返す
+	D3D12_RECT* GetScissorRect();
 
 	~Window();
 private:
@@ -21,5 +22,7 @@ private:
 	RECT wrc = {0, 0, WIN_WIDTH, WIN_HEIGHT};
 	//ウィンドウハンドル
 	HWND hwnd = {};
+	//シザー矩形
+	D3D12_RECT scissorRct = { 0, 0, WIN_WIDTH, WIN_HEIGHT };
 };
 

@@ -87,8 +87,16 @@ void Application::Run() {
 			DispatchMessage(&msg);
 		}
 		command->GetCommandAllocator()->Reset();
+		command->GetCommandList()->Reset(command->GetCommandAllocator(), pipline->GetPiplineState());
+
 		//ルートシグネチャのセット
 		command->GetCommandList()->SetGraphicsRootSignature(root->GetRootSignature());
+		//パイプラインのセット
+		command->GetCommandList()->SetPipelineState(pipline->GetPiplineState());
+		//ビューポートのセット
+		command->GetCommandList()->RSSetViewports(1, viewPort->GetViewPort());
+		//シザーのセット
+		command->GetCommandList()->RSSetScissorRects(1, window->GetScissorRect());
 
 		//画面に色を付ける
 		auto bbIndex = swapChain->GetSwapChain()->GetCurrentBackBufferIndex();

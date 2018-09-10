@@ -399,33 +399,33 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	viewPort.MaxDepth		= 1.0f;
 
 
-	//ワールド行列
-	XMMATRIX world = XMMatrixIdentity();//単位行列で初期化
+	////ワールド行列
+	//XMMATRIX world = XMMatrixIdentity();//単位行列で初期化
 
-	XMVECTOR eye = { 0.0f, 0.0f, -10.0f };//視点
-	XMVECTOR target = { 0.0f, 0.0f, 0.0f };//注視点
-	XMVECTOR upper = { 0.0f, 1.0f, 0.0f };//上ベクトル
+	//XMVECTOR eye = { 0.0f, 0.0f, -10.0f };//視点
+	//XMVECTOR target = { 0.0f, 0.0f, 0.0f };//注視点
+	//XMVECTOR upper = { 0.0f, 1.0f, 0.0f };//上ベクトル
 
-	//ビュー行列
-	XMMATRIX camera = XMMatrixLookAtLH(eye, target, upper);
-	//プロジェクション行列
-	XMMATRIX projection = XMMatrixPerspectiveFovLH(0.0f, static_cast<float>(WIN_HEIGTH / WIN_WIDTH), 0.01f, 1000.0f);
+	////ビュー行列
+	//XMMATRIX camera = XMMatrixLookAtLH(eye, target, upper);
+	////プロジェクション行列
+	//XMMATRIX projection = XMMatrixPerspectiveFovLH(0.0f, static_cast<float>(WIN_HEIGTH / WIN_WIDTH), 0.01f, 1000.0f);
 
-	//行列の合成
-	XMMATRIX matrix = world * camera * projection;
+	////行列の合成
+	//XMMATRIX matrix = world * camera * projection;
 
-	//定数バッファの作成
-	ID3D12Resource* constantBuffer = nullptr;
+	////定数バッファの作成
+	//ID3D12Resource* constantBuffer = nullptr;
 
-	D3D12_DESCRIPTOR_HEAP_DESC cbvHeapDesc	= {};
-	cbvHeapDesc.NumDescriptors				= 1;
-	cbvHeapDesc.Flags						= D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;//シェーダから見えるようにする
-	cbvHeapDesc.Type						= D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;	//コンスタントバッファ
-	ID3D12DescriptorHeap* cbvDescHeap = nullptr;
-	result = dev->CreateDescriptorHeap(&cbvHeapDesc, IID_PPV_ARGS(&cbvDescHeap));
+	//D3D12_DESCRIPTOR_HEAP_DESC cbvHeapDesc	= {};
+	//cbvHeapDesc.NumDescriptors				= 1;
+	//cbvHeapDesc.Flags						= D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;//シェーダから見えるようにする
+	//cbvHeapDesc.Type						= D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;	//コンスタントバッファ
+	//ID3D12DescriptorHeap* cbvDescHeap = nullptr;
+	//result = dev->CreateDescriptorHeap(&cbvHeapDesc, IID_PPV_ARGS(&cbvDescHeap));
 
-	D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
-	D3D12_HEAP_PROPERTIES heapProperties = {};
+	//D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
+	//D3D12_HEAP_PROPERTIES heapProperties = {};
 
 
 	//ループ
