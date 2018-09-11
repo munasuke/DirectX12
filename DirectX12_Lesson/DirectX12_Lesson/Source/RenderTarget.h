@@ -12,6 +12,7 @@ public:
 
 	//èâä˙âª
 	void InitRenderTarget(UINT _bufferCnt, ID3D12Device* _dev, IDXGISwapChain3* _swapChain, CD3DX12_CPU_DESCRIPTOR_HANDLE _descriptorHandle, UINT _descriptorSize);
+	std::vector<ID3D12Resource*> GetRenderTarget();
 
 	~RenderTarget();
 private:

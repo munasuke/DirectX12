@@ -1,5 +1,6 @@
 #pragma once
 #include <Windows.h>
+#include <d3d12.h>
 
 constexpr int WIN_WIDTH		= 1280;
 constexpr int WIN_HEIGHT	= 720;
@@ -12,7 +13,7 @@ public:
 	void Show();		//表示
 
 	HWND GetHandleWindow();//ウィンドウハンドルを返す
-	D3D12_RECT* GetScissorRect();
+	D3D12_RECT GetScissorRect();
 
 	~Window();
 private:

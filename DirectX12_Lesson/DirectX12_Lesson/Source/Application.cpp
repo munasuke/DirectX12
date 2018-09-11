@@ -18,6 +18,7 @@
 #include "ShaderLoader.h"
 #include "PipelineState.h"
 #include "ViewPort.h"
+#include "Matrix.h"
 
 namespace{
 	MSG msg = {};
@@ -68,7 +69,7 @@ void Application::Initialize() {
 	//シェーダリソースビュー
 	srv->Initialize(device->GetDevice(), tex->GetTextureBuffer());
 	//BMP
-	bmp->Load("img/aoba.bmp");
+	bmp->Load("Image/aoba.bmp");
 	//シェーダ
 	shader->Load(root->GetError());
 	//パイプラインステートオブジェクト
@@ -86,6 +87,7 @@ void Application::Run() {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
+		//命令のクリア
 		command->GetCommandAllocator()->Reset();
 		command->GetCommandList()->Reset(command->GetCommandAllocator(), pipline->GetPiplineState());
 
@@ -94,18 +96,62 @@ void Application::Run() {
 		//パイプラインのセット
 		command->GetCommandList()->SetPipelineState(pipline->GetPiplineState());
 		//ビューポートのセット
-		command->GetCommandList()->RSSetViewports(1, viewPort->GetViewPort());
+		command->GetCommandList()->RSSetViewports(1, &viewPort->GetViewPort());
 		//シザーのセット
-		command->GetCommandList()->RSSetScissorRects(1, window->GetScissorRect());
+		D3D12_RECT scissorRect = { 0, 0, WIN_WIDTH, WIN_HEIGHT };
+		command->GetCommandList()->RSSetScissorRects(1, &window->GetScissorRect());
+
+		//SRV用のデスクリプタをセット
+		command->GetCommandList()->SetDescriptorHeaps(1, srv->GetTextureHeap2());
+		command->GetCommandList()->SetGraphicsRootDescriptorTable(0, srv->GetTextureHeap()->GetGPUDescriptorHandleForHeapStart());
+
+		//バリアを張る
+		command->GetCommandList()->ResourceBarrier(
+			0,
+			&CD3DX12_RESOURCE_BARRIER::Transition(
+				renderTarget->GetRenderTarget()[swapChain->GetSwapChain()->GetCurrentBackBufferIndex()], 
+				D3D12_RESOURCE_STATE_PRESENT, 
+				D3D12_RESOURCE_STATE_RENDER_TARGET)
+		);
+
+		//頂点バッファのセット
+		command->GetCommandList()->IASetVertexBuffers(0, 1, &vertex->GetVBV());
 
 		//画面に色を付ける
+		//バックバッファのインデックスを取得
 		auto bbIndex = swapChain->GetSwapChain()->GetCurrentBackBufferIndex();
+
+		//レンダーターゲットの指定
 		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(descriptor->GetDescriptorHeap()->GetCPUDescriptorHandleForHeapStart(), 
 			bbIndex, descriptor->GetDescriptorSize());
 		command->GetCommandList()->OMSetRenderTargets(1, &rtvHandle, false, nullptr);
+
+		//クリアカラーの設定
 		const FLOAT color[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+
+		//レンダーターゲットのクリア
 		command->GetCommandList()->ClearRenderTargetView(rtvHandle, color, 0, nullptr);
 
+		//三角ポリゴン描画にする
+		command->GetCommandList()->IASetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+		//テクスチャバッファへの書き込み
+		tex->WriteToTextureBuffer(bmp->GetData());
+
+		//頂点描画
+		command->GetCommandList()->DrawInstanced(6, 1, 0, 0);
+
+		//バリアを張る
+		command->GetCommandList()->ResourceBarrier(
+			0,
+			&CD3DX12_RESOURCE_BARRIER::Transition(
+				tex->GetTextureBuffer(),
+				D3D12_RESOURCE_STATE_COPY_DEST,
+				D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE)
+		);
+
+		//コマンドリストを閉じる
+		command->GetCommandList()->Close();
 
 		command->Execute();
 

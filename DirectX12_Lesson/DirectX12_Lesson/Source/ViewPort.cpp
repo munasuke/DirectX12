@@ -1,6 +1,5 @@
 #include "ViewPort.h"
 #include "Window.h"
-#include <d3d12.h>
 
 
 ViewPort::ViewPort() {
@@ -16,9 +15,9 @@ void ViewPort::Initialize() {
 	viewPort.MinDepth	= 0.0f;
 }
 
-D3D12_VIEWPORT* ViewPort::GetViewPort()
+D3D12_VIEWPORT ViewPort::GetViewPort()
 {
-	return &viewPort;
+	return viewPort;
 }
 
 

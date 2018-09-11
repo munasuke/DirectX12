@@ -33,6 +33,17 @@ void TextureResource::Initialize(ID3D12Device * _dev)
 		D3D12_RESOURCE_STATE_GENERIC_READ,
 		nullptr,
 		IID_PPV_ARGS(&textureBuffer));
+
+	box.top		= 0;
+	box.bottom	= 256;
+	box.left	= 0;
+	box.right	= 256;
+	box.front	= 0;
+	box.back	= 1;
+}
+
+void TextureResource::WriteToTextureBuffer(std::vector<CHAR> _data) {
+	result = textureBuffer->WriteToSubresource(0, &box, _data.data(), box.right * 4, box.bottom * 4);
 }
 
 ID3D12Resource * TextureResource::GetTextureBuffer() {

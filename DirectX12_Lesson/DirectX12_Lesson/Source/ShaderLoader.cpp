@@ -35,7 +35,7 @@ int ShaderLoader::Load(ID3DBlob* _error) {
 		&pixelShader,
 		&_error);
 
-	return 1;
+	return 0;
 }
 
 CD3DX12_SHADER_BYTECODE ShaderLoader::GetVS() {

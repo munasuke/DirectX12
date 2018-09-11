@@ -15,6 +15,7 @@ public:
 	void Initialize(ID3D12Device* _dev);//初期化
 	D3D12_INPUT_ELEMENT_DESC* GetInputDesc();
 	UINT GetInputDescNum();
+	D3D12_VERTEX_BUFFER_VIEW GetVBV();
 	~Vertex();
 private:
 	ID3D12Resource* vertexBuffer;//頂点バッファ

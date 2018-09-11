@@ -1,7 +1,6 @@
 #include "BmpLoader.h"
 #include <tchar.h>
 #include <d3d12.h>
-#include <vector>
 
 BmpLoader::BmpLoader() {
 }
@@ -21,7 +20,6 @@ int BmpLoader::Load(const char* _path) {
 	DWORD rgb[3];
 	fread(&rgb[0], sizeof(rgb), 1, fp);
 
-	std::vector<CHAR> data;
 	data.resize(bmpInfoHeader.biSizeImage);//領域確保
 	//bmpデータをすべて読み込む
 	for(INT line = bmpInfoHeader.biHeight - 1; line >= 0; --line) {//下から1ラインずつ上がる
@@ -31,7 +29,11 @@ int BmpLoader::Load(const char* _path) {
 		}
 	}
 	fclose(fp);
-	return 1;
+	return 0;
+}
+
+std::vector<CHAR> BmpLoader::GetData() {
+	return data;
 }
 
 

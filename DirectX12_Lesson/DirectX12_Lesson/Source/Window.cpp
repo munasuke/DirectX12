@@ -1,6 +1,5 @@
 #include "Window.h"
 #include <tchar.h>
-#include <d3d12.h>
 
 
 LRESULT WindowProcedure(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
@@ -65,9 +64,9 @@ HWND Window::GetHandleWindow() {
 	return hwnd;
 }
 
-D3D12_RECT* Window::GetScissorRect()
+D3D12_RECT Window::GetScissorRect()
 {
-	return &scissorRct;
+	return scissorRct;
 }
 
 Window::~Window() {

@@ -23,6 +23,14 @@ void ShaderResourceView::Initialize(ID3D12Device* _dev, ID3D12Resource* _texBuff
 	_dev->CreateShaderResourceView(_texBuffer, &srvDesc, textureHeap->GetCPUDescriptorHandleForHeapStart());
 }
 
+ID3D12DescriptorHeap * ShaderResourceView::GetTextureHeap() {
+	return textureHeap;
+}
+
+ID3D12DescriptorHeap * const * ShaderResourceView::GetTextureHeap2() {
+	return (ID3D12DescriptorHeap* const*)&textureHeap;
+}
+
 
 ShaderResourceView::~ShaderResourceView() {
 	Release(textureHeap);

@@ -72,6 +72,10 @@ UINT Vertex::GetInputDescNum() {
 	return _countof(inputDesc);
 }
 
+D3D12_VERTEX_BUFFER_VIEW Vertex::GetVBV() {
+	return vbView;
+}
+
 
 Vertex::~Vertex()
 {

@@ -24,6 +24,10 @@ void RenderTarget:: InitRenderTarget(UINT _bufferCnt, ID3D12Device* _dev, IDXGIS
 	}
 }
 
+std::vector<ID3D12Resource*> RenderTarget::GetRenderTarget() {
+	return renderTarget;
+}
+
 
 RenderTarget::~RenderTarget()
 {
