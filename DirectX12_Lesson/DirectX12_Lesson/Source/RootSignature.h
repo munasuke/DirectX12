@@ -1,5 +1,6 @@
 #pragma once
 
+constexpr int MAX = 2;
 
 class RootSignature : public Result {
 public:
@@ -9,8 +10,8 @@ public:
 	ID3DBlob* GetError();
 	~RootSignature();
 private:
-	D3D12_DESCRIPTOR_RANGE descriptorRange[1];
-	D3D12_ROOT_PARAMETER parameter[1];
+	D3D12_DESCRIPTOR_RANGE descriptorRange[MAX];
+	D3D12_ROOT_PARAMETER parameter[MAX];
 
 	ID3D12RootSignature* rootSignature;
 	ID3DBlob* signature;

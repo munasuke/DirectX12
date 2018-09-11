@@ -71,9 +71,6 @@
     <ClCompile Include="Source\ViewPort.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Matrix.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="Source\ConstantBuffer.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
@@ -127,9 +124,6 @@
     <ClInclude Include="Source\ShaderLoader.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="Shader.hlsl">
-      <Filter>リソース</Filter>
-    </ClInclude>
     <ClInclude Include="Source\PipelineState.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
@@ -142,5 +136,10 @@
     <ClInclude Include="Source\ConstantBuffer.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Shader.hlsl">
+      <Filter>リソース</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

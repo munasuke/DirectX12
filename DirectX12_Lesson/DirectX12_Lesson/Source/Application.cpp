@@ -1,3 +1,4 @@
+#define _ENABLE_EXTENDED_ALIGNED_STORAGE
 #include "Application.h"
 #include "Window.h"
 #include "Result.h"
@@ -18,7 +19,7 @@
 #include "ShaderLoader.h"
 #include "PipelineState.h"
 #include "ViewPort.h"
-#include "Matrix.h"
+#include "ConstantBuffer.h"
 
 namespace{
 	MSG msg = {};
@@ -41,6 +42,7 @@ Application::Application() {
 	shader			= std::make_shared<ShaderLoader>();
 	pipline			= std::make_shared<PipelineState>();
 	viewPort		= std::make_shared<ViewPort>();
+	cb				= std::make_shared<ConstantBuffer>();
 }
 
 //初期化
@@ -77,6 +79,8 @@ void Application::Initialize() {
 		vertex->GetInputDescNum(), vertex->GetInputDesc(), root->GetRootSignature());
 	//ビューポート
 	viewPort->Initialize();
+	//コンスタントバッファ
+	cb->Initialize(device->GetDevice());
 }
 
 //メインループ

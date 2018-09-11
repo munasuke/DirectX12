@@ -1,7 +1,6 @@
 #pragma once
+#include "Matrix.h"
 #include <memory>
-
-class Matrix;
 
 //定数バッファ
 class ConstantBuffer : public Result{
@@ -10,6 +9,10 @@ public:
 	void Initialize(ID3D12Device* _dev);
 	~ConstantBuffer();
 private:
+	Matrixs mt;//空間行列
+	UINT* data;
+
+
 	ID3D12Resource* constantBuffer;
 	ID3D12DescriptorHeap* cbvDescHeap;
 
@@ -17,7 +20,6 @@ private:
 	D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
 	CD3DX12_HEAP_PROPERTIES heapProperties = {};
 
-
-	std::shared_ptr<Matrix> matrix;
+	D3D12_RESOURCE_DESC cbvResDesc = {};
 };
 
