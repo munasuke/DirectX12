@@ -60,7 +60,7 @@ void ConstantBuffer::Initialize(ID3D12Device * _dev) {
 
 	//シェーダに行列を渡す
 	result = constantBuffer->Map(0, nullptr, (void**)data);
-	memcpy(data, &mt, sizeof(mt));
+	//memcpy(data, &mt, sizeof(mt));
 }
 
 
