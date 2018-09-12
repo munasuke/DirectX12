@@ -19,9 +19,9 @@ struct Out
 //VertexShader
 Out BasicVS(float4 pos : POSITION, float2 uv : TEXCOORD)
 {
-	pos = mul(world, pos);
-	pos = mul(view, pos);
-	pos = mul(projection, pos);
+	//pos = mul(world, pos);
+	//pos = mul(view, pos);
+	//pos = mul(projection, pos);
 
 	Out o;
 	o.svpos = pos;

@@ -15,10 +15,11 @@ void ConstantBuffer::Initialize(ID3D12Device * _dev) {
 	XMVECTOR eye	= { 0.0f, 1.0f, -15.0f };
 	XMVECTOR focus	= { 0.0f, 1.0f,	  0.0f };
 	XMVECTOR upper	= { 0.0f, 1.0f,   0.0f };
+
 	//ワールドビュープロジェクション
 	mt.world		= XMMatrixIdentity();
 	mt.view			= XMMatrixLookAtLH(eye, focus, upper);
-	mt.projection	= XMMatrixPerspectiveFovLH(90.0f * 3.14159264f / 180.0f, (float)WIN_HEIGHT / (float)WIN_WIDTH, 0.5f, 500.0f);
+	mt.projection	= XMMatrixPerspectiveFovLH(90.0f * 3.14159264f / 180.0f, static_cast<FLOAT>(WIN_HEIGHT) / static_cast<FLOAT>(WIN_WIDTH), 0.5f, 500.0f);
 
 	//デスクリプタヒープの作成
 	cbvHeapDesc.Type			= D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;//コンスタントバッファ
@@ -71,7 +72,7 @@ ConstantBuffer::~ConstantBuffer() {
 }
 
 void ConstantBuffer::UpDataWVP(void) {
-	static float angle = 0.0f;
+	static FLOAT angle = 0.0f;
 	mt.world = XMMatrixRotationY(angle * 3.14159264f / 180.0f);
 	memcpy(data, &mt, sizeof(mt));
 	++angle;

@@ -9,8 +9,21 @@ public:
 	void Initialize(ID3D12Device* _dev);
 	~ConstantBuffer();
 
-	void UpDataWVP(void);//行列に回転を追加
-	void SetDescriptor(ID3D12GraphicsCommandList* list);
+	/*!
+	* @fn
+	* 行列に更新をかける関数
+	* @brief	wvp行列を更新する。
+	* @detail	ワールド行列、ビュー行列、プロジェクション行列を更新する。
+	*/
+	void UpDataWVP();
+
+	/*!
+	* @fn
+	* デスクリプタにコンスタントバッファをセットする関数
+	* @brief	デスクリプタへコンスタントバッファをセットする。
+	* @param	(ID3D12GraphicsCommandList* _list) コマンドリスト
+	*/
+	void SetDescriptor(ID3D12GraphicsCommandList* _list);
 private:
 	Matrixs mt;//空間行列
 	UINT* data;

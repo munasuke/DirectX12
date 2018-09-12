@@ -1,5 +1,6 @@
 #include "Result.h"
 #include "Vertex.h"
+#include <algorithm>
 
 namespace {
 	//’¸“_î•ñ

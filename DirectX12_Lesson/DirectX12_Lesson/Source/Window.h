@@ -9,10 +9,35 @@ class Window {
 public:
 	Window();
 
-	void InitWindow();	//初期化
-	void Show();		//表示
+	/*!
+	* @fn
+	* 初期化関数
+	* @brief	ウィンドウを生成するために必要な設定をします。
+	* @detail	構造体の設定、サイズの補正をして、Create関数でウィンドウを生成します。
+	*/
+	void InitWindow();
 
-	HWND GetHandleWindow();//ウィンドウハンドルを返す
+	/*!
+	* @fn
+	* ウィンドウを表示する関数
+	* @brief	ShowWindowでウィンドウを表示します。
+	*/
+	void Show();
+
+	/*!
+	* @fn
+	* ウィンドウハンドルを返す関数
+	* @brief	ウィンドウハンドルを返します。
+	* @return	ウィンドウハンドルを返します。
+	*/
+	HWND GetHandleWindow();
+
+	/*!
+	* @fn
+	* シザーレクトを返す関数
+	* @brief	シザーレクトを返します。
+	* @return	シザーレクトを返します。
+	*/
 	D3D12_RECT GetScissorRect();
 
 	~Window();
