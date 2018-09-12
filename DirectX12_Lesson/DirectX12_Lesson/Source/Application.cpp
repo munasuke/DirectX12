@@ -91,18 +91,25 @@ void Application::Run() {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
+		
 		//命令のクリア
 		command->GetCommandAllocator()->Reset();
 		command->GetCommandList()->Reset(command->GetCommandAllocator(), pipline->GetPiplineState());
 
 		//ルートシグネチャのセット
 		command->GetCommandList()->SetGraphicsRootSignature(root->GetRootSignature());
+
 		//パイプラインのセット
 		command->GetCommandList()->SetPipelineState(pipline->GetPiplineState());
+
+		//コンスタントバッファのデスクリプタをセット
+		cb->UpDataWVP();
+		cb->SetDescriptor(command->GetCommandList());
+
 		//ビューポートのセット
 		command->GetCommandList()->RSSetViewports(1, &viewPort->GetViewPort());
+
 		//シザーのセット
-		D3D12_RECT scissorRect = { 0, 0, WIN_WIDTH, WIN_HEIGHT };
 		command->GetCommandList()->RSSetScissorRects(1, &window->GetScissorRect());
 
 		//SRV用のデスクリプタをセット
@@ -111,7 +118,7 @@ void Application::Run() {
 
 		//バリアを張る
 		command->GetCommandList()->ResourceBarrier(
-			0,
+			1,
 			&CD3DX12_RESOURCE_BARRIER::Transition(
 				renderTarget->GetRenderTarget()[swapChain->GetSwapChain()->GetCurrentBackBufferIndex()], 
 				D3D12_RESOURCE_STATE_PRESENT, 
@@ -147,11 +154,11 @@ void Application::Run() {
 
 		//バリアを張る
 		command->GetCommandList()->ResourceBarrier(
-			0,
+			1,
 			&CD3DX12_RESOURCE_BARRIER::Transition(
-				tex->GetTextureBuffer(),
-				D3D12_RESOURCE_STATE_COPY_DEST,
-				D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE)
+				renderTarget->GetRenderTarget()[swapChain->GetSwapChain()->GetCurrentBackBufferIndex()], 
+				D3D12_RESOURCE_STATE_RENDER_TARGET,
+				D3D12_RESOURCE_STATE_PRESENT)
 		);
 
 		//コマンドリストを閉じる

@@ -13,6 +13,7 @@ void Command::InitCommand(ID3D12Device* _dev) {
 	result = _dev->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&commandAllocator));
 	//コマンドリストの作成
 	result = _dev->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, commandAllocator, nullptr, IID_PPV_ARGS(&commandList));
+	commandList->Close();
 	//コマンドキューの作成
 	D3D12_COMMAND_QUEUE_DESC desc	= {};
 	desc.Flags						= D3D12_COMMAND_QUEUE_FLAG_NONE;

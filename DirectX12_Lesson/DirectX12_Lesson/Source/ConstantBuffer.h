@@ -8,6 +8,9 @@ public:
 	ConstantBuffer();
 	void Initialize(ID3D12Device* _dev);
 	~ConstantBuffer();
+
+	void UpDataWVP(void);//s—ñ‚É‰ñ“]‚ğ’Ç‰Á
+	void SetDescriptor(ID3D12GraphicsCommandList* list);
 private:
 	Matrixs mt;//‹óŠÔs—ñ
 	UINT* data;

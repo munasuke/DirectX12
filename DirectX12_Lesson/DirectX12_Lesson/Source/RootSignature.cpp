@@ -33,7 +33,7 @@ void RootSignature::InitRootSignature(D3D12_STATIC_SAMPLER_DESC _samplerDesc, ID
 	parameter[0].DescriptorTable.pDescriptorRanges		= &descriptorRange[0];
 
 	parameter[1].ParameterType							= D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	parameter[1].ShaderVisibility						= D3D12_SHADER_VISIBILITY_VERTEX;
+	parameter[1].ShaderVisibility						= D3D12_SHADER_VISIBILITY_ALL;
 	parameter[1].DescriptorTable.NumDescriptorRanges	= 1;
 	parameter[1].DescriptorTable.pDescriptorRanges		= &descriptorRange[1];
 
