@@ -1,6 +1,7 @@
 #include "Result.h"
 #include "ConstantBuffer.h"
 #include "Window.h"
+#include <iostream>
 
 using namespace DirectX;
 
@@ -12,14 +13,14 @@ ConstantBuffer::ConstantBuffer() :
 
 void ConstantBuffer::Initialize(ID3D12Device * _dev) {
 	//視線、注視点、上ベクトル
-	XMVECTOR eye	= { 0.0f, 1.0f, -15.0f };
-	XMVECTOR focus	= { 0.0f, 1.0f,	  0.0f };
+	XMVECTOR eye	= { 0.0f, 0.0f, -10.0f };
+	XMVECTOR focus	= { 0.0f, 0.0f,	  0.0f };
 	XMVECTOR upper	= { 0.0f, 1.0f,   0.0f };
 
 	//ワールドビュープロジェクション
 	mt.world		= XMMatrixIdentity();
 	mt.view			= XMMatrixLookAtLH(eye, focus, upper);
-	mt.projection	= XMMatrixPerspectiveFovLH(90.0f * 3.14159264f / 180.0f, static_cast<FLOAT>(WIN_HEIGHT) / static_cast<FLOAT>(WIN_WIDTH), 0.5f, 500.0f);
+	mt.projection	= XMMatrixPerspectiveFovLH(90.0f * 3.14159264f / 180.0f, static_cast<FLOAT>(WIN_HEIGHT) / static_cast<FLOAT>(WIN_WIDTH), 0.01f, 500.0f);
 
 	//デスクリプタヒープの作成
 	cbvHeapDesc.Type			= D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;//コンスタントバッファ
@@ -35,12 +36,12 @@ void ConstantBuffer::Initialize(ID3D12Device * _dev) {
 	heapProperties.CreationNodeMask		= 1;
 
 	//リソース設定
-	cbvResDesc.Dimension		= D3D12_RESOURCE_DIMENSION_BUFFER;		//1次元バッファ
-	cbvResDesc.Width			= (sizeof(XMMATRIX) + 0xff) &~ 0xff;	//255アライメント
-	cbvResDesc.Height			= 1;									//1次元なので１を設定
-	cbvResDesc.DepthOrArraySize = 1;									//深さはないので１を設定
-	cbvResDesc.MipLevels		= 1;									//ミップはない
-	cbvResDesc.SampleDesc.Count = 1;									//ないと怒られる
+	cbvResDesc.Dimension		= D3D12_RESOURCE_DIMENSION_BUFFER;	//1次元バッファ
+	cbvResDesc.Width			= (sizeof(mt) + 0xff) &~ 0xff;		//255アライメント
+	cbvResDesc.Height			= 1;								//1次元なので１を設定
+	cbvResDesc.DepthOrArraySize = 1;								//深さはないので１を設定
+	cbvResDesc.MipLevels		= 1;								//ミップはない
+	cbvResDesc.SampleDesc.Count = 1;								//ないと失敗する
 	cbvResDesc.Layout			= D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 
 	result = _dev->CreateCommittedResource(
@@ -53,7 +54,7 @@ void ConstantBuffer::Initialize(ID3D12Device * _dev) {
 
 	//コンスタントバッファビューの設定
 	cbvDesc.BufferLocation = constantBuffer->GetGPUVirtualAddress();
-	cbvDesc.SizeInBytes = (sizeof(XMMATRIX) + 0xff) &~ 0xff;
+	cbvDesc.SizeInBytes = (sizeof(mt) + 0xff) &~ 0xff;
 
 	//定数バッファの作成
 	_dev->CreateConstantBufferView(&cbvDesc, cbvDescHeap->GetCPUDescriptorHandleForHeapStart());
@@ -76,9 +77,11 @@ void ConstantBuffer::UpDataWVP(void) {
 	mt.world = XMMatrixRotationY(angle * 3.14159264f / 180.0f);
 	memcpy(data, &mt, sizeof(mt));
 	++angle;
+	
+	std::cout << angle * 3.14159264f / 180.0f << std::endl;
 }
 
-void ConstantBuffer::SetDescriptor(ID3D12GraphicsCommandList * list) {
-	list->SetDescriptorHeaps(1, &cbvDescHeap);
-	list->SetGraphicsRootDescriptorTable(1, cbvDescHeap->GetGPUDescriptorHandleForHeapStart());
+void ConstantBuffer::SetDescriptor(ID3D12GraphicsCommandList * _list) {
+	_list->SetDescriptorHeaps(1, &cbvDescHeap);
+	_list->SetGraphicsRootDescriptorTable(1, cbvDescHeap->GetGPUDescriptorHandleForHeapStart());
 }

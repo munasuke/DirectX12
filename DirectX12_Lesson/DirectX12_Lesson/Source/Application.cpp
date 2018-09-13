@@ -112,10 +112,6 @@ void Application::Run() {
 		//シザーのセット
 		command->GetCommandList()->RSSetScissorRects(1, &window->GetScissorRect());
 
-		//SRV用のデスクリプタをセット
-		command->GetCommandList()->SetDescriptorHeaps(1, srv->GetTextureHeap2());
-		command->GetCommandList()->SetGraphicsRootDescriptorTable(0, srv->GetTextureHeap()->GetGPUDescriptorHandleForHeapStart());
-
 		//バリアを張る
 		command->GetCommandList()->ResourceBarrier(
 			1,
@@ -138,10 +134,14 @@ void Application::Run() {
 		command->GetCommandList()->OMSetRenderTargets(1, &rtvHandle, false, nullptr);
 
 		//クリアカラーの設定
-		const FLOAT color[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+		const FLOAT color[] = { 1.0f, 0.0f, 0.7f, 1.0f };
 
 		//レンダーターゲットのクリア
 		command->GetCommandList()->ClearRenderTargetView(rtvHandle, color, 0, nullptr);
+
+		//SRV用のデスクリプタをセット
+		command->GetCommandList()->SetDescriptorHeaps(1, srv->GetTextureHeap2());
+		command->GetCommandList()->SetGraphicsRootDescriptorTable(0, srv->GetTextureHeap()->GetGPUDescriptorHandleForHeapStart());
 
 		//三角ポリゴン描画にする
 		command->GetCommandList()->IASetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);

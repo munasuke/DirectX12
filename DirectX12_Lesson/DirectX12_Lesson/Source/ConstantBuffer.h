@@ -6,6 +6,13 @@
 class ConstantBuffer : public Result{
 public:
 	ConstantBuffer();
+
+	/*!
+	* @fn
+	* 初期化関数
+	* @brief	コンスタントバッファの初期化する。
+	* @param	(ID3D12Device* _dev) デバイス
+	*/
 	void Initialize(ID3D12Device* _dev);
 	~ConstantBuffer();
 
