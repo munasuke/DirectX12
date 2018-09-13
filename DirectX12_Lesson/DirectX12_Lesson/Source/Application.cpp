@@ -102,9 +102,7 @@ void Application::Run() {
 		//パイプラインのセット
 		command->GetCommandList()->SetPipelineState(pipline->GetPiplineState());
 
-		//コンスタントバッファのデスクリプタをセット
-		cb->UpDataWVP();
-		cb->SetDescriptor(command->GetCommandList());
+
 
 		//ビューポートのセット
 		command->GetCommandList()->RSSetViewports(1, &viewPort->GetViewPort());
@@ -142,7 +140,9 @@ void Application::Run() {
 		//SRV用のデスクリプタをセット
 		command->GetCommandList()->SetDescriptorHeaps(1, srv->GetTextureHeap2());
 		command->GetCommandList()->SetGraphicsRootDescriptorTable(0, srv->GetTextureHeap()->GetGPUDescriptorHandleForHeapStart());
-
+		//コンスタントバッファのデスクリプタをセット
+		cb->UpDataWVP();
+		cb->SetDescriptor(command->GetCommandList());
 		//三角ポリゴン描画にする
 		command->GetCommandList()->IASetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 

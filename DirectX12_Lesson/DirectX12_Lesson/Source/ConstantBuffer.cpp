@@ -23,9 +23,9 @@ void ConstantBuffer::Initialize(ID3D12Device * _dev) {
 	mt.projection	= XMMatrixPerspectiveFovLH(90.0f * 3.14159264f / 180.0f, static_cast<FLOAT>(WIN_HEIGHT) / static_cast<FLOAT>(WIN_WIDTH), 0.01f, 500.0f);
 
 	//デスクリプタヒープの作成
-	cbvHeapDesc.Type			= D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;//コンスタントバッファ
+	cbvHeapDesc.Type			= D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;	//コンスタントバッファ
 	cbvHeapDesc.NumDescriptors	= 1;
-	cbvHeapDesc.Flags			= D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;//シェーダから見えるようにする
+	cbvHeapDesc.Flags			= D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;							//シェーダから見えるようにする
 	cbvHeapDesc.NodeMask		= 0;
 	result = _dev->CreateDescriptorHeap(&cbvHeapDesc, IID_PPV_ARGS(&cbvDescHeap));
 
@@ -53,16 +53,17 @@ void ConstantBuffer::Initialize(ID3D12Device * _dev) {
 		IID_PPV_ARGS(&constantBuffer));
 
 	//コンスタントバッファビューの設定
-	cbvDesc.BufferLocation = constantBuffer->GetGPUVirtualAddress();
-	cbvDesc.SizeInBytes = (sizeof(mt) + 0xff) &~ 0xff;
+	cbvDesc.BufferLocation	= constantBuffer->GetGPUVirtualAddress();
+	cbvDesc.SizeInBytes		= (sizeof(mt) + 0xff) &~ 0xff;
 
 	//定数バッファの作成
 	_dev->CreateConstantBufferView(&cbvDesc, cbvDescHeap->GetCPUDescriptorHandleForHeapStart());
 
 	//シェーダに行列を渡す
-	D3D12_RANGE range = {};
-	result = constantBuffer->Map(0, &range, (void**)(&data));
+	//D3D12_RANGE range = {0,sizeof(mt )};
+	result = constantBuffer->Map(0, nullptr, (void**)(&data));
 	memcpy(data, &mt, sizeof(mt));
+	Matrixs a = *(Matrixs*)data;
 }
 
 
@@ -73,12 +74,12 @@ ConstantBuffer::~ConstantBuffer() {
 }
 
 void ConstantBuffer::UpDataWVP(void) {
-	static FLOAT angle = 0.0f;
-	mt.world = XMMatrixRotationY(angle * 3.14159264f / 180.0f);
-	memcpy(data, &mt, sizeof(mt));
-	++angle;
+	//static FLOAT angle = 0.0f;
+	//mt.world = XMMatrixRotationY(angle * 3.14159264f / 180.0f);
+	//memcpy(data, &mt, sizeof(mt));
+	//++angle;
 	
-	std::cout << angle * 3.14159264f / 180.0f << std::endl;
+	//std::cout << angle * 3.14159264f / 180.0f << std::endl;
 }
 
 void ConstantBuffer::SetDescriptor(ID3D12GraphicsCommandList * _list) {

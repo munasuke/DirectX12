@@ -17,7 +17,7 @@ namespace{
 	D3D_FEATURE_LEVEL level = {};
 }
 
-Device::Device() : dev(nullptr)
+Device::Device() : dev(nullptr)/*, adapter(nullptr)*/
 {
 	//エラーを出力に表示させる
 #ifdef _DEBUG
@@ -29,6 +29,9 @@ Device::Device() : dev(nullptr)
 	Release(debug);
 	debug = nullptr;
 #endif
+	////グラボを選ぶ
+	//for(INT i = 0; )
+
 	//マシンにあったバージョンを選ぶ
 	for (auto i : levels){
 		result = D3D12CreateDevice(nullptr, i, IID_PPV_ARGS(&dev));
