@@ -131,7 +131,7 @@ void Application::Run() {
 		command->GetCommandList()->OMSetRenderTargets(1, &rtvHandle, false, nullptr);
 
 		//クリアカラーの設定
-		const FLOAT color[] = { 1.0f, 0.0f, 0.7f, 1.0f };
+		const FLOAT color[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
 		//レンダーターゲットのクリア
 		command->GetCommandList()->ClearRenderTargetView(rtvHandle, color, 0, nullptr);

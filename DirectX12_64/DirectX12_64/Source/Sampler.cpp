@@ -8,7 +8,7 @@ Sampler::Sampler()
 
 void Sampler::InitSampler()
 {
-	samplerDesc.Filter = D3D12_FILTER::D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+	samplerDesc.Filter				= D3D12_FILTER::D3D12_FILTER_MIN_MAG_MIP_LINEAR;
 	samplerDesc.AddressU			= D3D12_TEXTURE_ADDRESS_MODE_WRAP;
 	samplerDesc.AddressV			= D3D12_TEXTURE_ADDRESS_MODE_WRAP;
 	samplerDesc.AddressW			= D3D12_TEXTURE_ADDRESS_MODE_WRAP;

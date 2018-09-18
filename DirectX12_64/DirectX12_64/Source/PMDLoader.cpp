@@ -14,7 +14,7 @@ int PMDLoader::Load(const char * _path) {
 	fread(&pmdHeader, sizeof(PMDHeader), 1, fp);
 	
 	vertices.resize(pmdHeader.vertexNum);
-	fread(&vertices[0], pmdHeader.vertexNum, pmdHeader.vertexNum, fp);
+	fread(&vertices[0], sizeof(PMDVertex), pmdHeader.vertexNum, fp);
 
 	fclose(fp);
 

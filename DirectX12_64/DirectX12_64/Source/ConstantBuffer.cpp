@@ -13,14 +13,14 @@ ConstantBuffer::ConstantBuffer() :
 
 void ConstantBuffer::Initialize(ID3D12Device * _dev) {
 	//視線、注視点、上ベクトル
-	XMVECTOR eye	= { 0.0f, 0.0f, -10.0f };
+	XMVECTOR eye	= { 0.0f, 0.0f, -20.0f };
 	XMVECTOR focus	= { 0.0f, 0.0f,	  0.0f };
 	XMVECTOR upper	= { 0.0f, 1.0f,   0.0f };
 
 	//ワールドビュープロジェクション
 	mt.world		= XMMatrixIdentity();
 	mt.view			= XMMatrixLookAtLH(eye, focus, upper);
-	mt.projection	= XMMatrixPerspectiveFovLH(90.0f * 3.14159264f / 180.0f, static_cast<FLOAT>(WIN_HEIGHT) / static_cast<FLOAT>(WIN_WIDTH), 0.01f, 500.0f);
+	mt.projection	= XMMatrixPerspectiveFovLH(90.0f * 3.14159264f / 180.0f, static_cast<FLOAT>(WIN_WIDTH) / static_cast<FLOAT>(WIN_HEIGHT), 0.01f, 500.0f);
 
 	//デスクリプタヒープの作成
 	cbvHeapDesc.Type			= D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;	//コンスタントバッファ

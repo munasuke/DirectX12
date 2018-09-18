@@ -19,10 +19,12 @@ struct Out
 //VertexShader
 Out BasicVS(float4 pos : POSITION/*, float2 uv : TEXCOORD*/)
 {
-	//pos = mul(projection, mul(view, mul(world, pos)));
-	//pos = mul(projection, mul(view, pos));
 	pos.w = 1;
-	//pos = mul(world, pos);
+	//pos = mul(mul(mul(projection, view), world), pos);
+	pos = mul(world, pos);
+	pos = mul(view, pos);
+	pos = mul(projection, pos);
+
 	Out o;
 	o.svpos = pos;
 	o.pos	= pos;
@@ -34,6 +36,6 @@ Out BasicVS(float4 pos : POSITION/*, float2 uv : TEXCOORD*/)
 float4 BasicPS(Out o) : SV_TARGET
 {
 	//return float4(world[0][3], world[1][2], world[2][1], world[3][0]);
-	return float4(1, 1, 1, 1);
+	return float4(0, 1, 0, 1);
 	//return float4(tex.Sample(smp, o.uv).abg, 1);
 }
