@@ -14,7 +14,7 @@ ConstantBuffer::ConstantBuffer() :
 void ConstantBuffer::Initialize(ID3D12Device * _dev) {
 	//視線、注視点、上ベクトル
 	XMVECTOR eye	= { 0.0f, 10.0f, -15.0f };
-	XMVECTOR focus	= { 0.0f, 10.0f,	0.0f };
+	XMVECTOR focus	= { 0.0f, 0.0f,	0.0f };
 	XMVECTOR upper	= { 0.0f, 1.0f,   0.0f };
 
 	//ワールドビュープロジェクション
