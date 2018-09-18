@@ -17,7 +17,7 @@ void PipelineState::Initialize(ID3D12Device* _dev, CD3DX12_SHADER_BYTECODE _vs, 
 	gpsDesc.pRootSignature						= _root;
 	gpsDesc.RasterizerState						= CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 	gpsDesc.RTVFormats[0]						= DXGI_FORMAT_R8G8B8A8_UNORM;
-	gpsDesc.PrimitiveTopologyType				= D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	gpsDesc.PrimitiveTopologyType				= D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
 	gpsDesc.SampleDesc.Count					= 1;
 	gpsDesc.NumRenderTargets					= 1;
 	gpsDesc.SampleMask							= UINT_MAX;

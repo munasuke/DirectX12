@@ -20,6 +20,7 @@
 #include "PipelineState.h"
 #include "ViewPort.h"
 #include "ConstantBuffer.h"
+#include "PMDLoader.h"
 
 namespace{
 	MSG msg = {};
@@ -43,6 +44,7 @@ Application::Application() {
 	pipline			= std::make_shared<PipelineState>();
 	viewPort		= std::make_shared<ViewPort>();
 	cb				= std::make_shared<ConstantBuffer>();
+	pmd				= std::make_shared<PMDLoader>();
 }
 
 //初期化
@@ -64,8 +66,10 @@ void Application::Initialize() {
 	root->InitRootSignature(sampler->GetSamplerDesc(), device->GetDevice(), D3D12_SHADER_VISIBILITY_ALL);
 	//フェンス
 	fence->InitFence(device->GetDevice());
+	//PMD
+	pmd->Load("PMD/初音ミク/初音ミク.pmd");
 	//頂点バッファ
-	vertex->Initialize(device->GetDevice());
+	vertex->Initialize(device->GetDevice(), pmd->GetPMDVertex());
 	//テクスチャリソース
 	tex->Initialize(device->GetDevice());
 	//シェーダリソースビュー
@@ -102,8 +106,6 @@ void Application::Run() {
 		//パイプラインのセット
 		command->GetCommandList()->SetPipelineState(pipline->GetPiplineState());
 
-
-
 		//ビューポートのセット
 		command->GetCommandList()->RSSetViewports(1, &viewPort->GetViewPort());
 
@@ -118,9 +120,6 @@ void Application::Run() {
 				D3D12_RESOURCE_STATE_PRESENT, 
 				D3D12_RESOURCE_STATE_RENDER_TARGET)
 		);
-
-		//頂点バッファのセット
-		command->GetCommandList()->IASetVertexBuffers(0, 1, &vertex->GetVBV());
 
 		//画面に色を付ける
 		//バックバッファのインデックスを取得
@@ -137,20 +136,25 @@ void Application::Run() {
 		//レンダーターゲットのクリア
 		command->GetCommandList()->ClearRenderTargetView(rtvHandle, color, 0, nullptr);
 
-		//SRV用のデスクリプタをセット
-		command->GetCommandList()->SetDescriptorHeaps(1, srv->GetTextureHeap2());
-		command->GetCommandList()->SetGraphicsRootDescriptorTable(0, srv->GetTextureHeap()->GetGPUDescriptorHandleForHeapStart());
 		//コンスタントバッファのデスクリプタをセット
 		cb->UpDataWVP();
 		cb->SetDescriptor(command->GetCommandList());
+		
 		//三角ポリゴン描画にする
-		command->GetCommandList()->IASetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		command->GetCommandList()->IASetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
+
+		//頂点バッファのセット
+		command->GetCommandList()->IASetVertexBuffers(0, 1, &vertex->GetVBV());
+
+		//SRV用のデスクリプタをセット
+		command->GetCommandList()->SetDescriptorHeaps(1, srv->GetTextureHeap2());
+		command->GetCommandList()->SetGraphicsRootDescriptorTable(0, srv->GetTextureHeap()->GetGPUDescriptorHandleForHeapStart());
 
 		//テクスチャバッファへの書き込み
 		tex->WriteToTextureBuffer(bmp->GetData());
 
 		//頂点描画
-		command->GetCommandList()->DrawInstanced(6, 1, 0, 0);
+		command->GetCommandList()->DrawInstanced(pmd->GetPMDHeader().vertexNum, 1, 0, 0);
 
 		//バリアを張る
 		command->GetCommandList()->ResourceBarrier(

@@ -20,6 +20,7 @@ class ShaderLoader;
 class PipelineState;
 class ViewPort;
 class ConstantBuffer;
+class PMDLoader;
 
 class Application {
 public:
@@ -55,5 +56,6 @@ private:
 	std::shared_ptr<PipelineState>		pipline;		//パイプラインステートオブジェクト
 	std::shared_ptr<ViewPort>			viewPort;		//ビューポート
 	std::shared_ptr<ConstantBuffer>		cb;				//コンスタントバッファ
+	std::shared_ptr<PMDLoader>			pmd;			//PMD
 };
 
