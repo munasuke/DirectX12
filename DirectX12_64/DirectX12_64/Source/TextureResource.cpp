@@ -53,5 +53,5 @@ ID3D12Resource * TextureResource::GetTextureBuffer() {
 
 TextureResource::~TextureResource()
 {
-	Release(textureBuffer);
+	ReleaseP(textureBuffer);
 }

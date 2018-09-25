@@ -85,7 +85,11 @@
       <SDLCheck>false</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalIncludeDirectories>$(DXTEX_DIR)</AdditionalIncludeDirectories>
     </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(DXTEX_DIR)Bin\Desktop_2017_Win10\x64\Debug</AdditionalLibraryDirectories>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -125,6 +129,8 @@
     <ClCompile Include="Source\DescriptorRange.cpp" />
     <ClCompile Include="Source\Device.cpp" />
     <ClCompile Include="Source\Fence.cpp" />
+    <ClCompile Include="Source\ImageLoader.cpp" />
+    <ClCompile Include="Source\Index.cpp" />
     <ClCompile Include="Source\main.cpp" />
     <ClCompile Include="Source\Parameter.cpp" />
     <ClCompile Include="Source\PipelineState.cpp" />
@@ -151,6 +157,8 @@
     <ClInclude Include="Source\DescriptorRange.h" />
     <ClInclude Include="Source\Device.h" />
     <ClInclude Include="Source\Fence.h" />
+    <ClInclude Include="Source\ImageLoader.h" />
+    <ClInclude Include="Source\Index.h" />
     <ClInclude Include="Source\Matrix.h" />
     <ClInclude Include="Source\Parameter.h" />
     <ClInclude Include="Source\PipelineState.h" />

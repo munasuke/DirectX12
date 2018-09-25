@@ -37,5 +37,5 @@ UINT Descriptor::GetDescriptorSize() {
 
 
 Descriptor::~Descriptor() {
-	Release(descriptorHeap);
+	ReleaseP(descriptorHeap);
 }

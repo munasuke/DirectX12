@@ -3,6 +3,7 @@
 #include <DirectXMath.h>
 #include <vector>
 
+//ヘッダー
 #pragma pack(1)
 struct PMDHeader{
 	CHAR	magic[3];		//PMD
@@ -10,9 +11,11 @@ struct PMDHeader{
 	CHAR	name[20];		//モデル名
 	CHAR	comment[256];	//コメント
 	UINT	vertexNum;		//頂点数
+	//UINT	indicesNum;		//インデックス数
 };
 #pragma pack()
 
+//頂点データ
 #pragma pack(1)
 struct PMDVertex{
 	DirectX::XMFLOAT3	pos;	//座標
@@ -33,10 +36,13 @@ public:
 	int Load(const char* _path);
 	PMDHeader GetPMDHeader();
 	std::vector<PMDVertex> GetPMDVertex();
+	std::vector<USHORT> GetIndices();		//インデックス情報を返す
 
 	~PMDLoader();
 private:
 	PMDHeader pmdHeader;
 	std::vector<PMDVertex> vertices;
+	UINT indicesNum;
+	std::vector<USHORT> indices;
 };
 

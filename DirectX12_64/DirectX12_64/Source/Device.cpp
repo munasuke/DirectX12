@@ -26,7 +26,7 @@ Device::Device() : dev(nullptr)/*, adapter(nullptr)*/
 	if (FAILED(result))
 		int i = 0;
 	debug->EnableDebugLayer();
-	Release(debug);
+	ReleaseP(debug);
 	debug = nullptr;
 #endif
 	////ƒOƒ‰ƒ{‚ð‘I‚Ô
@@ -48,5 +48,5 @@ ID3D12Device * Device::GetDevice() {
 
 
 Device::~Device() {
-	Release(dev);
+	ReleaseP(dev);
 }

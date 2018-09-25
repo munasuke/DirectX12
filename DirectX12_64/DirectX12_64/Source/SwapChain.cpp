@@ -44,6 +44,6 @@ IDXGISwapChain3 * SwapChain::GetSwapChain()
 
 
 SwapChain::~SwapChain() {
-	Release(swapChain);
-	Release(factory);
+	ReleaseP(swapChain);
+	ReleaseP(factory);
 }

@@ -20,5 +20,5 @@ UINT64 Fence::GetFenceValue(bool countFlag) {
 
 
 Fence::~Fence() {
-	Release(fence);
+	ReleaseP(fence);
 }

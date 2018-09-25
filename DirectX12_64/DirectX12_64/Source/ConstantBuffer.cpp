@@ -14,8 +14,8 @@ ConstantBuffer::ConstantBuffer() :
 void ConstantBuffer::Initialize(ID3D12Device * _dev) {
 	//視線、注視点、上ベクトル
 	XMVECTOR eye	= { 0.0f, 10.0f, -15.0f };
-	XMVECTOR focus	= { 0.0f, 0.0f,	0.0f };
-	XMVECTOR upper	= { 0.0f, 1.0f,   0.0f };
+	XMVECTOR focus	= { 0.0f, 10.0f,   0.0f };
+	XMVECTOR upper	= { 0.0f,  1.0f,   0.0f };
 
 	//ワールドビュープロジェクション
 	mt.world		= XMMatrixIdentity();
@@ -60,24 +60,24 @@ void ConstantBuffer::Initialize(ID3D12Device * _dev) {
 	_dev->CreateConstantBufferView(&cbvDesc, cbvDescHeap->GetCPUDescriptorHandleForHeapStart());
 
 	//シェーダに行列を渡す
-	//D3D12_RANGE range = {0,sizeof(mt )};
-	result = constantBuffer->Map(0, nullptr, (void**)(&data));
+	D3D12_RANGE range = {0,sizeof(mt )};
+	result = constantBuffer->Map(0, &range, (void**)(&data));
 	memcpy(data, &mt, sizeof(mt));
-	Matrixs a = *(Matrixs*)data;
 }
 
 
 ConstantBuffer::~ConstantBuffer() {
 	constantBuffer->Unmap(0, nullptr);
-	Release(constantBuffer);
-	Release(cbvDescHeap);
+	ReleaseP(constantBuffer);
+	ReleaseP(cbvDescHeap);
 }
 
 void ConstantBuffer::UpDataWVP(void) {
-	//static FLOAT angle = 0.0f;
-	//mt.world = XMMatrixRotationY(angle * 3.14159264f / 180.0f);
-	//memcpy(data, &mt, sizeof(mt));
-	//++angle;
+	//モデルの回転
+	static FLOAT angle = 0.0f;
+	mt.world = XMMatrixRotationY(angle * 3.14159264f / 180.0f);
+	memcpy(data, &mt, sizeof(mt));
+	++angle;
 	
 	//std::cout << angle * 3.14159264f / 180.0f << std::endl;
 }

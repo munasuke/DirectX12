@@ -48,6 +48,6 @@ CD3DX12_SHADER_BYTECODE ShaderLoader::GetPS() {
 
 
 ShaderLoader::~ShaderLoader() {
-	Release(pixelShader);
-	Release(vertexShader);
+	ReleaseP(pixelShader);
+	ReleaseP(vertexShader);
 }

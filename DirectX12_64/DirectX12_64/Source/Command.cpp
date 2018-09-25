@@ -43,7 +43,7 @@ ID3D12GraphicsCommandList * Command::GetCommandList() {
 
 Command::~Command() {
 	//‰ğ•úˆ—
-	Release(commandQueue);
-	Release(commandList);
-	Release(commandAllocator);
+	ReleaseP(commandQueue);
+	ReleaseP(commandList);
+	ReleaseP(commandAllocator);
 }

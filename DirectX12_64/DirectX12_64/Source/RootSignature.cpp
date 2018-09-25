@@ -14,13 +14,15 @@ RootSignature::RootSignature() :
 
 void RootSignature::InitRootSignature(D3D12_STATIC_SAMPLER_DESC _samplerDesc, ID3D12Device* _dev, D3D12_SHADER_VISIBILITY _shaderVisibility) {
 	//デスクリプタレンジ
+	//t0
 	descriptorRange[0].RangeType							= D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	descriptorRange[0].NumDescriptors						= 1;
 	descriptorRange[0].BaseShaderRegister					= 0;
 	descriptorRange[0].RegisterSpace						= 0;
 	descriptorRange[0].OffsetInDescriptorsFromTableStart	= D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	descriptorRange[1].RangeType							= D3D12_DESCRIPTOR_RANGE_TYPE::D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+	//b0
+	descriptorRange[1].RangeType							= D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
 	descriptorRange[1].NumDescriptors						= 1;
 	descriptorRange[1].BaseShaderRegister					= 0;
 	descriptorRange[1].RegisterSpace						= 0;
@@ -68,7 +70,7 @@ ID3DBlob * RootSignature::GetError() {
 
 
 RootSignature::~RootSignature() {
-	Release(error);
-	Release(signature);
-	Release(rootSignature);
+	ReleaseP(error);
+	ReleaseP(signature);
+	ReleaseP(rootSignature);
 }

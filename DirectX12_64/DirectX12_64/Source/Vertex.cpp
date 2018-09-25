@@ -80,5 +80,5 @@ D3D12_VERTEX_BUFFER_VIEW Vertex::GetVBV() {
 
 Vertex::~Vertex()
 {
-	Release(vertexBuffer);
+	ReleaseP(vertexBuffer);
 }

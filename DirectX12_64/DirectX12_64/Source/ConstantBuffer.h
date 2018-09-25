@@ -36,7 +36,7 @@ private:
 	UINT* data;
 
 
-	ID3D12Resource* constantBuffer;
+	ID3D12Resource* constantBuffer;//定数バッファ用
 	ID3D12DescriptorHeap* cbvDescHeap;
 
 	D3D12_DESCRIPTOR_HEAP_DESC cbvHeapDesc = {};

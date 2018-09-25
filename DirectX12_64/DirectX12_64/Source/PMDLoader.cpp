@@ -16,6 +16,10 @@ int PMDLoader::Load(const char * _path) {
 	vertices.resize(pmdHeader.vertexNum);
 	fread(&vertices[0], sizeof(PMDVertex), pmdHeader.vertexNum, fp);
 
+	fread(&indicesNum, sizeof(UINT), 1, fp);
+	indices.resize(indicesNum);
+	fread(&indices[0], sizeof(USHORT), indicesNum, fp);
+
 	fclose(fp);
 
 	return 0;
@@ -27,6 +31,10 @@ PMDHeader PMDLoader::GetPMDHeader() {
 
 std::vector<PMDVertex> PMDLoader::GetPMDVertex() {
 	return vertices;
+}
+
+std::vector<USHORT> PMDLoader::GetIndices() {
+	return indices;
 }
 
 

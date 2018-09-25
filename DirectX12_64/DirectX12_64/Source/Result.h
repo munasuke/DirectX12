@@ -2,7 +2,7 @@
 
 #include "d3dx12.h"
 
-#define Release(X)	{if((X) != nullptr) (X)->Release();}
+#define ReleaseP(X)	{if((X) != nullptr) (X)->Release();}
 
 class Result
 {

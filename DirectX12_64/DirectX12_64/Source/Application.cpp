@@ -21,6 +21,9 @@
 #include "ViewPort.h"
 #include "ConstantBuffer.h"
 #include "PMDLoader.h"
+#include "Index.h"
+//#include <DirectXTex/DirectXTex.h>
+//#pragma comment(lib, "DirectXTex.lib")
 
 namespace{
 	MSG msg = {};
@@ -45,10 +48,13 @@ Application::Application() {
 	viewPort		= std::make_shared<ViewPort>();
 	cb				= std::make_shared<ConstantBuffer>();
 	pmd				= std::make_shared<PMDLoader>();
+	index			= std::make_shared<Index>();
 }
 
 //初期化
 void Application::Initialize() {
+	//ウィンドウのメディアを使うために必要
+	CoInitializeEx(nullptr, COINIT_MULTITHREADED);
 	//ウィンドウ
 	window->InitWindow();
 	//コマンド
@@ -70,10 +76,14 @@ void Application::Initialize() {
 	pmd->Load("PMD/初音ミク/初音ミク.pmd");
 	//頂点バッファ
 	vertex->Initialize(device->GetDevice(), pmd->GetPMDVertex());
+	//インデックス
+	index->Initialize(device->GetDevice(), pmd->GetIndices());
 	//テクスチャリソース
 	tex->Initialize(device->GetDevice());
 	//シェーダリソースビュー
 	srv->Initialize(device->GetDevice(), tex->GetTextureBuffer());
+	//コンスタントバッファ
+	cb->Initialize(device->GetDevice());
 	//BMP
 	bmp->Load("Image/aoba.bmp");
 	//シェーダ
@@ -83,8 +93,6 @@ void Application::Initialize() {
 		vertex->GetInputDescNum(), vertex->GetInputDesc(), root->GetRootSignature());
 	//ビューポート
 	viewPort->Initialize();
-	//コンスタントバッファ
-	cb->Initialize(device->GetDevice());
 }
 
 //メインループ
@@ -141,10 +149,13 @@ void Application::Run() {
 		cb->SetDescriptor(command->GetCommandList());
 		
 		//三角ポリゴン描画にする
-		command->GetCommandList()->IASetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY::D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
+		command->GetCommandList()->IASetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 		//頂点バッファのセット
 		command->GetCommandList()->IASetVertexBuffers(0, 1, &vertex->GetVBV());
+
+		//インデックスバッファのセット
+		command->GetCommandList()->IASetIndexBuffer(&index->GetIndexBufferView());
 
 		//SRV用のデスクリプタをセット
 		command->GetCommandList()->SetDescriptorHeaps(1, srv->GetTextureHeap2());
@@ -154,7 +165,7 @@ void Application::Run() {
 		tex->WriteToTextureBuffer(bmp->GetData());
 
 		//頂点描画
-		command->GetCommandList()->DrawInstanced(pmd->GetPMDHeader().vertexNum, 1, 0, 0);
+		command->GetCommandList()->DrawIndexedInstanced(pmd->GetIndices().size(), 1, 0, 0, 0);
 
 		//バリアを張る
 		command->GetCommandList()->ResourceBarrier(
@@ -184,6 +195,7 @@ void Application::Run() {
 
 //終了
 void Application::Terminate() {
+	CoUninitialize();
 }
 
 Application::~Application() {
