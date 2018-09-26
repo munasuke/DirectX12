@@ -14,7 +14,6 @@ public:
 	* @param	(ID3D12Device* _dev) デバイス
 	*/
 	void Initialize(ID3D12Device* _dev, ID3D12DescriptorHeap* _heap);
-	~ConstantBuffer();
 
 	/*!
 	* @fn
@@ -31,6 +30,11 @@ public:
 	* @param	(ID3D12GraphicsCommandList* _list) コマンドリスト
 	*/
 	void SetDescriptor(ID3D12GraphicsCommandList* _list, int _index, ID3D12DescriptorHeap* _heap, ID3D12Device* _dev);
+	/*
+	*/
+	D3D12_CPU_DESCRIPTOR_HANDLE GetDescriptorHandle();
+
+	~ConstantBuffer();
 private:
 	Matrixs mt;//空間行列
 	UINT* data;
@@ -44,5 +48,7 @@ private:
 	CD3DX12_HEAP_PROPERTIES heapProperties = {};
 
 	D3D12_RESOURCE_DESC cbvResDesc = {};
+
+	D3D12_CPU_DESCRIPTOR_HANDLE handle = {};
 };
 

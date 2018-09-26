@@ -22,6 +22,7 @@ class ViewPort;
 class ConstantBuffer;
 class PMDLoader;
 class Index;
+class DepthStencilBuffer;
 
 class Application {
 public:
@@ -59,5 +60,6 @@ private:
 	std::shared_ptr<ConstantBuffer>		cb;				//コンスタントバッファ
 	std::shared_ptr<PMDLoader>			pmd;			//PMD
 	std::shared_ptr<Index>				index;			//インデックス
+	std::shared_ptr<DepthStencilBuffer>	depth;			//深度バッファ
 };
 

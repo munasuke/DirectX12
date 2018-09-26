@@ -30,20 +30,20 @@ void ConstantBuffer::Initialize(ID3D12Device * _dev, ID3D12DescriptorHeap* _heap
 	//cbvHeapDesc.NodeMask		= 0;
 	//result = _dev->CreateDescriptorHeap(&cbvHeapDesc, IID_PPV_ARGS(&cbvDescHeap));
 
-	heapProperties.Type					= D3D12_HEAP_TYPE_UPLOAD;
-	heapProperties.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
-	heapProperties.CPUPageProperty		= D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+	heapProperties.Type					= D3D12_HEAP_TYPE::D3D12_HEAP_TYPE_UPLOAD;
+	heapProperties.MemoryPoolPreference = D3D12_MEMORY_POOL::D3D12_MEMORY_POOL_UNKNOWN;
+	heapProperties.CPUPageProperty		= D3D12_CPU_PAGE_PROPERTY::D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
 	heapProperties.VisibleNodeMask		= 1;
 	heapProperties.CreationNodeMask		= 1;
 
 	//リソース設定
-	cbvResDesc.Dimension		= D3D12_RESOURCE_DIMENSION_BUFFER;	//1次元バッファ
-	cbvResDesc.Width			= (sizeof(mt) + 0xff) &~ 0xff;		//255アライメント
-	cbvResDesc.Height			= 1;								//1次元なので１を設定
-	cbvResDesc.DepthOrArraySize = 1;								//深さはないので１を設定
-	cbvResDesc.MipLevels		= 1;								//ミップはない
-	cbvResDesc.SampleDesc.Count = 1;								//ないと失敗する
-	cbvResDesc.Layout			= D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+	cbvResDesc.Dimension		= D3D12_RESOURCE_DIMENSION::D3D12_RESOURCE_DIMENSION_BUFFER;//1次元バッファ
+	cbvResDesc.Width			= (sizeof(mt) + 0xff) &~ 0xff;								//255アライメント
+	cbvResDesc.Height			= 1;														//1次元なので１を設定
+	cbvResDesc.DepthOrArraySize = 1;														//深さはないので１を設定
+	cbvResDesc.MipLevels		= 1;														//ミップはない
+	cbvResDesc.SampleDesc.Count = 1;														//ないと失敗する
+	cbvResDesc.Layout			= D3D12_TEXTURE_LAYOUT::D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 
 	result = _dev->CreateCommittedResource(
 		&heapProperties,
@@ -58,9 +58,9 @@ void ConstantBuffer::Initialize(ID3D12Device * _dev, ID3D12DescriptorHeap* _heap
 	cbvDesc.SizeInBytes		= (sizeof(mt) + 0xff) &~ 0xff;
 
 	//シェーダリソースのヒープの先頭を受け取る
-	auto handle = _heap->GetCPUDescriptorHandleForHeapStart();
+	handle = _heap->GetCPUDescriptorHandleForHeapStart();
 	//ポインタをサイズ分進める
-	handle.ptr += _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	handle.ptr += _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	//進めたやつをCreateBufferViewに渡す
 	//定数バッファの作成
 	_dev->CreateConstantBufferView(&cbvDesc, handle);
@@ -69,13 +69,6 @@ void ConstantBuffer::Initialize(ID3D12Device * _dev, ID3D12DescriptorHeap* _heap
 	D3D12_RANGE range = {0,sizeof(mt )};
 	result = constantBuffer->Map(0, &range, (void**)(&data));
 	memcpy(data, &mt, sizeof(mt));
-}
-
-
-ConstantBuffer::~ConstantBuffer() {
-	constantBuffer->Unmap(0, nullptr);
-	ReleaseP(constantBuffer);
-	ReleaseP(cbvDescHeap);
 }
 
 void ConstantBuffer::UpDataWVP(void) {
@@ -90,8 +83,20 @@ void ConstantBuffer::UpDataWVP(void) {
 
 void ConstantBuffer::SetDescriptor(ID3D12GraphicsCommandList * _list, int _index, ID3D12DescriptorHeap* _heap, ID3D12Device* _dev) {
 	auto handle = _heap->GetGPUDescriptorHandleForHeapStart();
-	handle.ptr += _index * _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	handle.ptr += _index * _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	
 	_list->SetDescriptorHeaps(1, &_heap);
 	_list->SetGraphicsRootDescriptorTable(_index, handle);
+}
+
+
+D3D12_CPU_DESCRIPTOR_HANDLE ConstantBuffer::GetDescriptorHandle()
+{
+	return handle;
+}
+
+ConstantBuffer::~ConstantBuffer() {
+	constantBuffer->Unmap(0, nullptr);
+	ReleaseP(constantBuffer);
+	ReleaseP(cbvDescHeap);
 }

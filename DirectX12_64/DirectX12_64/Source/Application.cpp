@@ -22,6 +22,7 @@
 #include "ConstantBuffer.h"
 #include "PMDLoader.h"
 #include "Index.h"
+#include "DepthStencilBuffer.h"
 //#include <DirectXTex/DirectXTex.h>
 //#pragma comment(lib, "DirectXTex.lib")
 
@@ -49,6 +50,7 @@ Application::Application() {
 	cb				= std::make_shared<ConstantBuffer>();
 	pmd				= std::make_shared<PMDLoader>();
 	index			= std::make_shared<Index>();
+	depth			= std::make_shared<DepthStencilBuffer>();
 }
 
 //初期化
@@ -69,7 +71,7 @@ void Application::Initialize() {
 	//サンプラ
 	sampler->InitSampler();
 	//ルートシグネチャ
-	root->InitRootSignature(sampler->GetSamplerDesc(), device->GetDevice(), D3D12_SHADER_VISIBILITY_ALL);
+	root->InitRootSignature(sampler->GetSamplerDesc(), device->GetDevice(), D3D12_SHADER_VISIBILITY::D3D12_SHADER_VISIBILITY_ALL);
 	//フェンス
 	fence->InitFence(device->GetDevice());
 	//PMD
@@ -84,6 +86,8 @@ void Application::Initialize() {
 	srv->Initialize(device->GetDevice(), tex->GetTextureBuffer());
 	//コンスタントバッファ
 	cb->Initialize(device->GetDevice(), srv->GetTextureHeap());
+	//深度バッファ
+	depth->Initialize(device->GetDevice(), cb->GetDescriptorHandle());
 	//BMP
 	bmp->Load("Image/aoba.bmp");
 	//シェーダ
@@ -125,8 +129,8 @@ void Application::Run() {
 			1,
 			&CD3DX12_RESOURCE_BARRIER::Transition(
 				renderTarget->GetRenderTarget()[swapChain->GetSwapChain()->GetCurrentBackBufferIndex()], 
-				D3D12_RESOURCE_STATE_PRESENT, 
-				D3D12_RESOURCE_STATE_RENDER_TARGET)
+				D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_PRESENT,
+				D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_RENDER_TARGET)
 		);
 
 		//画面に色を付ける
@@ -170,8 +174,8 @@ void Application::Run() {
 			1,
 			&CD3DX12_RESOURCE_BARRIER::Transition(
 				renderTarget->GetRenderTarget()[swapChain->GetSwapChain()->GetCurrentBackBufferIndex()], 
-				D3D12_RESOURCE_STATE_RENDER_TARGET,
-				D3D12_RESOURCE_STATE_PRESENT)
+				D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_RENDER_TARGET,
+				D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_PRESENT)
 		);
 
 		//コマンドリストを閉じる
