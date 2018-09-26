@@ -13,7 +13,7 @@ public:
 	* @brief	コンスタントバッファの初期化する。
 	* @param	(ID3D12Device* _dev) デバイス
 	*/
-	void Initialize(ID3D12Device* _dev);
+	void Initialize(ID3D12Device* _dev, ID3D12DescriptorHeap* _heap);
 	~ConstantBuffer();
 
 	/*!
@@ -30,7 +30,7 @@ public:
 	* @brief	デスクリプタへコンスタントバッファをセットする。
 	* @param	(ID3D12GraphicsCommandList* _list) コマンドリスト
 	*/
-	void SetDescriptor(ID3D12GraphicsCommandList* _list);
+	void SetDescriptor(ID3D12GraphicsCommandList* _list, int _index, ID3D12DescriptorHeap* _heap, ID3D12Device* _dev);
 private:
 	Matrixs mt;//空間行列
 	UINT* data;

@@ -83,7 +83,7 @@ void Application::Initialize() {
 	//シェーダリソースビュー
 	srv->Initialize(device->GetDevice(), tex->GetTextureBuffer());
 	//コンスタントバッファ
-	cb->Initialize(device->GetDevice());
+	cb->Initialize(device->GetDevice(), srv->GetTextureHeap());
 	//BMP
 	bmp->Load("Image/aoba.bmp");
 	//シェーダ
@@ -144,10 +144,6 @@ void Application::Run() {
 		//レンダーターゲットのクリア
 		command->GetCommandList()->ClearRenderTargetView(rtvHandle, color, 0, nullptr);
 
-		//コンスタントバッファのデスクリプタをセット
-		cb->UpDataWVP();
-		cb->SetDescriptor(command->GetCommandList());
-		
 		//三角ポリゴン描画にする
 		command->GetCommandList()->IASetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
@@ -157,10 +153,12 @@ void Application::Run() {
 		//インデックスバッファのセット
 		command->GetCommandList()->IASetIndexBuffer(&index->GetIndexBufferView());
 
-		//SRV用のデスクリプタをセット
-		command->GetCommandList()->SetDescriptorHeaps(1, srv->GetTextureHeap2());
-		command->GetCommandList()->SetGraphicsRootDescriptorTable(0, srv->GetTextureHeap()->GetGPUDescriptorHandleForHeapStart());
-
+		//SRV,コンスタントバッファのデスクリプタをセット
+		cb->UpDataWVP();
+		for (UINT i = 0; i < 2; i++){
+			cb->SetDescriptor(command->GetCommandList(), i, srv->GetTextureHeap(), device->GetDevice());
+		}
+		
 		//テクスチャバッファへの書き込み
 		tex->WriteToTextureBuffer(bmp->GetData());
 

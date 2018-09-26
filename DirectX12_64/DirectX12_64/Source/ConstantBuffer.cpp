@@ -11,7 +11,7 @@ ConstantBuffer::ConstantBuffer() :
 	mt = {};
 }
 
-void ConstantBuffer::Initialize(ID3D12Device * _dev) {
+void ConstantBuffer::Initialize(ID3D12Device * _dev, ID3D12DescriptorHeap* _heap) {
 	//視線、注視点、上ベクトル
 	XMVECTOR eye	= { 0.0f, 10.0f, -15.0f };
 	XMVECTOR focus	= { 0.0f, 10.0f,   0.0f };
@@ -20,14 +20,15 @@ void ConstantBuffer::Initialize(ID3D12Device * _dev) {
 	//ワールドビュープロジェクション
 	mt.world		= XMMatrixIdentity();
 	mt.view			= XMMatrixLookAtLH(eye, focus, upper);
-	mt.projection	= XMMatrixPerspectiveFovLH(90.0f * 3.14159264f / 180.0f, static_cast<FLOAT>(WIN_WIDTH) / static_cast<FLOAT>(WIN_HEIGHT), 0.01f, 500.0f);
+	mt.projection	= XMMatrixPerspectiveFovLH(90.0f * 3.14159264f / 180.0f, 
+		static_cast<FLOAT>(WIN_WIDTH) / static_cast<FLOAT>(WIN_HEIGHT), 0.01f, 500.0f);
 
 	//デスクリプタヒープの作成
-	cbvHeapDesc.Type			= D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;	//コンスタントバッファ
-	cbvHeapDesc.NumDescriptors	= 1;
-	cbvHeapDesc.Flags			= D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;							//シェーダから見えるようにする
-	cbvHeapDesc.NodeMask		= 0;
-	result = _dev->CreateDescriptorHeap(&cbvHeapDesc, IID_PPV_ARGS(&cbvDescHeap));
+	//cbvHeapDesc.Type			= D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;	//コンスタントバッファ
+	//cbvHeapDesc.NumDescriptors	= 1;
+	//cbvHeapDesc.Flags			= D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;							//シェーダから見えるようにする
+	//cbvHeapDesc.NodeMask		= 0;
+	//result = _dev->CreateDescriptorHeap(&cbvHeapDesc, IID_PPV_ARGS(&cbvDescHeap));
 
 	heapProperties.Type					= D3D12_HEAP_TYPE_UPLOAD;
 	heapProperties.MemoryPoolPreference = D3D12_MEMORY_POOL_UNKNOWN;
@@ -56,8 +57,13 @@ void ConstantBuffer::Initialize(ID3D12Device * _dev) {
 	cbvDesc.BufferLocation	= constantBuffer->GetGPUVirtualAddress();
 	cbvDesc.SizeInBytes		= (sizeof(mt) + 0xff) &~ 0xff;
 
+	//シェーダリソースのヒープの先頭を受け取る
+	auto handle = _heap->GetCPUDescriptorHandleForHeapStart();
+	//ポインタをサイズ分進める
+	handle.ptr += _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	//進めたやつをCreateBufferViewに渡す
 	//定数バッファの作成
-	_dev->CreateConstantBufferView(&cbvDesc, cbvDescHeap->GetCPUDescriptorHandleForHeapStart());
+	_dev->CreateConstantBufferView(&cbvDesc, handle);
 
 	//シェーダに行列を渡す
 	D3D12_RANGE range = {0,sizeof(mt )};
@@ -82,7 +88,10 @@ void ConstantBuffer::UpDataWVP(void) {
 	//std::cout << angle * 3.14159264f / 180.0f << std::endl;
 }
 
-void ConstantBuffer::SetDescriptor(ID3D12GraphicsCommandList * _list) {
-	_list->SetDescriptorHeaps(1, &cbvDescHeap);
-	_list->SetGraphicsRootDescriptorTable(1, cbvDescHeap->GetGPUDescriptorHandleForHeapStart());
+void ConstantBuffer::SetDescriptor(ID3D12GraphicsCommandList * _list, int _index, ID3D12DescriptorHeap* _heap, ID3D12Device* _dev) {
+	auto handle = _heap->GetGPUDescriptorHandleForHeapStart();
+	handle.ptr += _index * _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	
+	_list->SetDescriptorHeaps(1, &_heap);
+	_list->SetGraphicsRootDescriptorTable(_index, handle);
 }
