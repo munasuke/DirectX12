@@ -87,7 +87,7 @@ void Application::Initialize() {
 	//コンスタントバッファ
 	cb->Initialize(device->GetDevice(), srv->GetTextureHeap());
 	//深度バッファ
-	depth->Initialize(device->GetDevice(), cb->GetDescriptorHandle());
+	depth->Initialize(device->GetDevice(), cb->GetDescriptorHandle(), srv->GetDescriptorHeapDesc());
 	//BMP
 	bmp->Load("Image/aoba.bmp");
 	//シェーダ
@@ -140,7 +140,7 @@ void Application::Run() {
 		//レンダーターゲットの指定
 		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(descriptor->GetDescriptorHeap()->GetCPUDescriptorHandleForHeapStart(), 
 			bbIndex, descriptor->GetDescriptorSize());
-		command->GetCommandList()->OMSetRenderTargets(1, &rtvHandle, false, nullptr);
+		command->GetCommandList()->OMSetRenderTargets(1, &rtvHandle, false, &depth->GetHeap()->GetCPUDescriptorHandleForHeapStart());
 
 		//クリアカラーの設定
 		const FLOAT color[] = { 0.0f, 0.0f, 0.0f, 1.0f };
@@ -162,6 +162,9 @@ void Application::Run() {
 		for (UINT i = 0; i < 2; i++){
 			cb->SetDescriptor(command->GetCommandList(), i, srv->GetTextureHeap(), device->GetDevice());
 		}
+
+		//深度バッファのセット
+		depth->SetDescriptor(command->GetCommandList());
 		
 		//テクスチャバッファへの書き込み
 		tex->WriteToTextureBuffer(bmp->GetData());

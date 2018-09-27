@@ -13,23 +13,17 @@ ConstantBuffer::ConstantBuffer() :
 
 void ConstantBuffer::Initialize(ID3D12Device * _dev, ID3D12DescriptorHeap* _heap) {
 	//視線、注視点、上ベクトル
-	XMVECTOR eye	= { 0.0f, 10.0f, -15.0f };
-	XMVECTOR focus	= { 0.0f, 10.0f,   0.0f };
-	XMVECTOR upper	= { 0.0f,  1.0f,   0.0f };
+	XMFLOAT3 eye	(0.0f, 10.0f, -15.0f);
+	XMFLOAT3 focus	(0.0f, 10.0f,   0.0f);
+	XMFLOAT3 upper	(0.0f,  1.0f,   0.0f);
 
-	//ワールドビュープロジェクション
+	//ワールド・ビュー・プロジェクション行列の作成
 	mt.world		= XMMatrixIdentity();
-	mt.view			= XMMatrixLookAtLH(eye, focus, upper);
+	mt.view			= XMMatrixLookAtLH(XMLoadFloat3(&eye), XMLoadFloat3(&focus), XMLoadFloat3(&upper));
 	mt.projection	= XMMatrixPerspectiveFovLH(90.0f * 3.14159264f / 180.0f, 
 		static_cast<FLOAT>(WIN_WIDTH) / static_cast<FLOAT>(WIN_HEIGHT), 0.01f, 500.0f);
 
-	//デスクリプタヒープの作成
-	//cbvHeapDesc.Type			= D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;	//コンスタントバッファ
-	//cbvHeapDesc.NumDescriptors	= 1;
-	//cbvHeapDesc.Flags			= D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;							//シェーダから見えるようにする
-	//cbvHeapDesc.NodeMask		= 0;
-	//result = _dev->CreateDescriptorHeap(&cbvHeapDesc, IID_PPV_ARGS(&cbvDescHeap));
-
+	//プロパティ設定
 	heapProperties.Type					= D3D12_HEAP_TYPE::D3D12_HEAP_TYPE_UPLOAD;
 	heapProperties.MemoryPoolPreference = D3D12_MEMORY_POOL::D3D12_MEMORY_POOL_UNKNOWN;
 	heapProperties.CPUPageProperty		= D3D12_CPU_PAGE_PROPERTY::D3D12_CPU_PAGE_PROPERTY_UNKNOWN;

@@ -11,7 +11,7 @@ void PipelineState::Initialize(ID3D12Device* _dev, CD3DX12_SHADER_BYTECODE _vs, 
 	gpsDesc.DepthStencilState.DepthEnable		= true;													//深度バッファを有効にする
 	gpsDesc.DepthStencilState.DepthWriteMask	= D3D12_DEPTH_WRITE_MASK::D3D12_DEPTH_WRITE_MASK_ALL;	//常に深度値を書き込む
 	gpsDesc.DepthStencilState.DepthFunc			= D3D12_COMPARISON_FUNC::D3D12_COMPARISON_FUNC_LESS;	//深度値の結果が小さい方(カメラに近い方)を書き込む
-	gpsDesc.DSVFormat							= DXGI_FORMAT::DXGI_FORMAT_D32_FLOAT;								//深度バッファのフォーマットを明示する
+	gpsDesc.DSVFormat							= DXGI_FORMAT::DXGI_FORMAT_D32_FLOAT;					//深度バッファのフォーマットを明示する
 	gpsDesc.DepthStencilState.StencilEnable		= false;
 	gpsDesc.VS									= _vs;
 	gpsDesc.PS									= _ps;

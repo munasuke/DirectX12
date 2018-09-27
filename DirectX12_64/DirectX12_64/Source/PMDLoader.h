@@ -11,7 +11,6 @@ struct PMDHeader{
 	CHAR	name[20];		//モデル名
 	CHAR	comment[256];	//コメント
 	UINT	vertexNum;		//頂点数
-	//UINT	indicesNum;		//インデックス数
 };
 #pragma pack()
 
@@ -25,6 +24,21 @@ struct PMDVertex{
 	USHORT	bornNum[2];	//ボーン番号
 	UCHAR	bornWeight;	//ウエイト
 	UCHAR	edgeFlag;	//輪郭線フラグ
+};
+#pragma pack()
+
+//マテリアル
+#pragma pack(1)
+struct PMDMaterial{
+	DirectX::XMFLOAT3	diffuse;			//拡散反射色
+	FLOAT				alpha;				//アルファ色
+	FLOAT				specularPower;		//スぺキュラの強さ
+	DirectX::XMFLOAT3	specular;			//スペキュラ
+	DirectX::XMFLOAT3	ambient;			//アンビエント
+	UCHAR				toonIndex;			//トゥーンのインデックス
+	UCHAR				edgeFlag;			//輪郭線フラグ
+	UINT				vertexCount;		//インデックス数
+	CHAR				textureFilePath[20];//テクスチャがあるときのテクスチャパス
 };
 #pragma pack()
 

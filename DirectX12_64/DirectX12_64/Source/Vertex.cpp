@@ -29,12 +29,12 @@ namespace {
 		//法線
 		{
 			"NORMAL",
-			0,											//SemanticIndex
-			DXGI_FORMAT_R32G32B32_FLOAT,				//Format
-			0,											//InputSlot
-			D3D12_APPEND_ALIGNED_ELEMENT,				//AlignedByteoffset
-			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, //InputSlotClass
-			0											//InstanceDataStepRate
+			0,
+			DXGI_FORMAT_R32G32B32_FLOAT,
+			0,
+			D3D12_APPEND_ALIGNED_ELEMENT,
+			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,
+			0
 		},
 		//uv
 		//{
@@ -57,10 +57,10 @@ void Vertex::Initialize(ID3D12Device * _dev, std::vector<PMDVertex> _pmdV)
 {
 	//頂点バッファの作成
 	result = _dev->CreateCommittedResource(
-		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),//CPUからGPUへ転送する用
-		D3D12_HEAP_FLAG_NONE,
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE::D3D12_HEAP_TYPE_UPLOAD),//CPUからGPUへ転送する用
+		D3D12_HEAP_FLAGS::D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer(sizeof(PMDVertex) * _pmdV.size()),//サイズ
-		D3D12_RESOURCE_STATE_GENERIC_READ,
+		D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_GENERIC_READ,
 		nullptr,
 		IID_PPV_ARGS(&vertexBuffer));
 

@@ -6,6 +6,7 @@ public:
 	ShaderResourceView();
 	void Initialize(ID3D12Device* _dev, ID3D12Resource* _texBuffer);
 	ID3D12DescriptorHeap* GetTextureHeap();
+	D3D12_DESCRIPTOR_HEAP_DESC GetDescriptorHeapDesc();
 	ID3D12DescriptorHeap* const* GetTextureHeap2();
 	~ShaderResourceView();
 private:

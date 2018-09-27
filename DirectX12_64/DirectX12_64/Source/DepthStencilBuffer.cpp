@@ -6,7 +6,7 @@ DepthStencilBuffer::DepthStencilBuffer() : depthBuffer(nullptr)
 {
 }
 
-void DepthStencilBuffer::Initialize(ID3D12Device * _dev, D3D12_CPU_DESCRIPTOR_HANDLE _heapHandle)
+void DepthStencilBuffer::Initialize(ID3D12Device * _dev, D3D12_CPU_DESCRIPTOR_HANDLE _heapHandle, D3D12_DESCRIPTOR_HEAP_DESC _heapDesc)
 {
 	//深度バッファの作成
 	depthResDesc.Dimension			= D3D12_RESOURCE_DIMENSION::D3D12_RESOURCE_DIMENSION_TEXTURE2D;
@@ -39,11 +39,26 @@ void DepthStencilBuffer::Initialize(ID3D12Device * _dev, D3D12_CPU_DESCRIPTOR_HA
 	dsvDesc.Format				= DXGI_FORMAT::DXGI_FORMAT_D32_FLOAT;					//表示形式
 	dsvDesc.ViewDimension		= D3D12_DSV_DIMENSION::D3D12_DSV_DIMENSION_TEXTURE2D;	//デプス・ステンシルへのアクセス方法
 	dsvDesc.Flags				= D3D12_DSV_FLAGS::D3D12_DSV_FLAG_NONE;					//デプス・ステンシルを読み取り専用にするかのフラグ
-	dsvDesc.Texture2D.MipSlice	= 1;													//ミップマップレベル
+	dsvDesc.Texture2D.MipSlice	= 0;													//ミップマップレベルのインデックス
 
-	handle = _heapHandle;
-	handle.ptr += _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-	_dev->CreateDepthStencilView(depthBuffer, &dsvDesc, handle);
+	//ヒープ作成
+	heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAGS::D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+	heapDesc.NodeMask = 0;
+	heapDesc.NumDescriptors = 1;
+	heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+	_dev->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&descriptorHeap));
+
+	//handle = _heapHandle;
+	//handle.ptr += _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	_dev->CreateDepthStencilView(depthBuffer, &dsvDesc, descriptorHeap->GetCPUDescriptorHandleForHeapStart());
+}
+
+void DepthStencilBuffer::SetDescriptor(ID3D12GraphicsCommandList* _list) {
+	_list->ClearDepthStencilView(descriptorHeap->GetCPUDescriptorHandleForHeapStart(), D3D12_CLEAR_FLAGS::D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+}
+
+ID3D12DescriptorHeap * DepthStencilBuffer::GetHeap() {
+	return descriptorHeap;
 }
 
 
