@@ -71,8 +71,6 @@ void ConstantBuffer::UpDataWVP(void) {
 	mt.world = XMMatrixRotationY(angle * 3.14159264f / 180.0f);
 	memcpy(data, &mt, sizeof(mt));
 	++angle;
-	
-	//std::cout << angle * 3.14159264f / 180.0f << std::endl;
 }
 
 void ConstantBuffer::SetDescriptor(ID3D12GraphicsCommandList * _list, int _index, ID3D12DescriptorHeap* _heap, ID3D12Device* _dev) {

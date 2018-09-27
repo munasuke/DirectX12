@@ -27,7 +27,7 @@ struct PMDVertex{
 };
 #pragma pack()
 
-//マテリアル
+//マテリアルデータ
 #pragma pack(1)
 struct PMDMaterial{
 	DirectX::XMFLOAT3	diffuse;			//拡散反射色

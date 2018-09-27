@@ -87,7 +87,7 @@ void Application::Initialize() {
 	//コンスタントバッファ
 	cb->Initialize(device->GetDevice(), srv->GetTextureHeap());
 	//深度バッファ
-	depth->Initialize(device->GetDevice(), cb->GetDescriptorHandle(), srv->GetDescriptorHeapDesc());
+	depth->Initialize(device->GetDevice(), srv->GetDescriptorHeapDesc());
 	//BMP
 	bmp->Load("Image/aoba.bmp");
 	//シェーダ

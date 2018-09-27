@@ -6,7 +6,7 @@ DepthStencilBuffer::DepthStencilBuffer() : depthBuffer(nullptr)
 {
 }
 
-void DepthStencilBuffer::Initialize(ID3D12Device * _dev, D3D12_CPU_DESCRIPTOR_HANDLE _heapHandle, D3D12_DESCRIPTOR_HEAP_DESC _heapDesc)
+void DepthStencilBuffer::Initialize(ID3D12Device * _dev, D3D12_DESCRIPTOR_HEAP_DESC _heapDesc)
 {
 	//深度バッファの作成
 	depthResDesc.Dimension			= D3D12_RESOURCE_DIMENSION::D3D12_RESOURCE_DIMENSION_TEXTURE2D;
@@ -22,8 +22,8 @@ void DepthStencilBuffer::Initialize(ID3D12Device * _dev, D3D12_CPU_DESCRIPTOR_HA
 	depthHeapProp.MemoryPoolPreference	= D3D12_MEMORY_POOL::D3D12_MEMORY_POOL_UNKNOWN;
 
 	//クリアバリューの作成
-	depthClearValue.DepthStencil.Depth	= 1.0f;//深さ最大値
-	depthClearValue.Format				= DXGI_FORMAT::DXGI_FORMAT_D32_FLOAT;
+	depthClearValue.DepthStencil.Depth	= 1.0f;									//深さ最大値
+	depthClearValue.Format				= DXGI_FORMAT::DXGI_FORMAT_D32_FLOAT;	//使うビューと形式を揃える必要がある
 
 	//リソース作成
 	result = _dev->CreateCommittedResource(
@@ -42,14 +42,11 @@ void DepthStencilBuffer::Initialize(ID3D12Device * _dev, D3D12_CPU_DESCRIPTOR_HA
 	dsvDesc.Texture2D.MipSlice	= 0;													//ミップマップレベルのインデックス
 
 	//ヒープ作成
-	heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAGS::D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-	heapDesc.NodeMask = 0;
+	heapDesc.Type			= D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+	heapDesc.Flags			= D3D12_DESCRIPTOR_HEAP_FLAGS::D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+	heapDesc.NodeMask		= 0;
 	heapDesc.NumDescriptors = 1;
-	heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
 	_dev->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&descriptorHeap));
-
-	//handle = _heapHandle;
-	//handle.ptr += _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	_dev->CreateDepthStencilView(depthBuffer, &dsvDesc, descriptorHeap->GetCPUDescriptorHandleForHeapStart());
 }
 
