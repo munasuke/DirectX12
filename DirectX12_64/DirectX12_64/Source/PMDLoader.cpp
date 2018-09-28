@@ -13,17 +13,23 @@ int PMDLoader::Load(const char * _path) {
 		return -1;
 	}
 	//ヘッダー読み込み
-	fread(&pmdHeader, sizeof(PMDHeader), 1, fp);
+	fread(&pmd.header, sizeof(PMDHeader), 1, fp);
 	
 	//頂点データ読み込み
-	vertices.resize(pmdHeader.vertexNum);
-	fread(&vertices[0], sizeof(PMDVertex), pmdHeader.vertexNum, fp);
+	pmd.vertices.resize(pmd.header.vertexNum);
+	fread(&pmd.vertices[0], sizeof(PMDVertex), pmd.header.vertexNum, fp);
 
 	//インデックス総数読み込み
-	fread(&indicesNum, sizeof(UINT), 1, fp);
+	fread(&pmd.indicesNum, sizeof(UINT), 1, fp);
 	//インデックスデータ読み込み
-	indices.resize(indicesNum);
-	fread(&indices[0], sizeof(USHORT), indicesNum, fp);
+	pmd.indices.resize(pmd.indicesNum);
+	fread(&pmd.indices[0], sizeof(USHORT), pmd.indicesNum, fp);
+
+	//マテリアル総数読み込み
+	fread(&pmd.materialNum, sizeof(UINT), 1, fp);
+	//マテリアルデータ読み込み
+	pmd.material.resize(pmd.materialNum);
+	fread(&pmd.material[0], sizeof(PMDMaterial), pmd.materialNum, fp);
 
 	fclose(fp);
 
@@ -31,15 +37,19 @@ int PMDLoader::Load(const char * _path) {
 }
 
 PMDHeader PMDLoader::GetPMDHeader() {
-	return pmdHeader;
+	return pmd.header;
 }
 
 std::vector<PMDVertex> PMDLoader::GetPMDVertex() {
-	return vertices;
+	return pmd.vertices;
 }
 
 std::vector<USHORT> PMDLoader::GetIndices() {
-	return indices;
+	return pmd.indices;
+}
+
+PMDData PMDLoader::GetPMDData() {
+	return pmd;
 }
 
 

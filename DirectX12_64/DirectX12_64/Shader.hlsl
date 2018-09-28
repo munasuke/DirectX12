@@ -1,20 +1,25 @@
 //テクスチャの0番レジスタとサンプラの0番レジスタを設定
-Texture2D<float4> tex:register(t0);
-SamplerState smp:register(s0);
+Texture2D<float4>	tex:register(t0);
+SamplerState		smp:register(s0);
 
 cbuffer wvp : register(b0)
 {
-	float4x4 world;			//ワールド行列
-	float4x4 view;			//ビュー行列
-	float4x4 projection;	//プロジェクション行列
+	float4x4	world;		//ワールド行列
+	float4x4	view;		//ビュー行列
+	float4x4	projection;	//プロジェクション行列
+};
+
+cbuffer material : register(b1)
+{
+	float3	diffuse;
 };
 
 struct Out
 {
-	float4 svpos : SV_POSITION;
-	float4 pos : POSITION;
-	float3 normal : NORMAL;
-	float2 uv : TEXCOORD;
+	float4 svpos	: SV_POSITION;
+	float4 pos		: POSITION;
+	float3 normal	: NORMAL;
+	float2 uv		: TEXCOORD;
 };
 
 //VertexShader
@@ -25,6 +30,7 @@ Out BasicVS(float4 pos : POSITION, float3 normal : NORMAL/*, float2 uv : TEXCOOR
 	float4x4 vp = mul(projection, view);
 	//ワールドビュープロジェクション
 	pos = mul(mul(vp, world), pos);
+
 	o.svpos = pos;
 	o.pos	= pos;
 	o.normal = mul(world, normal);

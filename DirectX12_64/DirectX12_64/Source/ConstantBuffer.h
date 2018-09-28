@@ -30,6 +30,7 @@ public:
 	* @param	(ID3D12GraphicsCommandList* _list) コマンドリスト
 	*/
 	void SetDescriptor(ID3D12GraphicsCommandList* _list, int _index, ID3D12DescriptorHeap* _heap, ID3D12Device* _dev);
+	ID3D12Resource* GetConstantBuffer();
 	/*
 	*/
 	D3D12_CPU_DESCRIPTOR_HANDLE GetDescriptorHandle();

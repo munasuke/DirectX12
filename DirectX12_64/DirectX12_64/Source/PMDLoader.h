@@ -3,6 +3,7 @@
 #include <DirectXMath.h>
 #include <vector>
 
+
 //ヘッダー
 #pragma pack(1)
 struct PMDHeader{
@@ -30,17 +31,27 @@ struct PMDVertex{
 //マテリアルデータ
 #pragma pack(1)
 struct PMDMaterial{
-	DirectX::XMFLOAT3	diffuse;			//拡散反射色
+	DirectX::XMFLOAT3	diffuse;			//基本色(拡散反射色)
 	FLOAT				alpha;				//アルファ色
 	FLOAT				specularPower;		//スぺキュラの強さ
-	DirectX::XMFLOAT3	specular;			//スペキュラ
+	DirectX::XMFLOAT3	specular;			//スペキュラ(反射色)
 	DirectX::XMFLOAT3	ambient;			//アンビエント
 	UCHAR				toonIndex;			//トゥーンのインデックス
 	UCHAR				edgeFlag;			//輪郭線フラグ
-	UINT				vertexCount;		//インデックス数
+	UINT				indexCount;			//インデックス数
 	CHAR				textureFilePath[20];//テクスチャがあるときのテクスチャパス
 };
 #pragma pack()
+
+//PMDデータ
+struct PMDData{
+	PMDHeader					header;		//ヘッダー
+	std::vector<PMDVertex>		vertices;	//頂点情報
+	UINT						indicesNum;	//インデックス総数
+	std::vector<USHORT>			indices;	//インデックス情報
+	UINT						materialNum;//マテリアル総数
+	std::vector<PMDMaterial>	material;	//マテリアル情報
+};
 
 //PMD読み込みクラス
 class PMDLoader {
@@ -51,12 +62,11 @@ public:
 	PMDHeader GetPMDHeader();
 	std::vector<PMDVertex> GetPMDVertex();
 	std::vector<USHORT> GetIndices();		//インデックス情報を返す
+	PMDData GetPMDData();
 
 	~PMDLoader();
 private:
-	PMDHeader pmdHeader;
-	std::vector<PMDVertex> vertices;
-	UINT indicesNum;
-	std::vector<USHORT> indices;
+	//PMDデータ
+	PMDData pmd;
 };
 

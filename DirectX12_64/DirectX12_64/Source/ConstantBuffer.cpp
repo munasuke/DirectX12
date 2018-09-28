@@ -48,7 +48,7 @@ void ConstantBuffer::Initialize(ID3D12Device * _dev, ID3D12DescriptorHeap* _heap
 		IID_PPV_ARGS(&constantBuffer));
 
 	//コンスタントバッファビューの設定
-	cbvDesc.BufferLocation	= constantBuffer->GetGPUVirtualAddress();
+	cbvDesc.BufferLocation = constantBuffer->GetGPUVirtualAddress();
 	cbvDesc.SizeInBytes		= (sizeof(mt) + 0xff) &~ 0xff;
 
 	//シェーダリソースのヒープの先頭を受け取る
@@ -60,7 +60,7 @@ void ConstantBuffer::Initialize(ID3D12Device * _dev, ID3D12DescriptorHeap* _heap
 	_dev->CreateConstantBufferView(&cbvDesc, handle);
 
 	//シェーダに行列を渡す
-	D3D12_RANGE range = {0,sizeof(mt )};
+	D3D12_RANGE range = {0,sizeof(mt)};
 	result = constantBuffer->Map(0, &range, (void**)(&data));
 	memcpy(data, &mt, sizeof(mt));
 }
@@ -79,6 +79,10 @@ void ConstantBuffer::SetDescriptor(ID3D12GraphicsCommandList * _list, int _index
 	
 	_list->SetDescriptorHeaps(1, &_heap);
 	_list->SetGraphicsRootDescriptorTable(_index, handle);
+}
+
+ID3D12Resource * ConstantBuffer::GetConstantBuffer() {
+	return constantBuffer;
 }
 
 

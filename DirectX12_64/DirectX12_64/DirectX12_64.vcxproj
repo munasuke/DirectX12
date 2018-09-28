@@ -86,6 +86,7 @@
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <AdditionalIncludeDirectories>$(DXTEX_DIR)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(DXTEX_DIR)Bin\Desktop_2017_Win10\x64\Debug</AdditionalLibraryDirectories>

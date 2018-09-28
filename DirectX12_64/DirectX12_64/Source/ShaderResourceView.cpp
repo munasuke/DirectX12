@@ -9,7 +9,7 @@ ShaderResourceView::ShaderResourceView() : textureHeap(nullptr)
 
 void ShaderResourceView::Initialize(ID3D12Device* _dev, ID3D12Resource* _texBuffer) {
 	//シェーダリソースビューの作成
-	heapDesc.NumDescriptors = 2;//領域確保
+	heapDesc.NumDescriptors = 3;//領域確保
 	heapDesc.Type			= D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	heapDesc.Flags			= D3D12_DESCRIPTOR_HEAP_FLAGS::D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	result = _dev->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&textureHeap));

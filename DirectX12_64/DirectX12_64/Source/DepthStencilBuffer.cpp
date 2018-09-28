@@ -47,6 +47,7 @@ void DepthStencilBuffer::Initialize(ID3D12Device * _dev, D3D12_DESCRIPTOR_HEAP_D
 	heapDesc.NodeMask		= 0;
 	heapDesc.NumDescriptors = 1;
 	_dev->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&descriptorHeap));
+
 	_dev->CreateDepthStencilView(depthBuffer, &dsvDesc, descriptorHeap->GetCPUDescriptorHandleForHeapStart());
 }
 

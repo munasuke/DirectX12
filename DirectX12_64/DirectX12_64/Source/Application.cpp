@@ -169,8 +169,16 @@ void Application::Run() {
 		//テクスチャバッファへの書き込み
 		tex->WriteToTextureBuffer(bmp->GetData());
 
-		//頂点描画
-		command->GetCommandList()->DrawIndexedInstanced(pmd->GetIndices().size(), 1, 0, 0, 0);
+		//描画
+		UINT offset = 0;
+		for (INT i = 0; i < pmd->GetPMDData().material.size(); i++){
+			//ディフューズ成分をGPUに投げる
+			pmd->GetPMDData().material[i].diffuse;
+			//マテリアル別に描画する
+			command->GetCommandList()->DrawIndexedInstanced(pmd->GetPMDData().material[i].indexCount, 1, offset, 0, 0);
+			//マテリアルのインデックス分ずらす
+			offset += pmd->GetPMDData().material[i].indexCount;
+		}
 
 		//バリアを張る
 		command->GetCommandList()->ResourceBarrier(
