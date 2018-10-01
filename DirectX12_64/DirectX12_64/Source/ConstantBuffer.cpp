@@ -6,8 +6,10 @@
 using namespace DirectX;
 
 ConstantBuffer::ConstantBuffer() :
-	constantBuffer(nullptr), cbvDescHeap(nullptr), data(nullptr)
+	cbvDescHeap(nullptr)
 {
+	data.clear();
+	resource.clear();
 	mt = {};
 }
 
@@ -39,37 +41,43 @@ void ConstantBuffer::Initialize(ID3D12Device * _dev, ID3D12DescriptorHeap* _heap
 	cbvResDesc.SampleDesc.Count = 1;														//ないと失敗する
 	cbvResDesc.Layout			= D3D12_TEXTURE_LAYOUT::D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 
-	result = _dev->CreateCommittedResource(
-		&heapProperties,
-		D3D12_HEAP_FLAG_NONE,
-		&cbvResDesc,
-		D3D12_RESOURCE_STATE_GENERIC_READ,
-		nullptr,
-		IID_PPV_ARGS(&constantBuffer));
-
-	//コンスタントバッファビューの設定
-	cbvDesc.BufferLocation = constantBuffer->GetGPUVirtualAddress();
-	cbvDesc.SizeInBytes		= (sizeof(mt) + 0xff) &~ 0xff;
-
-	//シェーダリソースのヒープの先頭を受け取る
-	handle = _heap->GetCPUDescriptorHandleForHeapStart();
-	//ポインタをサイズ分進める
-	handle.ptr += _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-	//進めたやつをCreateBufferViewに渡す
-	//定数バッファの作成
-	_dev->CreateConstantBufferView(&cbvDesc, handle);
-
+	for (UINT i = 0; i < name.size(); ++i) {
+		result = _dev->CreateCommittedResource(
+			&heapProperties,
+			D3D12_HEAP_FLAGS::D3D12_HEAP_FLAG_NONE,
+			&cbvResDesc,
+			D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_GENERIC_READ,
+			nullptr,
+			IID_PPV_ARGS(&resource[name[i]])
+		);
+		//コンスタントバッファビューの設定
+		cbvDesc.BufferLocation	= resource[name[i]]->GetGPUVirtualAddress();
+		cbvDesc.SizeInBytes		= (sizeof(mt) + 0xff) &~ 0xff;
+	}
+	UINT size = 17;
+	for (UINT i = 1; i <= size; ++i){
+		//シェーダリソースのヒープの先頭を受け取る
+		handle = _heap->GetCPUDescriptorHandleForHeapStart();
+		//ポインタをサイズ分進める
+		handle.ptr += _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * i;
+		//進めたやつをCreateBufferViewに渡す
+		//定数バッファの作成
+		_dev->CreateConstantBufferView(&cbvDesc, handle);
+	}
 	//シェーダに行列を渡す
-	D3D12_RANGE range = {0,sizeof(mt)};
-	result = constantBuffer->Map(0, &range, (void**)(&data));
-	memcpy(data, &mt, sizeof(mt));
+	result = resource[name[0]]->Map(0, nullptr, (void**)(&data[name[0]]));
+	memcpy(data[name[0]], &mt, sizeof(mt));
+	//マテリアルを渡す
+	result = resource[name[1]]->Map(0, nullptr, (void**)(&data[name[1]]));
+	XMFLOAT3 tmp = {};
+	memcpy(data[name[1]], &tmp, sizeof(XMFLOAT3));
 }
 
 void ConstantBuffer::UpDataWVP(void) {
 	//モデルの回転
 	static FLOAT angle = 0.0f;
 	mt.world = XMMatrixRotationY(angle * 3.14159264f / 180.0f);
-	memcpy(data, &mt, sizeof(mt));
+	memcpy(data[name[0]], &mt, sizeof(mt));
 	++angle;
 }
 
@@ -81,8 +89,12 @@ void ConstantBuffer::SetDescriptor(ID3D12GraphicsCommandList * _list, int _index
 	_list->SetGraphicsRootDescriptorTable(_index, handle);
 }
 
-ID3D12Resource * ConstantBuffer::GetConstantBuffer() {
-	return constantBuffer;
+void ConstantBuffer::SetMaterial(DirectX::XMFLOAT3 diffuse) {
+	memcpy(data[name[1]], &diffuse, sizeof(XMFLOAT3));
+}
+
+ID3D12Resource * ConstantBuffer::GetConstantBuffer(int i) {
+	return resource[name[i]];
 }
 
 
@@ -92,7 +104,13 @@ D3D12_CPU_DESCRIPTOR_HANDLE ConstantBuffer::GetDescriptorHandle()
 }
 
 ConstantBuffer::~ConstantBuffer() {
-	constantBuffer->Unmap(0, nullptr);
-	ReleaseP(constantBuffer);
+	for(auto itr = resource.begin(); itr != resource.end(); ++itr)
+	{
+		if(itr->second != nullptr)
+		{
+			itr->second->Unmap(0, nullptr);
+			ReleaseP(itr->second);
+		}
+	}
 	ReleaseP(cbvDescHeap);
 }

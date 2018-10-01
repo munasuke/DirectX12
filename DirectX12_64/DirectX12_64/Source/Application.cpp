@@ -83,7 +83,7 @@ void Application::Initialize() {
 	//テクスチャリソース
 	tex->Initialize(device->GetDevice());
 	//シェーダリソースビュー
-	srv->Initialize(device->GetDevice(), tex->GetTextureBuffer());
+	srv->Initialize(device->GetDevice(), tex->GetTextureBuffer(), pmd->GetPMDData().material.size());
 	//コンスタントバッファ
 	cb->Initialize(device->GetDevice(), srv->GetTextureHeap());
 	//深度バッファ
@@ -173,7 +173,8 @@ void Application::Run() {
 		UINT offset = 0;
 		for (INT i = 0; i < pmd->GetPMDData().material.size(); i++){
 			//ディフューズ成分をGPUに投げる
-			pmd->GetPMDData().material[i].diffuse;
+			cb->SetMaterial(pmd->GetPMDData().material[i].diffuse);
+			cb->SetDescriptor(command->GetCommandList(), 2, srv->GetTextureHeap(), device->GetDevice());
 			//マテリアル別に描画する
 			command->GetCommandList()->DrawIndexedInstanced(pmd->GetPMDData().material[i].indexCount, 1, offset, 0, 0);
 			//マテリアルのインデックス分ずらす

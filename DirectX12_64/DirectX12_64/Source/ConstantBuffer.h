@@ -1,6 +1,14 @@
 #pragma once
 #include "Matrix.h"
 #include <memory>
+#include <map>
+#include <string>
+#include <vector>
+
+const std::vector<std::string> name = {
+	"WVP", 
+	"Material",
+};
 
 //定数バッファ
 class ConstantBuffer : public Result{
@@ -30,18 +38,22 @@ public:
 	* @param	(ID3D12GraphicsCommandList* _list) コマンドリスト
 	*/
 	void SetDescriptor(ID3D12GraphicsCommandList* _list, int _index, ID3D12DescriptorHeap* _heap, ID3D12Device* _dev);
-	ID3D12Resource* GetConstantBuffer();
-	/*
+
+	/*!
+	*/
+	void SetMaterial(DirectX::XMFLOAT3 diffuse);
+
+	ID3D12Resource* GetConstantBuffer(int i);
+	/*!
 	*/
 	D3D12_CPU_DESCRIPTOR_HANDLE GetDescriptorHandle();
 
 	~ConstantBuffer();
 private:
 	Matrixs mt;//空間行列
-	UINT* data;
 
-
-	ID3D12Resource* constantBuffer;//定数バッファ用
+	std::map<std::string, UINT*> data;
+	std::map<std::string, ID3D12Resource*> resource;
 	ID3D12DescriptorHeap* cbvDescHeap;
 
 	D3D12_DESCRIPTOR_HEAP_DESC cbvHeapDesc = {};

@@ -11,7 +11,7 @@ cbuffer wvp : register(b0)
 
 cbuffer material : register(b1)
 {
-	float3	diffuse;
+	float3		diffuse;
 };
 
 struct Out
@@ -25,10 +25,9 @@ struct Out
 //VertexShader
 Out BasicVS(float4 pos : POSITION, float3 normal : NORMAL/*, float2 uv : TEXCOORD*/)
 {
-
 	Out o;
-	float4x4 vp = mul(projection, view);
 	//ワールドビュープロジェクション
+	float4x4 vp = mul(projection, view);
 	pos = mul(mul(vp, world), pos);
 
 	o.svpos = pos;
@@ -42,8 +41,9 @@ Out BasicVS(float4 pos : POSITION, float3 normal : NORMAL/*, float2 uv : TEXCOOR
 float4 BasicPS(Out o) : SV_TARGET
 {
 	//return float4(world[0][3], world[1][2], world[2][1], world[3][0]);
+	//return float4(tex.Sample(smp, o.uv).abg, 1);
 	float3 light = normalize(float3(-1, 1, -1));
 	float brightness = dot(o.normal, light);
-	return float4(brightness, brightness, brightness, 1);
-	//return float4(tex.Sample(smp, o.uv).abg, 1);
+	//return float4(brightness, brightness, brightness, 1);
+	return float4(diffuse, 1);
 }
