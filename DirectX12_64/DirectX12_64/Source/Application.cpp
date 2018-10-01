@@ -174,7 +174,7 @@ void Application::Run() {
 		for (INT i = 0; i < pmd->GetPMDData().material.size(); i++){
 			//ディフューズ成分をGPUに投げる
 			cb->SetMaterial(pmd->GetPMDData().material[i].diffuse);
-			cb->SetDescriptor(command->GetCommandList(), 2, srv->GetTextureHeap(), device->GetDevice());
+			cb->SetDescriptor(command->GetCommandList(), 2 + i, srv->GetTextureHeap(), device->GetDevice());
 			//マテリアル別に描画する
 			command->GetCommandList()->DrawIndexedInstanced(pmd->GetPMDData().material[i].indexCount, 1, offset, 0, 0);
 			//マテリアルのインデックス分ずらす

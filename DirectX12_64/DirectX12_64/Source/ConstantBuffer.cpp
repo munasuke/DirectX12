@@ -54,7 +54,7 @@ void ConstantBuffer::Initialize(ID3D12Device * _dev, ID3D12DescriptorHeap* _heap
 		cbvDesc.BufferLocation	= resource[name[i]]->GetGPUVirtualAddress();
 		cbvDesc.SizeInBytes		= (sizeof(mt) + 0xff) &~ 0xff;
 	}
-	UINT size = 17;
+	UINT size = 18;
 	for (UINT i = 1; i <= size; ++i){
 		//シェーダリソースのヒープの先頭を受け取る
 		handle = _heap->GetCPUDescriptorHandleForHeapStart();
