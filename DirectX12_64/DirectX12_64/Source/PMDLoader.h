@@ -1,4 +1,5 @@
 #pragma once
+#include "d3dx12.h"
 #include <Windows.h>
 #include <DirectXMath.h>
 #include <vector>
@@ -43,30 +44,31 @@ struct PMDMaterial{
 };
 #pragma pack()
 
-//PMDデータ
-struct PMDData{
-	PMDHeader					header;		//ヘッダー
-	std::vector<PMDVertex>		vertices;	//頂点情報
-	UINT						indicesNum;	//インデックス総数
-	std::vector<USHORT>			indices;	//インデックス情報
-	UINT						materialNum;//マテリアル総数
-	std::vector<PMDMaterial>	material;	//マテリアル情報
-};
-
 //PMD読み込みクラス
 class PMDLoader {
 public:
 	PMDLoader();
 
 	int Load(const char* _path);
+
+	void Initialize(ID3D12Device* _dev);
+
 	PMDHeader GetPMDHeader();
 	std::vector<PMDVertex> GetPMDVertex();
 	std::vector<USHORT> GetIndices();		//インデックス情報を返す
-	PMDData GetPMDData();
+	std::vector<PMDMaterial> GetMaterial();
 
 	~PMDLoader();
 private:
-	//PMDデータ
-	PMDData pmd;
+	PMDHeader					header;		//ヘッダー
+	std::vector<PMDVertex>		vertices;	//頂点情報
+	UINT						indicesNum;	//インデックス総数
+	std::vector<USHORT>			indices;	//インデックス情報
+	UINT						materialNum;//マテリアル総数
+	std::vector<PMDMaterial>	material;	//マテリアル情報
+
+	ID3D12Resource* resource;
+	D3D12_RESOURCE_DESC resourceDesc = {};
+	D3D12_HEAP_PROPERTIES heapProp = {};
 };
 

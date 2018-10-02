@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <iostream>
 
-PMDLoader::PMDLoader() {
+PMDLoader::PMDLoader() : resource(nullptr){
 }
 
 int PMDLoader::Load(const char * _path) {
@@ -13,45 +13,49 @@ int PMDLoader::Load(const char * _path) {
 		return -1;
 	}
 	//ヘッダー読み込み
-	fread(&pmd.header, sizeof(PMDHeader), 1, fp);
+	fread(&header, sizeof(header), 1, fp);
+	//fread(&pmd.header.magic, sizeof(pmd.header.magic), 1, fp);
+	//fread(&pmd.header.version, sizeof(pmd.header) - sizeof(pmd.header.magic), 1, fp);
 	
 	//頂点データ読み込み
-	pmd.vertices.resize(pmd.header.vertexNum);
-	fread(&pmd.vertices[0], sizeof(PMDVertex), pmd.header.vertexNum, fp);
+	vertices.resize(header.vertexNum);
+	fread(&vertices[0], sizeof(PMDVertex), header.vertexNum, fp);
 
 	//インデックス総数読み込み
-	fread(&pmd.indicesNum, sizeof(UINT), 1, fp);
+	fread(&indicesNum, sizeof(UINT), 1, fp);
 	//インデックスデータ読み込み
-	pmd.indices.resize(pmd.indicesNum);
-	fread(&pmd.indices[0], sizeof(USHORT), pmd.indicesNum, fp);
+	indices.resize(indicesNum);
+	fread(&indices[0], sizeof(USHORT), indicesNum, fp);
 
 	//マテリアル総数読み込み
-	fread(&pmd.materialNum, sizeof(UINT), 1, fp);
+	fread(&materialNum, sizeof(UINT), 1, fp);
 	//マテリアルデータ読み込み
-	pmd.material.resize(pmd.materialNum);
-	fread(&pmd.material[0], sizeof(PMDMaterial), pmd.materialNum, fp);
+	material.resize(materialNum);
+	fread(&material[0], sizeof(PMDMaterial), materialNum, fp);
 
 	fclose(fp);
 
 	return 0;
 }
 
+void PMDLoader::Initialize(ID3D12Device * _dev) {
+}
+
 PMDHeader PMDLoader::GetPMDHeader() {
-	return pmd.header;
+	return header;
 }
 
 std::vector<PMDVertex> PMDLoader::GetPMDVertex() {
-	return pmd.vertices;
+	return vertices;
 }
 
 std::vector<USHORT> PMDLoader::GetIndices() {
-	return pmd.indices;
+	return indices;
 }
 
-PMDData PMDLoader::GetPMDData() {
-	return pmd;
+std::vector<PMDMaterial> PMDLoader::GetMaterial() {
+	return material;
 }
-
 
 PMDLoader::~PMDLoader() {
 }

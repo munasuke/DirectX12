@@ -42,6 +42,7 @@ void ConstantBuffer::Initialize(ID3D12Device * _dev, ID3D12DescriptorHeap* _heap
 	cbvResDesc.Layout			= D3D12_TEXTURE_LAYOUT::D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 
 	for (UINT i = 0; i < name.size(); ++i) {
+		//行列とマテリアル分のリソースを作成
 		result = _dev->CreateCommittedResource(
 			&heapProperties,
 			D3D12_HEAP_FLAGS::D3D12_HEAP_FLAG_NONE,
@@ -54,23 +55,30 @@ void ConstantBuffer::Initialize(ID3D12Device * _dev, ID3D12DescriptorHeap* _heap
 		cbvDesc.BufferLocation	= resource[name[i]]->GetGPUVirtualAddress();
 		cbvDesc.SizeInBytes		= (sizeof(mt) + 0xff) &~ 0xff;
 	}
-	UINT size = 18;
-	for (UINT i = 1; i <= size; ++i){
-		//シェーダリソースのヒープの先頭を受け取る
-		handle = _heap->GetCPUDescriptorHandleForHeapStart();
-		//ポインタをサイズ分進める
-		handle.ptr += _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV) * i;
-		//進めたやつをCreateBufferViewに渡す
-		//定数バッファの作成
-		_dev->CreateConstantBufferView(&cbvDesc, handle);
-	}
-	//シェーダに行列を渡す
+
+	////マテリアル用のヒープ作成
+	//cbvHeapDesc.NumDescriptors = 17;
+	//cbvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAGS::D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+	//cbvHeapDesc.NodeMask = 1;
+	//cbvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	//_dev->CreateDescriptorHeap(&cbvHeapDesc, IID_PPV_ARGS(&cbvDescHeap));
+	//_dev->CreateConstantBufferView(&cbvDesc, cbvDescHeap->GetCPUDescriptorHandleForHeapStart());
+
+	//シェーダリソースのヒープの先頭を受け取る
+	handle = _heap->GetCPUDescriptorHandleForHeapStart();
+	//ポインタをサイズ分進める
+	handle.ptr += _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	//進めたやつをCreateBufferViewに渡す
+	//定数バッファの作成
+	_dev->CreateConstantBufferView(&cbvDesc, handle);
+
+		//シェーダに行列を渡す
 	result = resource[name[0]]->Map(0, nullptr, (void**)(&data[name[0]]));
 	memcpy(data[name[0]], &mt, sizeof(mt));
 	//マテリアルを渡す
-	result = resource[name[1]]->Map(0, nullptr, (void**)(&data[name[1]]));
-	XMFLOAT3 tmp = {};
-	memcpy(data[name[1]], &tmp, sizeof(XMFLOAT3));
+	//result = resource[name[1]]->Map(0, nullptr, (void**)(&data[name[1]]));
+	//XMFLOAT3 tmp = {};
+	//memcpy(data[name[1]], &tmp, sizeof(XMFLOAT3));
 }
 
 void ConstantBuffer::UpDataWVP(void) {

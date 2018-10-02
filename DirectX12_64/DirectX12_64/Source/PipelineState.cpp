@@ -35,4 +35,5 @@ ID3D12PipelineState * PipelineState::GetPiplineState()
 
 
 PipelineState::~PipelineState() {
+	piplineState->Release();
 }

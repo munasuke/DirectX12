@@ -62,4 +62,5 @@ ID3D12DescriptorHeap * DepthStencilBuffer::GetHeap() {
 
 DepthStencilBuffer::~DepthStencilBuffer()
 {
+	ReleaseP(depthBuffer);
 }

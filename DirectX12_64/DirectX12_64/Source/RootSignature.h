@@ -1,6 +1,6 @@
 #pragma once
 
-constexpr int MAX = 3;
+constexpr int MAX = 2;
 
 class RootSignature : public Result {
 public:

@@ -75,7 +75,7 @@ void Application::Initialize() {
 	//フェンス
 	fence->InitFence(device->GetDevice());
 	//PMD
-	pmd->Load("PMD/初音ミク/初音ミク.pmd");
+	pmd->Load("PMD/hibari/雲雀Ver1.10.pmd");
 	//頂点バッファ
 	vertex->Initialize(device->GetDevice(), pmd->GetPMDVertex());
 	//インデックス
@@ -83,7 +83,7 @@ void Application::Initialize() {
 	//テクスチャリソース
 	tex->Initialize(device->GetDevice());
 	//シェーダリソースビュー
-	srv->Initialize(device->GetDevice(), tex->GetTextureBuffer(), pmd->GetPMDData().material.size());
+	srv->Initialize(device->GetDevice(), tex->GetTextureBuffer(), pmd->GetMaterial().size());
 	//コンスタントバッファ
 	cb->Initialize(device->GetDevice(), srv->GetTextureHeap());
 	//深度バッファ
@@ -157,28 +157,28 @@ void Application::Run() {
 		//インデックスバッファのセット
 		command->GetCommandList()->IASetIndexBuffer(&index->GetIndexBufferView());
 
+		//深度バッファのセット
+		depth->SetDescriptor(command->GetCommandList());
+
 		//SRV,コンスタントバッファのデスクリプタをセット
 		cb->UpDataWVP();
 		for (UINT i = 0; i < 2; i++){
 			cb->SetDescriptor(command->GetCommandList(), i, srv->GetTextureHeap(), device->GetDevice());
 		}
-
-		//深度バッファのセット
-		depth->SetDescriptor(command->GetCommandList());
 		
 		//テクスチャバッファへの書き込み
-		tex->WriteToTextureBuffer(bmp->GetData());
+		//tex->WriteToTextureBuffer(bmp->GetData());
 
 		//描画
 		UINT offset = 0;
-		for (INT i = 0; i < pmd->GetPMDData().material.size(); i++){
-			//ディフューズ成分をGPUに投げる
-			cb->SetMaterial(pmd->GetPMDData().material[i].diffuse);
-			cb->SetDescriptor(command->GetCommandList(), 2 + i, srv->GetTextureHeap(), device->GetDevice());
+		for (UINT i = 0; i < pmd->GetMaterial().size(); ++i){
+			////ディフューズ成分をGPUに投げる
+			//cb->SetMaterial(pmd->GetPMDData().material[i].diffuse);
+			//cb->SetDescriptor(command->GetCommandList(), 2 + i, srv->GetTextureHeap(), device->GetDevice());
 			//マテリアル別に描画する
-			command->GetCommandList()->DrawIndexedInstanced(pmd->GetPMDData().material[i].indexCount, 1, offset, 0, 0);
+			command->GetCommandList()->DrawIndexedInstanced(pmd->GetMaterial()[i].indexCount, 1, offset, 0, 0);
 			//マテリアルのインデックス分ずらす
-			offset += pmd->GetPMDData().material[i].indexCount;
+			offset += pmd->GetMaterial()[i].indexCount;
 		}
 
 		//バリアを張る

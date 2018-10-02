@@ -7,7 +7,7 @@
 
 const std::vector<std::string> name = {
 	"WVP", 
-	"Material",
+	//"Material",
 };
 
 //定数バッファ

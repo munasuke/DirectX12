@@ -32,4 +32,5 @@ D3D12_INDEX_BUFFER_VIEW Index::GetIndexBufferView() {
 
 
 Index::~Index() {
+	ReleaseP(indexBuffer);
 }
