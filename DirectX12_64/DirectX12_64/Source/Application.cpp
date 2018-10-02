@@ -88,6 +88,8 @@ void Application::Initialize() {
 	cb->Initialize(device->GetDevice(), srv->GetTextureHeap());
 	//深度バッファ
 	depth->Initialize(device->GetDevice(), srv->GetDescriptorHeapDesc());
+	//PMD初期化
+	pmd->Initialize(device->GetDevice());
 	//BMP
 	bmp->Load("Image/aoba.bmp");
 	//シェーダ
@@ -165,6 +167,9 @@ void Application::Run() {
 		for (UINT i = 0; i < 2; i++){
 			cb->SetDescriptor(command->GetCommandList(), i, srv->GetTextureHeap(), device->GetDevice());
 		}
+
+		//PMDのデスクリプタをセット
+		pmd->SetDescriptor(command->GetCommandList(), device->GetDevice());
 		
 		//テクスチャバッファへの書き込み
 		//tex->WriteToTextureBuffer(bmp->GetData());
@@ -172,9 +177,8 @@ void Application::Run() {
 		//描画
 		UINT offset = 0;
 		for (UINT i = 0; i < pmd->GetMaterial().size(); ++i){
-			////ディフューズ成分をGPUに投げる
-			//cb->SetMaterial(pmd->GetPMDData().material[i].diffuse);
-			//cb->SetDescriptor(command->GetCommandList(), 2 + i, srv->GetTextureHeap(), device->GetDevice());
+			//ディフューズ成分をGPUに投げる
+			pmd->SetMaterialColor(i);
 			//マテリアル別に描画する
 			command->GetCommandList()->DrawIndexedInstanced(pmd->GetMaterial()[i].indexCount, 1, offset, 0, 0);
 			//マテリアルのインデックス分ずらす

@@ -52,6 +52,8 @@ public:
 	int Load(const char* _path);
 
 	void Initialize(ID3D12Device* _dev);
+	void SetDescriptor(ID3D12GraphicsCommandList * _list, ID3D12Device* _dev);
+	void SetMaterialColor(UINT index);
 
 	PMDHeader GetPMDHeader();
 	std::vector<PMDVertex> GetPMDVertex();
@@ -68,6 +70,8 @@ private:
 	std::vector<PMDMaterial>	material;	//ƒ}ƒeƒŠƒAƒ‹î•ñ
 
 	ID3D12Resource* resource;
+	ID3D12DescriptorHeap* descriptorHeap;
+	UINT* data;
 	D3D12_RESOURCE_DESC resourceDesc = {};
 	D3D12_HEAP_PROPERTIES heapProp = {};
 };

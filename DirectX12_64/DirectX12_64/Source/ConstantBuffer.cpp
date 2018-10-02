@@ -41,28 +41,18 @@ void ConstantBuffer::Initialize(ID3D12Device * _dev, ID3D12DescriptorHeap* _heap
 	cbvResDesc.SampleDesc.Count = 1;														//ないと失敗する
 	cbvResDesc.Layout			= D3D12_TEXTURE_LAYOUT::D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 
-	for (UINT i = 0; i < name.size(); ++i) {
-		//行列とマテリアル分のリソースを作成
-		result = _dev->CreateCommittedResource(
-			&heapProperties,
-			D3D12_HEAP_FLAGS::D3D12_HEAP_FLAG_NONE,
-			&cbvResDesc,
-			D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_GENERIC_READ,
-			nullptr,
-			IID_PPV_ARGS(&resource[name[i]])
-		);
-		//コンスタントバッファビューの設定
-		cbvDesc.BufferLocation	= resource[name[i]]->GetGPUVirtualAddress();
-		cbvDesc.SizeInBytes		= (sizeof(mt) + 0xff) &~ 0xff;
-	}
-
-	////マテリアル用のヒープ作成
-	//cbvHeapDesc.NumDescriptors = 17;
-	//cbvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAGS::D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-	//cbvHeapDesc.NodeMask = 1;
-	//cbvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-	//_dev->CreateDescriptorHeap(&cbvHeapDesc, IID_PPV_ARGS(&cbvDescHeap));
-	//_dev->CreateConstantBufferView(&cbvDesc, cbvDescHeap->GetCPUDescriptorHandleForHeapStart());
+		//行列リソースを作成
+	result = _dev->CreateCommittedResource(
+		&heapProperties,
+		D3D12_HEAP_FLAGS::D3D12_HEAP_FLAG_NONE,
+		&cbvResDesc,
+		D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(&resource[name[0]])
+	);
+	//コンスタントバッファビューの設定
+	cbvDesc.BufferLocation	= resource[name[0]]->GetGPUVirtualAddress();
+	cbvDesc.SizeInBytes		= (sizeof(mt) + 0xff) &~ 0xff;
 
 	//シェーダリソースのヒープの先頭を受け取る
 	handle = _heap->GetCPUDescriptorHandleForHeapStart();
@@ -72,13 +62,9 @@ void ConstantBuffer::Initialize(ID3D12Device * _dev, ID3D12DescriptorHeap* _heap
 	//定数バッファの作成
 	_dev->CreateConstantBufferView(&cbvDesc, handle);
 
-		//シェーダに行列を渡す
+	//シェーダに行列を渡す
 	result = resource[name[0]]->Map(0, nullptr, (void**)(&data[name[0]]));
 	memcpy(data[name[0]], &mt, sizeof(mt));
-	//マテリアルを渡す
-	//result = resource[name[1]]->Map(0, nullptr, (void**)(&data[name[1]]));
-	//XMFLOAT3 tmp = {};
-	//memcpy(data[name[1]], &tmp, sizeof(XMFLOAT3));
 }
 
 void ConstantBuffer::UpDataWVP(void) {
