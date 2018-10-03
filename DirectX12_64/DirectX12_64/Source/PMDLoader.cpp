@@ -45,9 +45,9 @@ void PMDLoader::Initialize(ID3D12Device * _dev) {
 	heapProp.CreationNodeMask		= 1;
 	heapProp.VisibleNodeMask		= 1;
 
-	resourceDesc.Dimension			= D3D12_RESOURCE_DIMENSION::D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+	resourceDesc.Dimension			= D3D12_RESOURCE_DIMENSION::D3D12_RESOURCE_DIMENSION_BUFFER;
 	resourceDesc.Flags				= D3D12_RESOURCE_FLAGS::D3D12_RESOURCE_FLAG_NONE;
-	resourceDesc.Format				= DXGI_FORMAT::DXGI_FORMAT_D32_FLOAT;
+	resourceDesc.Format				= DXGI_FORMAT::DXGI_FORMAT_UNKNOWN;
 	resourceDesc.Layout				= D3D12_TEXTURE_LAYOUT::D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 	resourceDesc.Height				= 1;
 	resourceDesc.Width				= ((sizeof(DirectX::XMFLOAT3) + 0xff) &~0xff) * material.size();
@@ -65,17 +65,26 @@ void PMDLoader::Initialize(ID3D12Device * _dev) {
 		IID_PPV_ARGS(&resource)
 	);
 
-	D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
-	cbvDesc.BufferLocation	= resource->GetGPUVirtualAddress();
-	cbvDesc.SizeInBytes = ((sizeof(DirectX::XMFLOAT3) + 0xff) &~0xff);// *material.size();
 
-	D3D12_DESCRIPTOR_HEAP_DESC cbvHeapDesc = {};
-	cbvHeapDesc.NumDescriptors = material.size();
-	cbvHeapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAGS::D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-	cbvHeapDesc.NodeMask = 1;
-	cbvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	D3D12_DESCRIPTOR_HEAP_DESC cbvHeapDesc	= {};
+	cbvHeapDesc.NumDescriptors				= material.size();
+	cbvHeapDesc.Flags						= D3D12_DESCRIPTOR_HEAP_FLAGS::D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	cbvHeapDesc.NodeMask					= 0;
+	cbvHeapDesc.Type						= D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	_dev->CreateDescriptorHeap(&cbvHeapDesc, IID_PPV_ARGS(&descriptorHeap));
-	_dev->CreateConstantBufferView(&cbvDesc, descriptorHeap->GetCPUDescriptorHandleForHeapStart());
+
+	//マテリアル分CBVを作成する
+	auto handle = descriptorHeap->GetCPUDescriptorHandleForHeapStart();
+	auto address = resource->GetGPUVirtualAddress();
+	for(UINT i = 0; i < material.size(); ++i) {
+		D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
+		cbvDesc.BufferLocation = address;
+		cbvDesc.SizeInBytes = ((sizeof(DirectX::XMFLOAT3) + 0xff) &~0xff);
+		_dev->CreateConstantBufferView(&cbvDesc, handle);
+
+		address += cbvDesc.SizeInBytes;
+		handle.ptr += _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	}
 
 	//マテリアルをシェーダに渡す
 	result = resource->Map(0, nullptr, (void**)(&data));
@@ -86,14 +95,25 @@ void PMDLoader::Initialize(ID3D12Device * _dev) {
 void PMDLoader::SetDescriptor(ID3D12GraphicsCommandList * _list, ID3D12Device* _dev) {
 	auto handle = descriptorHeap->GetGPUDescriptorHandleForHeapStart();
 	for (UINT i = 0; i < material.size(); ++i){
-		handle.ptr += i * _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 		_list->SetDescriptorHeaps(1, &descriptorHeap);
-		_list->SetGraphicsRootDescriptorTable(i, handle);
+		_list->SetGraphicsRootDescriptorTable(2, handle);
+		handle.ptr += _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	}
+}
+
+void PMDLoader::SetDescriptor(ID3D12GraphicsCommandList * _list, ID3D12Device * _dev, UINT index) {
+	auto handle = descriptorHeap->GetGPUDescriptorHandleForHeapStart();
+	handle.ptr += index * _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	_list->SetDescriptorHeaps(1, &descriptorHeap);
+	_list->SetGraphicsRootDescriptorTable(2, handle);
 }
 
 void PMDLoader::SetMaterialColor(UINT index) {
 	memcpy(data, &material[index].diffuse, sizeof(DirectX::XMFLOAT3));
+}
+
+void PMDLoader::SetData(UINT8 * data) {
+	this->data = data;
 }
 
 PMDHeader PMDLoader::GetPMDHeader() {
@@ -110,6 +130,14 @@ std::vector<USHORT> PMDLoader::GetIndices() {
 
 std::vector<PMDMaterial> PMDLoader::GetMaterial() {
 	return material;
+}
+
+UINT8 * PMDLoader::GetData(void) {
+	return data;
+}
+
+void PMDLoader::UpdateData() {
+	data = (UINT8*)(((sizeof(DirectX::XMFLOAT3) + 0xff) &~0xff) + (CHAR*)(data));
 }
 
 PMDLoader::~PMDLoader() {

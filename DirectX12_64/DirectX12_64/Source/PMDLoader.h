@@ -32,14 +32,14 @@ struct PMDVertex{
 //マテリアルデータ
 #pragma pack(1)
 struct PMDMaterial{
-	DirectX::XMFLOAT3	diffuse;			//基本色(拡散反射色)
-	FLOAT				alpha;				//アルファ色
-	FLOAT				specularPower;		//スぺキュラの強さ
-	DirectX::XMFLOAT3	specular;			//スペキュラ(反射色)
-	DirectX::XMFLOAT3	ambient;			//アンビエント
+	DirectX::XMFLOAT3	diffuse;			//減衰色
+	FLOAT				alpha;				//減衰色の不透明度
+	FLOAT				specularPower;		//光沢色の強さ
+	DirectX::XMFLOAT3	specular;			//光沢色
+	DirectX::XMFLOAT3	ambient;			//環境色
 	UCHAR				toonIndex;			//トゥーンのインデックス
 	UCHAR				edgeFlag;			//輪郭線フラグ
-	UINT				indexCount;			//インデックス数
+	UINT				indexCount;			//面頂点数（面頂点リストのデータ数）
 	CHAR				textureFilePath[20];//テクスチャがあるときのテクスチャパス
 };
 #pragma pack()
@@ -52,13 +52,19 @@ public:
 	int Load(const char* _path);
 
 	void Initialize(ID3D12Device* _dev);
-	void SetDescriptor(ID3D12GraphicsCommandList * _list, ID3D12Device* _dev);
-	void SetMaterialColor(UINT index);
 
-	PMDHeader GetPMDHeader();
-	std::vector<PMDVertex> GetPMDVertex();
-	std::vector<USHORT> GetIndices();		//インデックス情報を返す
-	std::vector<PMDMaterial> GetMaterial();
+	void SetDescriptor(ID3D12GraphicsCommandList * _list, ID3D12Device* _dev);
+	void SetDescriptor(ID3D12GraphicsCommandList * _list, ID3D12Device* _dev, UINT index);
+	void SetMaterialColor(UINT index);
+	void SetData(UINT8* data);
+
+	PMDHeader					GetPMDHeader();	//ヘッダー情報を返す
+	std::vector<PMDVertex>		GetPMDVertex();	//頂点情報を返す
+	std::vector<USHORT>			GetIndices();	//インデックス情報を返す
+	std::vector<PMDMaterial>	GetMaterial();	//マテリアル情報を返す
+	UINT8*						GetData();		//データを返す
+
+	void UpdateData();
 
 	~PMDLoader();
 private:
@@ -71,7 +77,7 @@ private:
 
 	ID3D12Resource* resource;
 	ID3D12DescriptorHeap* descriptorHeap;
-	UINT* data;
+	UINT8* data;
 	D3D12_RESOURCE_DESC resourceDesc = {};
 	D3D12_HEAP_PROPERTIES heapProp = {};
 };

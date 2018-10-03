@@ -75,7 +75,8 @@ void Application::Initialize() {
 	//フェンス
 	fence->InitFence(device->GetDevice());
 	//PMD
-	pmd->Load("PMD/hibari/雲雀Ver1.10.pmd");
+	pmd->Load("PMD/miku/初音ミク.pmd");
+	//pmd->Load("PMD/hibari/雲雀Ver1.10.pmd");
 	//頂点バッファ
 	vertex->Initialize(device->GetDevice(), pmd->GetPMDVertex());
 	//インデックス
@@ -167,20 +168,28 @@ void Application::Run() {
 		for (UINT i = 0; i < 2; i++){
 			cb->SetDescriptor(command->GetCommandList(), i, srv->GetTextureHeap(), device->GetDevice());
 		}
-
-		//PMDのデスクリプタをセット
-		pmd->SetDescriptor(command->GetCommandList(), device->GetDevice());
 		
 		//テクスチャバッファへの書き込み
 		//tex->WriteToTextureBuffer(bmp->GetData());
 
 		//描画
 		UINT offset = 0;
+		auto data = pmd->GetData();
 		for (UINT i = 0; i < pmd->GetMaterial().size(); ++i){
+			//マテリアルの数分デスクリプタをセットする
+			pmd->SetDescriptor(command->GetCommandList(), device->GetDevice(), i);
+
 			//ディフューズ成分をGPUに投げる
-			pmd->SetMaterialColor(i);
+			//pmd->SetMaterialColor(i);
+			memcpy(data, &pmd->GetMaterial()[i].diffuse, sizeof(DirectX::XMFLOAT3));
+
 			//マテリアル別に描画する
 			command->GetCommandList()->DrawIndexedInstanced(pmd->GetMaterial()[i].indexCount, 1, offset, 0, 0);
+
+			//データをずらす
+			//pmd->UpdateData();
+			data = (UINT8*)(((sizeof(DirectX::XMFLOAT3) + 0xff) &~ 0xff) + (CHAR*)(data));
+
 			//マテリアルのインデックス分ずらす
 			offset += pmd->GetMaterial()[i].indexCount;
 		}
