@@ -74,12 +74,12 @@ void PMDLoader::Initialize(ID3D12Device * _dev) {
 	_dev->CreateDescriptorHeap(&cbvHeapDesc, IID_PPV_ARGS(&descriptorHeap));
 
 	//マテリアル分CBVを作成する
-	auto handle = descriptorHeap->GetCPUDescriptorHandleForHeapStart();
-	auto address = resource->GetGPUVirtualAddress();
+	auto handle		= descriptorHeap->GetCPUDescriptorHandleForHeapStart();
+	auto address	= resource->GetGPUVirtualAddress();
 	for(UINT i = 0; i < material.size(); ++i) {
 		D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
-		cbvDesc.BufferLocation = address;
-		cbvDesc.SizeInBytes = ((sizeof(DirectX::XMFLOAT3) + 0xff) &~0xff);
+		cbvDesc.BufferLocation	= address;
+		cbvDesc.SizeInBytes		= ((sizeof(DirectX::XMFLOAT3) + 0xff) &~0xff);
 		_dev->CreateConstantBufferView(&cbvDesc, handle);
 
 		address += cbvDesc.SizeInBytes;
@@ -88,8 +88,33 @@ void PMDLoader::Initialize(ID3D12Device * _dev) {
 
 	//マテリアルをシェーダに渡す
 	result = resource->Map(0, nullptr, (void**)(&data));
-	DirectX::XMFLOAT3 tmp = {};
-	memcpy(data, &tmp, sizeof(DirectX::XMFLOAT3));
+	for (UINT i = 0; i < material.size(); ++i) {
+		//ディフューズ成分をGPUに投げる
+		memcpy(data, &material[i].diffuse, sizeof(DirectX::XMFLOAT3));
+		//for (const auto& m : material) {
+		//	memcpy(data, &m, sizeof(DirectX::XMFLOAT3));
+		//}
+
+		//データをずらす
+		data = (UINT8*)(((sizeof(DirectX::XMFLOAT3) + 0xff) &~0xff) + (CHAR*)(data));
+	}
+}
+
+void PMDLoader::Draw(ID3D12GraphicsCommandList * _list, ID3D12Device * _dev) {
+	UINT offset = 0;
+	for (UINT i = 0; i < material.size(); ++i) {
+		//マテリアルの数分デスクリプタをセット
+		auto handle = descriptorHeap->GetGPUDescriptorHandleForHeapStart();
+		handle.ptr += i * _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+		_list->SetDescriptorHeaps(1, &descriptorHeap);
+		_list->SetGraphicsRootDescriptorTable(2, handle);
+
+		//マテリアル別に描画
+		_list->DrawIndexedInstanced(material[i].indexCount, 1, offset, 0, 0);
+
+		//マテリアルのインデックス分ずらす
+		offset += material[i].indexCount;
+	}
 }
 
 void PMDLoader::SetDescriptor(ID3D12GraphicsCommandList * _list, ID3D12Device* _dev) {
@@ -109,6 +134,7 @@ void PMDLoader::SetDescriptor(ID3D12GraphicsCommandList * _list, ID3D12Device * 
 }
 
 void PMDLoader::SetMaterialColor(UINT index) {
+	//減衰色
 	memcpy(data, &material[index].diffuse, sizeof(DirectX::XMFLOAT3));
 }
 

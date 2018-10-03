@@ -52,6 +52,7 @@ public:
 	int Load(const char* _path);
 
 	void Initialize(ID3D12Device* _dev);
+	void Draw(ID3D12GraphicsCommandList * _list, ID3D12Device * _dev);
 
 	void SetDescriptor(ID3D12GraphicsCommandList * _list, ID3D12Device* _dev);
 	void SetDescriptor(ID3D12GraphicsCommandList * _list, ID3D12Device* _dev, UINT index);
