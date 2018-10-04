@@ -2,8 +2,10 @@
 #include <tchar.h>
 #include <stdio.h>
 #include <iostream>
+#include <string>
 
 PMDLoader::PMDLoader() : resource(nullptr), descriptorHeap(nullptr), data(nullptr){
+	mat = {};
 }
 
 int PMDLoader::Load(const char * _path) {
@@ -32,6 +34,18 @@ int PMDLoader::Load(const char * _path) {
 	//マテリアルデータ読み込み
 	material.resize(materialNum);
 	fread(&material[0], sizeof(PMDMaterial), materialNum, fp);
+	
+	//テクスチャデータの読み込み
+	std::string path = _path;
+	//フォルダの区切りに/か\\のどちらかが使われる
+	INT pathIndices[] = {
+		path.rfind('/'),
+		path.rfind('\\'),
+	};
+	//フォルダの区切りにどちらが使われているか比較する
+	INT pathIndex = max(pathIndices[0], pathIndices[1]);
+	std::string folderPath = path.substr(0, pathIndex);
+	folderPath += pathIndex + 1;
 
 	fclose(fp);
 
@@ -90,24 +104,33 @@ void PMDLoader::Initialize(ID3D12Device * _dev) {
 	result = resource->Map(0, nullptr, (void**)(&data));
 	for (UINT i = 0; i < material.size(); ++i) {
 		//ディフューズ成分をGPUに投げる
-		memcpy(data, &material[i].diffuse, sizeof(DirectX::XMFLOAT3));
-		//for (const auto& m : material) {
-		//	memcpy(data, &m, sizeof(DirectX::XMFLOAT3));
-		//}
+		memcpy(data, &mat, sizeof(MAT));
+	
 
 		//データをずらす
 		data = (UINT8*)(((sizeof(DirectX::XMFLOAT3) + 0xff) &~0xff) + (CHAR*)(data));
 	}
 }
 
-void PMDLoader::Draw(ID3D12GraphicsCommandList * _list, ID3D12Device * _dev) {
+void PMDLoader::Draw(ID3D12GraphicsCommandList * _list, ID3D12Device * _dev, ID3D12DescriptorHeap* texHeap) {
 	UINT offset = 0;
 	for (UINT i = 0; i < material.size(); ++i) {
+
+		mat.diffuse = material[i].diffuse;
+
+		mat.texFlag = material[i].textureFilePath[0] != '\0' ? true : false;
+
+		//テクスチャのデスクリプタをセット
+		_list->SetDescriptorHeaps(1, &texHeap);
+		_list->SetGraphicsRootDescriptorTable(0, texHeap->GetGPUDescriptorHandleForHeapStart());
+
 		//マテリアルの数分デスクリプタをセット
 		auto handle = descriptorHeap->GetGPUDescriptorHandleForHeapStart();
 		handle.ptr += i * _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 		_list->SetDescriptorHeaps(1, &descriptorHeap);
 		_list->SetGraphicsRootDescriptorTable(2, handle);
+
+		memcpy(data, &mat, sizeof(MAT));
 
 		//マテリアル別に描画
 		_list->DrawIndexedInstanced(material[i].indexCount, 1, offset, 0, 0);

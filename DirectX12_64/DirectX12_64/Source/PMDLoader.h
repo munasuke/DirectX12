@@ -44,6 +44,11 @@ struct PMDMaterial{
 };
 #pragma pack()
 
+struct MAT{
+	DirectX::XMFLOAT3	diffuse;			//減衰色
+	bool texFlag;
+};
+
 //PMD読み込みクラス
 class PMDLoader {
 public:
@@ -52,7 +57,7 @@ public:
 	int Load(const char* _path);
 
 	void Initialize(ID3D12Device* _dev);
-	void Draw(ID3D12GraphicsCommandList * _list, ID3D12Device * _dev);
+	void Draw(ID3D12GraphicsCommandList * _list, ID3D12Device * _dev, ID3D12DescriptorHeap* texHeap);
 
 	void SetDescriptor(ID3D12GraphicsCommandList * _list, ID3D12Device* _dev);
 	void SetDescriptor(ID3D12GraphicsCommandList * _list, ID3D12Device* _dev, UINT index);
@@ -75,6 +80,8 @@ private:
 	std::vector<USHORT>			indices;	//インデックス情報
 	UINT						materialNum;//マテリアル総数
 	std::vector<PMDMaterial>	material;	//マテリアル情報
+
+	MAT mat;
 
 	ID3D12Resource* resource;
 	ID3D12DescriptorHeap* descriptorHeap;

@@ -12,6 +12,7 @@ cbuffer wvp : register(b0)
 cbuffer material : register(b1)
 {
 	float3	diffuse;	//減衰色
+	bool	texFlag;
 	//float	alpha;
 	//float	specularPower;
 	//float3	specular;
@@ -27,7 +28,7 @@ struct Out
 };
 
 //VertexShader
-Out BasicVS(float4 pos : POSITION, float3 normal : NORMAL/*, float2 uv : TEXCOORD*/)
+Out BasicVS(float4 pos : POSITION, float3 normal : NORMAL, float2 uv : TEXCOORD)
 {
 	Out o;
 	//ワールドビュープロジェクション
@@ -37,7 +38,7 @@ Out BasicVS(float4 pos : POSITION, float3 normal : NORMAL/*, float2 uv : TEXCOOR
 	o.svpos		= pos;
 	o.pos		= pos;
 	o.normal	= mul(world, normal);
-	//o.uv	= uv;
+	o.uv		= uv;
 	return o;
 }
 
@@ -46,7 +47,8 @@ float4 BasicPS(Out o) : SV_TARGET
 {
 	//return float4(world[0][3], world[1][2], world[2][1], world[3][0]);
 	//return float4(tex.Sample(smp, o.uv).abg, 1);
-	float3 light = normalize(float3(-1, 1, -1));
-	float brightness = saturate(dot(o.normal, light)) * 1.2f;
-	return float4(diffuse * brightness, 1);
+	float3	light		= normalize(float3(-1, 1, -1));
+	float	brightness	= saturate(dot(o.normal, light)) * 1.2f;
+	float3	color		= texFlag ? tex.Smaple(smp, o.uv).rgb : diffuse;
+	return float4((color/* + ambient*/) * brightness, 1);
 }

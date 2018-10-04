@@ -17,15 +17,17 @@ int BmpLoader::Load(const char* _path) {
 	//bmpInfoHeader
 	fread(&bmpInfoHeader, sizeof(bmpInfoHeader), 1, fp);
 
-	DWORD rgb[3];
-	fread(&rgb[0], sizeof(rgb), 1, fp);
+	//DWORD rgb[3];
+	//fread(&rgb[0], sizeof(rgb), 1, fp);
 
 	data.resize(bmpInfoHeader.biSizeImage);//領域確保
+	data.resize(bmpInfoHeader.biHeight * bmpInfoHeader.biWidth * 4);
 	//bmpデータをすべて読み込む
 	for(INT line = bmpInfoHeader.biHeight - 1; line >= 0; --line) {//下から1ラインずつ上がる
 		for (INT count = 0; count < bmpInfoHeader.biWidth * 4; count += 4){//左から右へ
 			UINT address = line * bmpInfoHeader.biWidth * 4;
-			fread(&data[address + count], sizeof(UCHAR), 4, fp);
+			data[address + count] = 0;
+			fread(&data[address + count + 1], sizeof(UCHAR), 3, fp);
 		}
 	}
 	fclose(fp);

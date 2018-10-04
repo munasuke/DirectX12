@@ -75,9 +75,10 @@ void Application::Initialize() {
 	//フェンス
 	fence->InitFence(device->GetDevice());
 	//PMD
-	pmd->Load("PMD/neru/亞北ネル.pmd");
-	//pmd->Load("PMD/miku/初音ミク.pmd");
+	pmd->Load("PMD/miku/初音ミク.pmd");
 	//pmd->Load("PMD/hibari/雲雀Ver1.10.pmd");
+	//BMP
+	bmp->Load("PMD/miku/eye2.bmp");
 	//頂点バッファ
 	vertex->Initialize(device->GetDevice(), pmd->GetPMDVertex());
 	//インデックス
@@ -92,8 +93,6 @@ void Application::Initialize() {
 	depth->Initialize(device->GetDevice(), srv->GetDescriptorHeapDesc());
 	//PMD初期化
 	pmd->Initialize(device->GetDevice());
-	//BMP
-	bmp->Load("Image/aoba.bmp");
 	//シェーダ
 	shader->Load(root->GetError());
 	//パイプラインステートオブジェクト
@@ -171,10 +170,10 @@ void Application::Run() {
 		}
 		
 		//テクスチャバッファへの書き込み
-		//tex->WriteToTextureBuffer(bmp->GetData());
+		tex->WriteToTextureBuffer(bmp->GetData());
 
 		//PMD描画
-		pmd->Draw(command->GetCommandList(), device->GetDevice());
+		pmd->Draw(command->GetCommandList(), device->GetDevice(), srv->GetTextureHeap());
 
 		//バリアを張る
 		command->GetCommandList()->ResourceBarrier(
