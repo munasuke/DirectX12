@@ -11,7 +11,7 @@ PMDLoader::PMDLoader() : resource(nullptr), descriptorHeap(nullptr), data(nullpt
 int PMDLoader::Load(const char * _path) {
 	FILE* fp = nullptr;
 	if (fopen_s(&fp, _path, "rb") != 0){
-		std::cout << "モデルデータ取得失敗" << std::endl;
+		MessageBox(nullptr, TEXT("モデルデータの読み込みに失敗しました。"), TEXT("メッセージボックス"), MB_OK);
 		return -1;
 	}
 	//ヘッダー読み込み
@@ -103,9 +103,17 @@ void PMDLoader::Initialize(ID3D12Device * _dev) {
 	//マテリアルをシェーダに渡す
 	result = resource->Map(0, nullptr, (void**)(&data));
 	for (UINT i = 0; i < material.size(); ++i) {
-		//ディフューズ成分をGPUに投げる
+		//ディフューズ成分
+		mat.diffuse = material[i].diffuse;
+		//テクスチャのありなし判定
+		mat.texFlag = material[i].textureFilePath[0] != '\0' ? true : false;
+		if (mat.texFlag){
+			//テクスチャありのマテリアル番号を表示
+			std::cout << i << std::endl;
+		}
+
+		//マテリアル成分をGPUに投げる
 		memcpy(data, &mat, sizeof(MAT));
-	
 
 		//データをずらす
 		data = (UINT8*)(((sizeof(DirectX::XMFLOAT3) + 0xff) &~0xff) + (CHAR*)(data));
@@ -115,11 +123,6 @@ void PMDLoader::Initialize(ID3D12Device * _dev) {
 void PMDLoader::Draw(ID3D12GraphicsCommandList * _list, ID3D12Device * _dev, ID3D12DescriptorHeap* texHeap) {
 	UINT offset = 0;
 	for (UINT i = 0; i < material.size(); ++i) {
-
-		mat.diffuse = material[i].diffuse;
-
-		mat.texFlag = material[i].textureFilePath[0] != '\0' ? true : false;
-
 		//テクスチャのデスクリプタをセット
 		_list->SetDescriptorHeaps(1, &texHeap);
 		_list->SetGraphicsRootDescriptorTable(0, texHeap->GetGPUDescriptorHandleForHeapStart());
@@ -129,8 +132,6 @@ void PMDLoader::Draw(ID3D12GraphicsCommandList * _list, ID3D12Device * _dev, ID3
 		handle.ptr += i * _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 		_list->SetDescriptorHeaps(1, &descriptorHeap);
 		_list->SetGraphicsRootDescriptorTable(2, handle);
-
-		memcpy(data, &mat, sizeof(MAT));
 
 		//マテリアル別に描画
 		_list->DrawIndexedInstanced(material[i].indexCount, 1, offset, 0, 0);
@@ -179,6 +180,10 @@ std::vector<USHORT> PMDLoader::GetIndices() {
 
 std::vector<PMDMaterial> PMDLoader::GetMaterial() {
 	return material;
+}
+
+MAT PMDLoader::GetMat() {
+	return mat;
 }
 
 UINT8 * PMDLoader::GetData(void) {

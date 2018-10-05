@@ -46,7 +46,7 @@ struct PMDMaterial{
 
 struct MAT{
 	DirectX::XMFLOAT3	diffuse;			//減衰色
-	bool texFlag;
+	BOOL texFlag;
 };
 
 //PMD読み込みクラス
@@ -68,6 +68,7 @@ public:
 	std::vector<PMDVertex>		GetPMDVertex();	//頂点情報を返す
 	std::vector<USHORT>			GetIndices();	//インデックス情報を返す
 	std::vector<PMDMaterial>	GetMaterial();	//マテリアル情報を返す
+	MAT							GetMat();
 	UINT8*						GetData();		//データを返す
 
 	void UpdateData();

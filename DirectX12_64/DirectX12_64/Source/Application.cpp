@@ -57,47 +57,69 @@ Application::Application() {
 void Application::Initialize() {
 	//ウィンドウのメディアを使うために必要
 	CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+
 	//ウィンドウ
 	window->InitWindow();
+
 	//コマンド
 	command->InitCommand(device->GetDevice());
+
 	//スワップチェイン
 	swapChain->InitSwapChain(command->GetCommandQueue(), window->GetHandleWindow());
+
 	//デスクリプタ
 	descriptor->InitDescriptor(device->GetDevice());
+
 	//レンダーターゲット
 	renderTarget->InitRenderTarget(swapChain->GetSwapChainDesc().BufferCount, 
 		device->GetDevice(), swapChain->GetSwapChain(), descriptor->GetDescriptorHandle(), descriptor->GetDescriptorSize());
+
 	//サンプラ
 	sampler->InitSampler();
+
 	//ルートシグネチャ
 	root->InitRootSignature(sampler->GetSamplerDesc(), device->GetDevice(), D3D12_SHADER_VISIBILITY::D3D12_SHADER_VISIBILITY_ALL);
+
 	//フェンス
 	fence->InitFence(device->GetDevice());
+
 	//PMD
+	//pmd->Load("PMD/rin/鏡音リン.pmd");
 	pmd->Load("PMD/miku/初音ミク.pmd");
 	//pmd->Load("PMD/hibari/雲雀Ver1.10.pmd");
+
 	//BMP
 	bmp->Load("PMD/miku/eye2.bmp");
+	//bmp->Load("PMD/rin/eye3.bmp");
+
 	//頂点バッファ
 	vertex->Initialize(device->GetDevice(), pmd->GetPMDVertex());
+
 	//インデックス
 	index->Initialize(device->GetDevice(), pmd->GetIndices());
+
 	//テクスチャリソース
-	tex->Initialize(device->GetDevice());
+	tex->Initialize(device->GetDevice(), bmp->GetInfoHeader().biWidth, bmp->GetInfoHeader().biHeight);
+
 	//シェーダリソースビュー
 	srv->Initialize(device->GetDevice(), tex->GetTextureBuffer(), pmd->GetMaterial().size());
+
 	//コンスタントバッファ
 	cb->Initialize(device->GetDevice(), srv->GetTextureHeap());
+
 	//深度バッファ
 	depth->Initialize(device->GetDevice(), srv->GetDescriptorHeapDesc());
+
 	//PMD初期化
 	pmd->Initialize(device->GetDevice());
+
 	//シェーダ
 	shader->Load(root->GetError());
+
 	//パイプラインステートオブジェクト
 	pipline->Initialize(device->GetDevice(), shader->GetVS(), shader->GetPS(), 
 		vertex->GetInputDescNum(), vertex->GetInputDesc(), root->GetRootSignature());
+
 	//ビューポート
 	viewPort->Initialize();
 }
@@ -170,7 +192,7 @@ void Application::Run() {
 		}
 		
 		//テクスチャバッファへの書き込み
-		tex->WriteToTextureBuffer(bmp->GetData());
+		tex->WriteToTextureBuffer(bmp->GetData(), pmd->GetMat().texFlag);
 
 		//PMD描画
 		pmd->Draw(command->GetCommandList(), device->GetDevice(), srv->GetTextureHeap());

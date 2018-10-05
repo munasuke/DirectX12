@@ -28,7 +28,7 @@ struct Out
 };
 
 //VertexShader
-Out BasicVS(float4 pos : POSITION, float3 normal : NORMAL, float2 uv : TEXCOORD)
+Out BasicVS(float4 pos : POSITION, float4 normal : NORMAL, float2 uv : TEXCOORD)
 {
 	Out o;
 	//ワールドビュープロジェクション
@@ -49,6 +49,6 @@ float4 BasicPS(Out o) : SV_TARGET
 	//return float4(tex.Sample(smp, o.uv).abg, 1);
 	float3	light		= normalize(float3(-1, 1, -1));
 	float	brightness	= saturate(dot(o.normal, light)) * 1.2f;
-	float3	color		= texFlag ? tex.Smaple(smp, o.uv).rgb : diffuse;
-	return float4((color/* + ambient*/) * brightness, 1);
+	float3	color		= texFlag ? tex.Sample(smp, o.uv).abg : diffuse;
+	return float4(color * brightness, 1);
 }

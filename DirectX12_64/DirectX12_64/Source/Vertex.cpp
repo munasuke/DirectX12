@@ -36,7 +36,7 @@ namespace {
 			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,
 			0
 		},
-		//uv
+		//UV
 		{
 			"TEXCOORD",
 			0,
@@ -66,7 +66,7 @@ void Vertex::Initialize(ID3D12Device * _dev, std::vector<PMDVertex> _pmdV)
 
 	//バッファに対して書き込む
 	result = vertexBuffer->Map(0, nullptr, (void**)&pData);
-	memcpy(pData,&_pmdV[0], sizeof(PMDVertex) * _pmdV.size());	//頂点データをバッファにコピー
+	memcpy(pData, &_pmdV[0], sizeof(PMDVertex) * _pmdV.size());	//頂点データをバッファにコピー
 	vertexBuffer->Unmap(0, nullptr);
 
 	//頂点バッファビューの作成

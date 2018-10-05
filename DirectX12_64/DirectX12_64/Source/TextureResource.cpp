@@ -7,13 +7,13 @@ TextureResource::TextureResource() : textureBuffer(nullptr)
 {
 }
 
-void TextureResource::Initialize(ID3D12Device * _dev)
+void TextureResource::Initialize(ID3D12Device * _dev, UINT sizeWidth, UINT sizeHeight)
 {
 	//テクスチャリソースの作成
 	CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
 	texResourceDesc.Dimension			= D3D12_RESOURCE_DIMENSION::D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-	texResourceDesc.Width				= 256;
-	texResourceDesc.Height				= 256;
+	texResourceDesc.Width				= sizeWidth;
+	texResourceDesc.Height				= sizeHeight;
 	texResourceDesc.DepthOrArraySize	= 1;
 	texResourceDesc.Format				= DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM;
 	texResourceDesc.SampleDesc.Count	= 1;
@@ -35,15 +35,17 @@ void TextureResource::Initialize(ID3D12Device * _dev)
 		IID_PPV_ARGS(&textureBuffer));
 
 	box.top		= 0;
-	box.bottom	= 256;
+	box.bottom	= sizeHeight;
 	box.left	= 0;
-	box.right	= 256;
+	box.right	= sizeWidth;
 	box.front	= 0;
 	box.back	= 1;
 }
 
-void TextureResource::WriteToTextureBuffer(std::vector<CHAR> _data) {
-	result = textureBuffer->WriteToSubresource(0, &box, _data.data(), box.right * 4, box.bottom * 4);
+void TextureResource::WriteToTextureBuffer(std::vector<CHAR> _data, BOOL textureFlag) {
+	if (textureFlag) {
+		result = textureBuffer->WriteToSubresource(0, &box, _data.data(), box.right * 4, box.bottom * 4);
+	}
 }
 
 ID3D12Resource * TextureResource::GetTextureBuffer() {

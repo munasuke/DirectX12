@@ -6,8 +6,8 @@
 class TextureResource : public Result {
 public:
 	TextureResource();
-	void Initialize(ID3D12Device* _dev);//初期化
-	void WriteToTextureBuffer(std::vector<CHAR> _data);//テクスチャバッファへ書き込む
+	void Initialize(ID3D12Device* _dev, UINT sizeWidth, UINT sizeHeight);//初期化
+	void WriteToTextureBuffer(std::vector<CHAR> _data, BOOL textureFlag);//テクスチャバッファへ書き込む
 	ID3D12Resource* GetTextureBuffer();
 	~TextureResource();
 private:

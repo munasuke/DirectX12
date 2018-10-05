@@ -6,8 +6,6 @@ BmpLoader::BmpLoader() {
 }
 
 int BmpLoader::Load(const char* _path) {
-	BITMAPFILEHEADER bmpFileHeader = {};
-	BITMAPINFOHEADER bmpInfoHeader = {};
 	FILE* fp = nullptr;
 	if (fopen_s(&fp, _path, "rb") != 0){
 		return -1;
@@ -16,9 +14,6 @@ int BmpLoader::Load(const char* _path) {
 	fread(&bmpFileHeader, sizeof(bmpFileHeader), 1, fp);
 	//bmpInfoHeader
 	fread(&bmpInfoHeader, sizeof(bmpInfoHeader), 1, fp);
-
-	//DWORD rgb[3];
-	//fread(&rgb[0], sizeof(rgb), 1, fp);
 
 	data.resize(bmpInfoHeader.biSizeImage);//—ÌˆæŠm•Û
 	data.resize(bmpInfoHeader.biHeight * bmpInfoHeader.biWidth * 4);
@@ -32,6 +27,10 @@ int BmpLoader::Load(const char* _path) {
 	}
 	fclose(fp);
 	return 0;
+}
+
+BITMAPINFOHEADER BmpLoader::GetInfoHeader() {
+	return bmpInfoHeader;
 }
 
 std::vector<CHAR> BmpLoader::GetData() {
