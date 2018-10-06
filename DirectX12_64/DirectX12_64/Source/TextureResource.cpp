@@ -43,7 +43,7 @@ void TextureResource::Initialize(ID3D12Device * _dev, UINT sizeWidth, UINT sizeH
 }
 
 void TextureResource::WriteToTextureBuffer(std::vector<CHAR> _data, std::vector<BOOL> textureFlag) {
-	auto* flag = textureFlag.data();
+	auto flag = textureFlag.data();
 	for (auto itr = textureFlag.begin(); itr != textureFlag.end(); itr++) {
 		if (flag++) {
 			//マテリアルにテクスチャがある場合のみ書き込む
