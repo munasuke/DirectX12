@@ -267,13 +267,48 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	vbView.StrideInBytes			= sizeof(VERTEX);//頂点1つあたりのバイト数を指定
 	vbView.SizeInBytes				= sizeof(vertices);//データ全体のサイズを指定
 
+	//テクスチャの読み込み
+	BITMAPFILEHEADER bmpFileHeader = {};
+	BITMAPINFOHEADER bmpInfoHeader = {};
+	FILE* fp = nullptr;
+	if (fopen_s(&fp, "image/aoba.bmp", "rb") != 0) {
+		return -1;
+	}
+	//bmpFileHeader
+	fread(&bmpFileHeader, sizeof(bmpFileHeader), 1, fp);
+	//bmpInfoHeader
+	fread(&bmpInfoHeader, sizeof(bmpInfoHeader), 1, fp);
+
+	std::vector<CHAR> data;
+	//ビットの深さでサイズを決める
+	auto bitCount = bmpInfoHeader.biBitCount == 32 ? bmpInfoHeader.biSizeImage : bmpInfoHeader.biWidth * bmpInfoHeader.biHeight * 4;
+	data.resize(bitCount);
+	//bmpデータをすべて読み込む
+	if (bmpInfoHeader.biBitCount == 32) {
+		for (INT line = bmpInfoHeader.biHeight - 1; line >= 0; --line) {//下から1ラインずつ上がる
+			for (INT count = 0; count < bmpInfoHeader.biWidth * 4; count += 4) {//左から右へ
+				UINT address = line * bmpInfoHeader.biWidth * 4;
+				fread(&data[address + count], sizeof(UCHAR), 4, fp);
+			}
+		}
+	}
+	else if (bmpInfoHeader.biBitCount == 24) {
+		for (INT line = bmpInfoHeader.biHeight - 1; line >= 0; --line) {//下から1ラインずつ上がる
+			for (INT count = 0; count < bmpInfoHeader.biWidth * 4; count += 4) {//左から右へ
+				UINT address = line * bmpInfoHeader.biWidth * 4;
+				data[address + count] = 0;
+				fread(&data[address + count + 1], sizeof(UCHAR), 3, fp);
+			}
+		}
+	}
+	fclose(fp);
 
 	//テクスチャリソースの作成
 	CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
 	D3D12_RESOURCE_DESC texResourceDesc = {};
 	texResourceDesc.Dimension			= D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-	texResourceDesc.Width				= 256;
-	texResourceDesc.Height				= 256;
+	texResourceDesc.Width				= bmpInfoHeader.biWidth;
+	texResourceDesc.Height				= bmpInfoHeader.biHeight;
 	texResourceDesc.DepthOrArraySize	= 1;
 	texResourceDesc.Format				= DXGI_FORMAT_R8G8B8A8_UNORM;
 	texResourceDesc.SampleDesc.Count	= 1;
@@ -314,33 +349,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	sDesc.Shader4ComponentMapping			= D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 
 	dev->CreateShaderResourceView(textureBuffer, &sDesc, texHeap->GetCPUDescriptorHandleForHeapStart());
-
-	//テクスチャの読み込み
-	BITMAPFILEHEADER bmpFileHeader = {};
-	BITMAPINFOHEADER bmpInfoHeader = {};
-	FILE* fp = nullptr;
-	if (fopen_s(&fp, "image/aoba.bmp", "rb") != 0){
-		return -1;
-	}
-	//bmpFileHeader
-	fread(&bmpFileHeader, sizeof(bmpFileHeader), 1, fp);
-	//bmpInfoHeader
-	fread(&bmpInfoHeader, sizeof(bmpInfoHeader), 1, fp);
-
-	DWORD rgb[3];
-	fread(&rgb[0], sizeof(rgb), 1, fp);
-
-	std::vector<CHAR> data;
-	data.resize(bmpInfoHeader.biSizeImage);//領域確保
-	//bmpデータをすべて読み込む
-	for(INT line = bmpInfoHeader.biHeight - 1; line >= 0; --line) {//下から1ラインずつ上がる
-		for (INT count = 0; count < bmpInfoHeader.biWidth * 4; count += 4){//左から右へ
-			UINT address = line * bmpInfoHeader.biWidth * 4;
-			fread(&data[address + count], sizeof(UCHAR), 4, fp);
-		}
-	}
-	fclose(fp);
-
 
 	//シェーダーの読み込み
 	ID3DBlob* vertexShader	= nullptr;//頂点シェーダー
@@ -478,8 +486,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		box.left		= 0;
 		box.top			= 0;
 		box.front		= 0;
-		box.right		= 256;
-		box.bottom		= 256;
+		box.right		= bmpInfoHeader.biWidth;
+		box.bottom		= bmpInfoHeader.biHeight;
 		box.back		= 1;
 		result = textureBuffer->WriteToSubresource(
 			0,

@@ -15,8 +15,8 @@ ConstantBuffer::ConstantBuffer() :
 
 void ConstantBuffer::Initialize(ID3D12Device * _dev, ID3D12DescriptorHeap* _heap) {
 	//視線、注視点、上ベクトル
-	XMFLOAT3 eye	(0.0f, 15.0f, -10.0f);
-	XMFLOAT3 focus	(0.0f, 15.0f,   0.0f);
+	XMFLOAT3 eye	(0.0f, 10.0f, -15.0f);
+	XMFLOAT3 focus	(0.0f, 10.0f,   0.0f);
 	XMFLOAT3 upper	(0.0f,  1.0f,   0.0f);
 
 	//ワールド・ビュー・プロジェクション行列の作成

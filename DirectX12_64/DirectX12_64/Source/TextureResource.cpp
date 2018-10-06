@@ -42,9 +42,13 @@ void TextureResource::Initialize(ID3D12Device * _dev, UINT sizeWidth, UINT sizeH
 	box.back	= 1;
 }
 
-void TextureResource::WriteToTextureBuffer(std::vector<CHAR> _data, BOOL textureFlag) {
-	if (textureFlag) {
-		result = textureBuffer->WriteToSubresource(0, &box, _data.data(), box.right * 4, box.bottom * 4);
+void TextureResource::WriteToTextureBuffer(std::vector<CHAR> _data, std::vector<BOOL> textureFlag) {
+	auto* flag = textureFlag.data();
+	for (auto itr = textureFlag.begin(); itr != textureFlag.end(); itr++) {
+		if (flag++) {
+			//マテリアルにテクスチャがある場合のみ書き込む
+			result = textureBuffer->WriteToSubresource(0, &box, _data.data(), box.right * 4, box.bottom * 4);
+		}
 	}
 }
 

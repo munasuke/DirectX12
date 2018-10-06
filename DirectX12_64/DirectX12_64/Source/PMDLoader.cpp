@@ -11,7 +11,7 @@ PMDLoader::PMDLoader() : resource(nullptr), descriptorHeap(nullptr), data(nullpt
 int PMDLoader::Load(const char * _path) {
 	FILE* fp = nullptr;
 	if (fopen_s(&fp, _path, "rb") != 0){
-		MessageBox(nullptr, TEXT("モデルデータの読み込みに失敗しました。"), TEXT("メッセージボックス"), MB_OK);
+		MessageBox(nullptr, TEXT("Can't load PMDFile"), TEXT("Error"), MB_OK);
 		return -1;
 	}
 	//ヘッダー読み込み
@@ -107,6 +107,7 @@ void PMDLoader::Initialize(ID3D12Device * _dev) {
 		mat.diffuse = material[i].diffuse;
 		//テクスチャのありなし判定
 		mat.texFlag = material[i].textureFilePath[0] != '\0' ? true : false;
+		texFlag.push_back(mat.texFlag);
 		if (mat.texFlag){
 			//テクスチャありのマテリアル番号を表示
 			std::cout << i << std::endl;
@@ -184,6 +185,11 @@ std::vector<PMDMaterial> PMDLoader::GetMaterial() {
 
 MAT PMDLoader::GetMat() {
 	return mat;
+}
+
+std::vector<BOOL> PMDLoader::GetTexFlag()
+{
+	return texFlag;
 }
 
 UINT8 * PMDLoader::GetData(void) {

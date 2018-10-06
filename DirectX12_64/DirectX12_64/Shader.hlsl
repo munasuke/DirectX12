@@ -47,6 +47,11 @@ float4 BasicPS(Out o) : SV_TARGET
 {
 	//return float4(world[0][3], world[1][2], world[2][1], world[3][0]);
 	//return float4(tex.Sample(smp, o.uv).abg, 1);
+
+	//‹ü
+    float3 eye			= (0.0f, 10.0f, -15.0f);
+
+	//ƒ‰ƒCƒg
 	float3	light		= normalize(float3(-1, 1, -1));
 	float	brightness	= saturate(dot(o.normal, light)) * 1.2f;
 	float3	color		= texFlag ? tex.Sample(smp, o.uv).abg : diffuse;
