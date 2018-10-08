@@ -69,7 +69,7 @@ public:
 	std::vector<USHORT>			GetIndices();	//インデックス情報を返す
 	std::vector<PMDMaterial>	GetMaterial();	//マテリアル情報を返す
 	MAT							GetMat();
-	std::vector<BOOL>			GetTexFlag();
+	std::vector<bool>			GetTexFlag();
 	UINT8*						GetData();		//データを返す
 
 	void UpdateData();
@@ -84,7 +84,7 @@ private:
 	std::vector<PMDMaterial>	material;	//マテリアル情報
 
 	MAT mat;
-	std::vector<BOOL> texFlag;
+	std::vector<bool> texFlag;
 
 	ID3D12Resource* resource;
 	ID3D12DescriptorHeap* descriptorHeap;

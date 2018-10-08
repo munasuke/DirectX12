@@ -187,7 +187,7 @@ MAT PMDLoader::GetMat() {
 	return mat;
 }
 
-std::vector<BOOL> PMDLoader::GetTexFlag()
+std::vector<bool> PMDLoader::GetTexFlag()
 {
 	return texFlag;
 }
