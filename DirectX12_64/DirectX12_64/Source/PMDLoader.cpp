@@ -37,7 +37,6 @@ int PMDLoader::Load(const char * _path) {
 	material.resize(materialNum);
 	fread(&material[0], sizeof(PMDMaterial), materialNum, fp);
 	
-
 	fclose(fp);
 
 	return 0;

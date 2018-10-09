@@ -15,8 +15,8 @@ ConstantBuffer::ConstantBuffer() :
 
 void ConstantBuffer::Initialize(ID3D12Device * _dev, ID3D12DescriptorHeap* _heap) {
 	//視線、注視点、上ベクトル
-	XMFLOAT3 eye	(0.0f, 10.0f, -15.0f);
-	XMFLOAT3 focus	(0.0f, 10.0f,   0.0f);
+	XMFLOAT3 eye	(0.0f, 15.0f, -10.0f);
+	XMFLOAT3 focus	(0.0f, 15.0f,   0.0f);
 	XMFLOAT3 upper	(0.0f,  1.0f,   0.0f);
 
 	//ワールド・ビュー・プロジェクション行列の作成
@@ -69,10 +69,10 @@ void ConstantBuffer::Initialize(ID3D12Device * _dev, ID3D12DescriptorHeap* _heap
 
 void ConstantBuffer::UpDataWVP(void) {
 	//モデルの回転
-	static FLOAT angle = 0.0f;
-	mt.world = XMMatrixRotationY(angle * 3.14159264f / 180.0f);
-	memcpy(data[name[0]], &mt, sizeof(mt));
-	++angle;
+	//static FLOAT angle = 0.0f;
+	//mt.world = XMMatrixRotationY(angle * 3.14159264f / 180.0f);
+	//memcpy(data[name[0]], &mt, sizeof(mt));
+	//++angle;
 }
 
 void ConstantBuffer::SetDescriptor(ID3D12GraphicsCommandList * _list, int _index, ID3D12DescriptorHeap* _heap, ID3D12Device* _dev) {
