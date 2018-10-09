@@ -99,10 +99,9 @@ void PMDLoader::Initialize(ID3D12Device * _dev) {
 		//テクスチャのありなし判定
 		mat.texFlag = material[i].textureFilePath[0] != '\0' ? true : false;
 		texFlag.emplace_back(mat.texFlag);
-		if (mat.texFlag){
-			//テクスチャありのマテリアル番号を表示
-			std::cout << i << std::endl;
-		}
+
+		//テクスチャありのマテリアル番号を表示
+		std::cout << i << ":" << std::boolalpha << (bool)(mat.texFlag) << std::endl;
 
 		//マテリアル成分をGPUに投げる
 		memcpy(data, &mat, sizeof(MAT));

@@ -48,8 +48,10 @@ float4 BasicPS(Out o) : SV_TARGET
 	//return float4(world[0][3], world[1][2], world[2][1], world[3][0]);
 	//return float4(tex.Sample(smp, o.uv).abg, 1);
 
-	//‹ü
+	//‹“_
     float3 eye			= (0.0f, 10.0f, -15.0f);
+    //‹ü
+    float3 ray = o.pos.rgb - eye;
 
 	//ƒ‰ƒCƒg
 	float3	light		= normalize(float3(-1, 1, -1));
