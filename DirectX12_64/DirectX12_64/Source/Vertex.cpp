@@ -18,32 +18,32 @@ namespace {
 	D3D12_INPUT_ELEMENT_DESC inputDesc[] = {
 		//í∏ì_
 		{
-			"POSITION",									//SemanticName
-			0,											//SemanticIndex
-			DXGI_FORMAT_R32G32B32_FLOAT,				//Format
-			0,											//InputSlot
-			D3D12_APPEND_ALIGNED_ELEMENT,				//AlignedByteoffset
-			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, //InputSlotClass
-			0											//InstanceDataStepRate
+			"POSITION",																//SemanticName
+			0,																		//SemanticIndex
+			DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT,								//Format
+			0,																		//InputSlot
+			D3D12_APPEND_ALIGNED_ELEMENT,											//AlignedByteoffset
+			D3D12_INPUT_CLASSIFICATION::D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, //InputSlotClass
+			0																		//InstanceDataStepRate
 		},
 		//ñ@ê¸
 		{
 			"NORMAL",
 			0,
-			DXGI_FORMAT_R32G32B32_FLOAT,
+			DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT,
 			0,
 			D3D12_APPEND_ALIGNED_ELEMENT,
-			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,
+			D3D12_INPUT_CLASSIFICATION::D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,
 			0
 		},
 		//UV
 		{
 			"TEXCOORD",
 			0,
-			DXGI_FORMAT_R32G32_FLOAT,
+			DXGI_FORMAT::DXGI_FORMAT_R32G32_FLOAT,
 			0,
 			D3D12_APPEND_ALIGNED_ELEMENT,
-			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,
+			D3D12_INPUT_CLASSIFICATION::D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,
 			0
 		}
 	};

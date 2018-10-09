@@ -3,7 +3,9 @@
 #include <Windows.h>
 #include <DirectXMath.h>
 #include <vector>
+#include <memory>
 
+class BmpLoader;
 
 //ヘッダー
 #pragma pack(1)
@@ -45,8 +47,8 @@ struct PMDMaterial{
 #pragma pack()
 
 struct MAT{
-	DirectX::XMFLOAT3	diffuse;			//減衰色
-	BOOL texFlag;
+	DirectX::XMFLOAT3	diffuse;//減衰色
+	BOOL				texFlag;//テクスチャありなしフラグ
 };
 
 //PMD読み込みクラス
@@ -70,12 +72,16 @@ public:
 	std::vector<PMDMaterial>	GetMaterial();	//マテリアル情報を返す
 	MAT							GetMat();
 	std::vector<bool>			GetTexFlag();
+	//モデルのテクスチャをモデルからの相対パスで返す
+	std::string					GetRelativeTexturePathFromPmdPath(std::string& path, const char* textureName);
 	UINT8*						GetData();		//データを返す
 
 	void UpdateData();
 
 	~PMDLoader();
 private:
+	//std::shared_ptr<BmpLoader>	bmp;		//BMP
+
 	PMDHeader					header;		//ヘッダー
 	std::vector<PMDVertex>		vertices;	//頂点情報
 	UINT						indicesNum;	//インデックス総数

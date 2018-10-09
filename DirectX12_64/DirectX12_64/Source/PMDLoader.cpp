@@ -1,10 +1,12 @@
 #include "PMDLoader.h"
+#include "BmpLoader.h"
 #include <tchar.h>
 #include <stdio.h>
 #include <iostream>
 #include <string>
 
 PMDLoader::PMDLoader() : resource(nullptr), descriptorHeap(nullptr), data(nullptr){
+	//bmp = std::make_shared<BmpLoader>();
 	mat = {};
 }
 
@@ -35,17 +37,6 @@ int PMDLoader::Load(const char * _path) {
 	material.resize(materialNum);
 	fread(&material[0], sizeof(PMDMaterial), materialNum, fp);
 	
-	//テクスチャデータの読み込み
-	std::string path = _path;
-	//フォルダの区切りに/か\\のどちらかが使われる
-	INT pathIndices[] = {
-		path.rfind('/'),
-		path.rfind('\\'),
-	};
-	//フォルダの区切りにどちらが使われているか比較する
-	INT pathIndex = max(pathIndices[0], pathIndices[1]);
-	std::string folderPath = path.substr(0, pathIndex);
-	folderPath += pathIndex + 1;
 
 	fclose(fp);
 
@@ -107,7 +98,7 @@ void PMDLoader::Initialize(ID3D12Device * _dev) {
 		mat.diffuse = material[i].diffuse;
 		//テクスチャのありなし判定
 		mat.texFlag = material[i].textureFilePath[0] != '\0' ? true : false;
-		texFlag.push_back(mat.texFlag);
+		texFlag.emplace_back(mat.texFlag);
 		if (mat.texFlag){
 			//テクスチャありのマテリアル番号を表示
 			std::cout << i << std::endl;
@@ -190,6 +181,22 @@ MAT PMDLoader::GetMat() {
 std::vector<bool> PMDLoader::GetTexFlag()
 {
 	return texFlag;
+}
+
+std::string PMDLoader::GetRelativeTexturePathFromPmdPath(std::string & path, const char * textureName) {
+	//テクスチャデータの読み込み
+	//フォルダの区切りに/か\\のどちらかが使われる
+	INT pathIndices[] = {
+		path.rfind('/'),
+		path.rfind('\\'),
+	};
+	//フォルダの区切りにどちらが使われているか比較する
+	INT pathIndex = max(pathIndices[0], pathIndices[1]);
+	std::string texturePath = path.substr(0, pathIndex);
+	texturePath += "/";
+	texturePath += textureName;
+
+	return texturePath;
 }
 
 UINT8 * PMDLoader::GetData(void) {

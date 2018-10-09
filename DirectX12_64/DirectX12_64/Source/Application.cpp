@@ -90,7 +90,6 @@ void Application::Initialize() {
 
 	//BMP
 	bmp->Load("PMD/miku/eye2.bmp");
-	//bmp->Load("PMD/rin/eye3.bmp");
 
 	//頂点バッファ
 	vertex->Initialize(device->GetDevice(), pmd->GetPMDVertex());
