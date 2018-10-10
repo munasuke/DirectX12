@@ -47,8 +47,15 @@ struct PMDMaterial{
 #pragma pack()
 
 struct MAT{
-	DirectX::XMFLOAT3	diffuse;//減衰色
-	BOOL				texFlag;//テクスチャありなしフラグ
+	DirectX::XMFLOAT4	diffuse;	//減衰色
+	DirectX::XMFLOAT4	specular;	//光沢色
+	DirectX::XMFLOAT3	ambient;	//環境色
+	BOOL				texFlag;	//テクスチャありなしフラグ
+};
+
+struct Rect{
+	UINT width;
+	UINT height;
 };
 
 //PMD読み込みクラス
@@ -72,15 +79,20 @@ public:
 	std::vector<PMDMaterial>	GetMaterial();	//マテリアル情報を返す
 	MAT							GetMat();
 	std::vector<bool>			GetTexFlag();
-	//モデルのテクスチャをモデルからの相対パスで返す
-	std::string					GetRelativeTexturePathFromPmdPath(std::string& path, const char* textureName);
+	//モデルパスとテクスチャ相対パスから、アプリからテクスチャのパスを生成する。
+	//モデルの相対パス（絶対パスでも可）
+	//テクスチャの相対パス（相対パスオンリー）
+	std::string					GetRelativeTexturePathFromPmdPath(const char* modelPath, const char* texturePath);
 	UINT8*						GetData();		//データを返す
+
+	Rect						GetBMPSize();
+	std::vector<CHAR>			GetBMPData();
 
 	void UpdateData();
 
 	~PMDLoader();
 private:
-	//std::shared_ptr<BmpLoader>	bmp;		//BMP
+	std::shared_ptr<BmpLoader>	bmp;		//BMP
 
 	PMDHeader					header;		//ヘッダー
 	std::vector<PMDVertex>		vertices;	//頂点情報

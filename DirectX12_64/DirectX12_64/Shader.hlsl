@@ -11,12 +11,10 @@ cbuffer wvp : register(b0)
 
 cbuffer material : register(b1)
 {
-	float3	diffuse;	//減衰色
+	float4	diffuse;	//減衰色
+    float4  specular;   //光沢色
+    float4  ambient;    //環境色
 	bool	texFlag;
-	//float	alpha;
-	//float	specularPower;
-	//float3	specular;
-	//float3	ambient;	//環境色
 };
 
 struct Out
@@ -48,14 +46,22 @@ float4 BasicPS(Out o) : SV_TARGET
 	//return float4(world[0][3], world[1][2], world[2][1], world[3][0]);
 	//return float4(tex.Sample(smp, o.uv).abg, 1);
 
-	////視点
- //   float3 eye			= (0.0f, 10.0f, -15.0f);
- //   //視線
- //   float3 ray = o.pos.rgb - eye;
+	//視点
+    float3 eye = (0.0f, 10.0f, -15.0f);
+    //視線
+    float3 ray = normalize(eye - o.pos.xyz);
 
 	//ライト
-	float3	light		= normalize(float3(-1, 1, -1));
-	float	brightness	= saturate(dot(o.normal, light)) * 1.2f;
-	float3	color		= texFlag ? tex.Sample(smp, o.uv).rgb : diffuse;
-	return float4(color * brightness, 1);
+	float3	light = normalize(float3(-1, 1, -1));
+
+    //反射ベクトル
+    float3 mirror = reflect(-light, o.normal);
+
+    float spec = saturate(dot(mirror, ray));
+
+    spec = pow(spec, specular.a);
+
+	float	brightness	= saturate(dot(light, o.normal.xyz));
+	float3	color		= texFlag ? tex.Sample(smp, o.uv).rgb : diffuse.rgb;
+    return float4(saturate(color * brightness + specular.rgb * spec + ambient.rgb), ambient.a);
 }

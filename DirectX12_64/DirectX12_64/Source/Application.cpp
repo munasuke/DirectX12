@@ -15,7 +15,7 @@
 #include "Vertex.h"
 #include "TextureResource.h"
 #include "ShaderResourceView.h"
-#include "BmpLoader.h"
+//#include "BmpLoader.h"
 #include "ShaderLoader.h"
 #include "PipelineState.h"
 #include "ViewPort.h"
@@ -43,7 +43,7 @@ Application::Application() {
 	vertex			= std::make_shared<Vertex>();
 	tex				= std::make_shared<TextureResource>();
 	srv				= std::make_shared<ShaderResourceView>();
-	bmp				= std::make_shared<BmpLoader>();
+	//bmp				= std::make_shared<BmpLoader>();
 	shader			= std::make_shared<ShaderLoader>();
 	pipline			= std::make_shared<PipelineState>();
 	viewPort		= std::make_shared<ViewPort>();
@@ -84,12 +84,11 @@ void Application::Initialize() {
 	fence->InitFence(device->GetDevice());
 
 	//PMD
-	//pmd->Load("PMD/rin/鏡音リン.pmd");
 	pmd->Load("PMD/miku/初音ミク.pmd");
 	//pmd->Load("PMD/hibari/雲雀Ver1.10.pmd");
 
 	//BMP
-	bmp->Load("PMD/miku/eye2.bmp");
+	//bmp->Load("PMD/miku/eye2.bmp");
 
 	//頂点バッファ
 	vertex->Initialize(device->GetDevice(), pmd->GetPMDVertex());
@@ -98,7 +97,7 @@ void Application::Initialize() {
 	index->Initialize(device->GetDevice(), pmd->GetIndices());
 
 	//テクスチャリソース
-	tex->Initialize(device->GetDevice(), bmp->GetInfoHeader().biWidth, bmp->GetInfoHeader().biHeight);
+	tex->Initialize(device->GetDevice(), pmd->GetBMPSize().width, pmd->GetBMPSize().height);
 
 	//シェーダリソースビュー
 	srv->Initialize(device->GetDevice(), tex->GetTextureBuffer(), pmd->GetMaterial().size());
@@ -191,7 +190,7 @@ void Application::Run() {
 		}
 		
 		//テクスチャバッファへの書き込み
-		tex->WriteToTextureBuffer(bmp->GetData(), pmd->GetTexFlag());
+		tex->WriteToTextureBuffer(pmd->GetBMPData(), pmd->GetTexFlag());
 
 		//PMD描画
 		pmd->Draw(command->GetCommandList(), device->GetDevice(), srv->GetTextureHeap());
