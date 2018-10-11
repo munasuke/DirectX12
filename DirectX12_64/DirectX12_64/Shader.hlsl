@@ -12,8 +12,8 @@ cbuffer wvp : register(b0)
 cbuffer material : register(b1)
 {
 	float4	diffuse;	//減衰色
-    float4  specular;   //光沢色
-    float4  ambient;    //環境色
+    float4 specular;	//光沢色
+    float4 ambient;		//環境色
 	bool	texFlag;
 };
 
@@ -43,9 +43,6 @@ Out BasicVS(float4 pos : POSITION, float4 normal : NORMAL, float2 uv : TEXCOORD)
 //PixelShader
 float4 BasicPS(Out o) : SV_TARGET
 {
-	//return float4(world[0][3], world[1][2], world[2][1], world[3][0]);
-	//return float4(tex.Sample(smp, o.uv).abg, 1);
-
 	//視点
     float3 eye = (0.0f, 10.0f, -15.0f);
     //視線
@@ -61,7 +58,9 @@ float4 BasicPS(Out o) : SV_TARGET
 
     spec = pow(spec, specular.a);
 
-	float	brightness	= saturate(dot(light, o.normal.xyz));
-    float3 color = texFlag ? tex.Sample(smp, o.uv).rgb : saturate(diffuse.rgb * brightness + specular.rgb * spec + ambient.rgb);
-    return float4(color, ambient.a);
+	float brightness = saturate(dot(light, o.normal.xyz));
+
+    float3 color = texFlag ? tex.Sample(smp, o.uv).rgb : diffuse.rgb;
+
+    return float4(saturate(color * brightness + specular.rgb * spec + ambient.rgb), ambient.a);
 }

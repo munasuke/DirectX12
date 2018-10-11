@@ -84,7 +84,8 @@ void Application::Initialize() {
 	fence->InitFence(device->GetDevice());
 
 	//PMD
-	pmd->Load("PMD/miku/初音ミク.pmd");
+	pmd->Load("PMD/reimu/reimu_F01.pmd");
+	//pmd->Load("PMD/miku/初音ミク.pmd");
 	//pmd->Load("PMD/hibari/雲雀Ver1.10.pmd");
 
 	//BMP

@@ -49,7 +49,7 @@ struct PMDMaterial{
 struct MAT{
 	DirectX::XMFLOAT4	diffuse;	//減衰色
 	DirectX::XMFLOAT4	specular;	//光沢色
-	DirectX::XMFLOAT3	ambient;	//環境色
+	DirectX::XMFLOAT4	ambient;	//環境色
 	BOOL				texFlag;	//テクスチャありなしフラグ
 };
 

@@ -52,7 +52,6 @@ int PMDLoader::Load(const char * _path) {
 		}
 	}
 
-
 	return 0;
 }
 
