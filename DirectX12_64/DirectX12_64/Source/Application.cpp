@@ -15,7 +15,7 @@
 #include "Vertex.h"
 #include "TextureResource.h"
 #include "ShaderResourceView.h"
-//#include "BmpLoader.h"
+#include "BmpLoader.h"
 #include "ShaderLoader.h"
 #include "PipelineState.h"
 #include "ViewPort.h"
@@ -43,12 +43,12 @@ Application::Application() {
 	vertex			= std::make_shared<Vertex>();
 	tex				= std::make_shared<TextureResource>();
 	srv				= std::make_shared<ShaderResourceView>();
-	//bmp				= std::make_shared<BmpLoader>();
+	bmp				= std::make_shared<BmpLoader>();
 	shader			= std::make_shared<ShaderLoader>();
 	pipline			= std::make_shared<PipelineState>();
 	viewPort		= std::make_shared<ViewPort>();
 	cb				= std::make_shared<ConstantBuffer>();
-	pmd				= std::make_shared<PMDLoader>();
+	pmd				= std::make_shared<PMDLoader>(bmp);
 	index			= std::make_shared<Index>();
 	depth			= std::make_shared<DepthStencilBuffer>();
 }
@@ -97,7 +97,7 @@ void Application::Initialize() {
 	index->Initialize(device->GetDevice(), pmd->GetIndices());
 
 	//テクスチャリソース
-	tex->Initialize(device->GetDevice(), pmd->GetBMPSize().width, pmd->GetBMPSize().height);
+	tex->Initialize(device->GetDevice(), bmp->GetInfoHeader().biWidth, bmp->GetInfoHeader().biHeight);
 
 	//シェーダリソースビュー
 	srv->Initialize(device->GetDevice(), tex->GetTextureBuffer(), pmd->GetMaterial().size());
@@ -190,7 +190,7 @@ void Application::Run() {
 		}
 		
 		//テクスチャバッファへの書き込み
-		tex->WriteToTextureBuffer(pmd->GetBMPData(), pmd->GetTexFlag());
+		tex->WriteToTextureBuffer(bmp->GetData(), pmd->GetTexFlag());
 
 		//PMD描画
 		pmd->Draw(command->GetCommandList(), device->GetDevice(), srv->GetTextureHeap());

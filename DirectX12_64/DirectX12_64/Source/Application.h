@@ -15,7 +15,7 @@ class Fence;
 class Vertex;
 class TextureResource;
 class ShaderResourceView;
-//class BmpLoader;
+class BmpLoader;
 class ShaderLoader;
 class PipelineState;
 class ViewPort;
@@ -53,7 +53,7 @@ private:
 	std::shared_ptr<Vertex>				vertex;			//頂点バッファ
 	std::shared_ptr<TextureResource>	tex;			//テクスチャリソース
 	std::shared_ptr<ShaderResourceView> srv;			//シェーダリソースビュー
-	//std::shared_ptr<BmpLoader>			bmp;			//BMP
+	std::shared_ptr<BmpLoader>			bmp;			//BMP
 	std::shared_ptr<ShaderLoader>		shader;			//シェーダ
 	std::shared_ptr<PipelineState>		pipline;		//パイプラインステートオブジェクト
 	std::shared_ptr<ViewPort>			viewPort;		//ビューポート

@@ -5,8 +5,12 @@
 #include <iostream>
 #include <string>
 
-PMDLoader::PMDLoader() : resource(nullptr), descriptorHeap(nullptr), data(nullptr){
-	bmp = std::make_shared<BmpLoader>();
+PMDLoader::PMDLoader(std::shared_ptr<BmpLoader> bmp) :
+	resource(nullptr), 
+	descriptorHeap(nullptr), 
+	data(nullptr)
+{
+	this->bmp = bmp;
 	mat = {};
 }
 
@@ -40,13 +44,14 @@ int PMDLoader::Load(const char * _path) {
 	fclose(fp);
 
 	//テクスチャ読み込み
-	//for (INT i = 0; i < material.size(); ++i){
-	//	//テクスチャがある場合のみ読み込み
-	//	if (material[i].textureFilePath[0] != '\0') {
-	//		bmp->Load(material[i].textureFilePath);
-	//	}
-	//}
-	bmp->Load("PMD/miku/eye2.bmp");
+	for (INT i = 0; i < material.size(); ++i){
+		//テクスチャがある場合のみ読み込み
+		if (strlen(material[i].textureFilePath) > 0) {
+			auto texPath = GetRelativeTexturePathFromPmdPath(_path, material[i].textureFilePath);
+			bmp.lock()->Load(texPath.c_str());
+		}
+	}
+
 
 	return 0;
 }
@@ -123,14 +128,14 @@ void PMDLoader::Initialize(ID3D12Device * _dev) {
 		mat.texFlag = material[i].textureFilePath[0] != '\0' ? true : false;
 		texFlag.emplace_back(mat.texFlag);
 
-		//テクスチャありのマテリアル番号を表示
+		//マテリアル番号とテクスチャのありなしを表示
 		std::cout << i << ":" << std::boolalpha << (bool)(mat.texFlag) << std::endl;
 
 		//マテリアル成分をGPUに投げる
 		memcpy(data, &mat, sizeof(MAT));
 
 		//データをずらす
-		data = (UINT8*)(((sizeof(DirectX::XMFLOAT3) + 0xff) &~0xff) + (CHAR*)(data));
+		data = (UINT8*)(((sizeof(DirectX::XMFLOAT3) + 0xff) &~ 0xff) + (CHAR*)(data));
 	}
 }
 
@@ -153,22 +158,6 @@ void PMDLoader::Draw(ID3D12GraphicsCommandList * _list, ID3D12Device * _dev, ID3
 		//マテリアルのインデックス分ずらす
 		offset += material[i].indexCount;
 	}
-}
-
-void PMDLoader::SetDescriptor(ID3D12GraphicsCommandList * _list, ID3D12Device* _dev) {
-	auto handle = descriptorHeap->GetGPUDescriptorHandleForHeapStart();
-	for (UINT i = 0; i < material.size(); ++i){
-		_list->SetDescriptorHeaps(1, &descriptorHeap);
-		_list->SetGraphicsRootDescriptorTable(2, handle);
-		handle.ptr += _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-	}
-}
-
-void PMDLoader::SetDescriptor(ID3D12GraphicsCommandList * _list, ID3D12Device * _dev, UINT index) {
-	auto handle = descriptorHeap->GetGPUDescriptorHandleForHeapStart();
-	handle.ptr += index * _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-	_list->SetDescriptorHeaps(1, &descriptorHeap);
-	_list->SetGraphicsRootDescriptorTable(2, handle);
 }
 
 void PMDLoader::SetMaterialColor(UINT index) {
@@ -210,31 +199,20 @@ std::string PMDLoader::GetRelativeTexturePathFromPmdPath(const char * modelPath,
 	//フォルダの区切りに/か\\のどちらかが使われる
 
 	std::string strModelPath = modelPath;
-	std::string strTexPath = texturePath;
 
-	INT path1 = strModelPath.rfind('/');
-	INT path2 = strModelPath.rfind('\\') == std::string::npos ? 0 : strModelPath.rfind('\\');
+	auto index1 = strModelPath.rfind('/');
+	auto index2 = strModelPath.rfind('\\');
+	index2 = std::string::npos ? 0 : index2;
 	//フォルダの区切りにどちらが使われているか比較する
-	INT pathIndex = max(path1, path2);
+	auto separation = max(index1, index2);
 	//アプリからの相対パスを生成
-	std::string _texturePath = strModelPath.substr(0, pathIndex);
-	_texturePath += '/' + texturePath;
+	auto textureFilePath = strModelPath.substr(0, separation) + "/" + texturePath;
 
-	return _texturePath;
+	return textureFilePath;
 }
 
 UINT8 * PMDLoader::GetData(void) {
 	return data;
-}
-
-Rect PMDLoader::GetBMPSize() {
-	Rect tmpRec = { bmp->GetInfoHeader().biWidth, bmp->GetInfoHeader().biHeight };
-
-	return tmpRec;
-}
-
-std::vector<CHAR> PMDLoader::GetBMPData() {
-	return bmp->GetData();
 }
 
 void PMDLoader::UpdateData() {

@@ -53,23 +53,16 @@ struct MAT{
 	BOOL				texFlag;	//テクスチャありなしフラグ
 };
 
-struct Rect{
-	UINT width;
-	UINT height;
-};
-
 //PMD読み込みクラス
 class PMDLoader {
 public:
-	PMDLoader();
+	PMDLoader(std::shared_ptr<BmpLoader> bmp);
 
 	int Load(const char* _path);
 
 	void Initialize(ID3D12Device* _dev);
 	void Draw(ID3D12GraphicsCommandList * _list, ID3D12Device * _dev, ID3D12DescriptorHeap* texHeap);
 
-	void SetDescriptor(ID3D12GraphicsCommandList * _list, ID3D12Device* _dev);
-	void SetDescriptor(ID3D12GraphicsCommandList * _list, ID3D12Device* _dev, UINT index);
 	void SetMaterialColor(UINT index);
 	void SetData(UINT8* data);
 
@@ -79,20 +72,18 @@ public:
 	std::vector<PMDMaterial>	GetMaterial();	//マテリアル情報を返す
 	MAT							GetMat();
 	std::vector<bool>			GetTexFlag();
-	//モデルパスとテクスチャ相対パスから、アプリからテクスチャのパスを生成する。
+	/*モデルパスとテクスチャ相対パスから、アプリからテクスチャのパスを生成する。
 	//モデルの相対パス（絶対パスでも可）
 	//テクスチャの相対パス（相対パスオンリー）
+	*/
 	std::string					GetRelativeTexturePathFromPmdPath(const char* modelPath, const char* texturePath);
 	UINT8*						GetData();		//データを返す
-
-	Rect						GetBMPSize();
-	std::vector<CHAR>			GetBMPData();
 
 	void UpdateData();
 
 	~PMDLoader();
 private:
-	std::shared_ptr<BmpLoader>	bmp;		//BMP
+	std::weak_ptr<BmpLoader>	bmp;		//BMP
 
 	PMDHeader					header;		//ヘッダー
 	std::vector<PMDVertex>		vertices;	//頂点情報
