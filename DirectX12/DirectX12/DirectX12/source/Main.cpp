@@ -6,12 +6,14 @@
 #include <DirectXMath.h>//数学系の便利なのが入ってるヘッダ
 #include <tchar.h>
 #include <vector>
+#include <DirectXTex/DirectXTex.h>
 
 using namespace DirectX;
 
 #pragma comment(lib,"d3d12.lib")
 #pragma comment(lib,"dxgi.lib")
 #pragma comment(lib, "d3dcompiler.lib")
+#pragma comment(lib, "DirectXTex.lib")
 
 #define WIN_WIDTH	(640)	//ウィンドウサイズ幅
 #define WIN_HEIGTH	(480)	//ウィンドウサイズ高
@@ -303,12 +305,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	}
 	fclose(fp);
 
+	//WIC
+	TexMetadata w_metadata;
+	ScratchImage w_image;
+	result = LoadFromWICFile(L"image/real_eye.png", WIC_FLAGS::WIC_FLAGS_NONE, &w_metadata, w_image);
+	auto w_img = w_image.GetImage(0, 0, 0);
+
 	//テクスチャリソースの作成
 	CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
 	D3D12_RESOURCE_DESC texResourceDesc = {};
 	texResourceDesc.Dimension			= D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-	texResourceDesc.Width				= bmpInfoHeader.biWidth;
-	texResourceDesc.Height				= bmpInfoHeader.biHeight;
+	texResourceDesc.Width				= w_img->width;
+	texResourceDesc.Height				= w_img->height;
 	texResourceDesc.DepthOrArraySize	= 1;
 	texResourceDesc.Format				= DXGI_FORMAT_R8G8B8A8_UNORM;
 	texResourceDesc.SampleDesc.Count	= 1;
@@ -486,8 +494,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		box.left		= 0;
 		box.top			= 0;
 		box.front		= 0;
-		box.right		= bmpInfoHeader.biWidth;
-		box.bottom		= bmpInfoHeader.biHeight;
+		box.right		= w_img->width;
+		box.bottom		= w_img->height;
 		box.back		= 1;
 		result = textureBuffer->WriteToSubresource(
 			0,

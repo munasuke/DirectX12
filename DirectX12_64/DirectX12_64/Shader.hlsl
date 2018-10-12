@@ -60,7 +60,7 @@ float4 BasicPS(Out o) : SV_TARGET
 
 	float brightness = saturate(dot(light, o.normal.xyz));
 
-    float3 color = texFlag ? tex.Sample(smp, o.uv).rgb : diffuse.rgb;
+    float3 color = texFlag ? tex.Sample(smp, o.uv).rgb : saturate(diffuse.rgb * brightness + specular.rgb * spec + ambient.rgb);
 
-    return float4(saturate(color * brightness + specular.rgb * spec + ambient.rgb), ambient.a);
+    return float4(color, ambient.a);
 }

@@ -1,16 +1,18 @@
 #include "PMDLoader.h"
 #include "BmpLoader.h"
+#include "ImageLoader.h"
 #include <tchar.h>
 #include <stdio.h>
 #include <iostream>
 #include <string>
 
-PMDLoader::PMDLoader(std::shared_ptr<BmpLoader> bmp) :
+PMDLoader::PMDLoader(std::shared_ptr<BmpLoader> bmp, std::shared_ptr<ImageLoader> imageL) :
 	resource(nullptr), 
 	descriptorHeap(nullptr), 
 	data(nullptr)
 {
 	this->bmp = bmp;
+	this->imageL = imageL;
 	mat = {};
 }
 
@@ -48,7 +50,8 @@ int PMDLoader::Load(const char * _path) {
 		//テクスチャがある場合のみ読み込み
 		if (strlen(material[i].textureFilePath) > 0) {
 			auto texPath = GetRelativeTexturePathFromPmdPath(_path, material[i].textureFilePath);
-			bmp.lock()->Load(texPath.c_str());
+			//bmp.lock()->Load(texPath.c_str());
+			imageL.lock()->Load(L"PMD/neru/eye3Ne.bmp");
 		}
 	}
 

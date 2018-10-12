@@ -16,6 +16,7 @@
 #include "TextureResource.h"
 #include "ShaderResourceView.h"
 #include "BmpLoader.h"
+#include "ImageLoader.h"
 #include "ShaderLoader.h"
 #include "PipelineState.h"
 #include "ViewPort.h"
@@ -44,11 +45,12 @@ Application::Application() {
 	tex				= std::make_shared<TextureResource>();
 	srv				= std::make_shared<ShaderResourceView>();
 	bmp				= std::make_shared<BmpLoader>();
+	imageL			= std::make_shared<ImageLoader>();
 	shader			= std::make_shared<ShaderLoader>();
 	pipline			= std::make_shared<PipelineState>();
 	viewPort		= std::make_shared<ViewPort>();
 	cb				= std::make_shared<ConstantBuffer>();
-	pmd				= std::make_shared<PMDLoader>(bmp);
+	pmd				= std::make_shared<PMDLoader>(bmp, imageL);
 	index			= std::make_shared<Index>();
 	depth			= std::make_shared<DepthStencilBuffer>();
 }
@@ -84,12 +86,16 @@ void Application::Initialize() {
 	fence->InitFence(device->GetDevice());
 
 	//PMD
-	pmd->Load("PMD/reimu/reimu_F01.pmd");
+	//pmd->Load("PMD/reimu/reimu_F01.pmd");
 	//pmd->Load("PMD/miku/初音ミク.pmd");
+	pmd->Load("PMD/neru/亞北ネル.pmd");
 	//pmd->Load("PMD/hibari/雲雀Ver1.10.pmd");
 
 	//BMP
 	//bmp->Load("PMD/miku/eye2.bmp");
+
+	//画像ロード
+	//imageL->Load(L"Image/real_eye.png");
 
 	//頂点バッファ
 	vertex->Initialize(device->GetDevice(), pmd->GetPMDVertex());
@@ -98,7 +104,7 @@ void Application::Initialize() {
 	index->Initialize(device->GetDevice(), pmd->GetIndices());
 
 	//テクスチャリソース
-	tex->Initialize(device->GetDevice(), bmp->GetInfoHeader().biWidth, bmp->GetInfoHeader().biHeight);
+	tex->Initialize(device->GetDevice(), imageL->GetImage()->width, imageL->GetImage()->height);
 
 	//シェーダリソースビュー
 	srv->Initialize(device->GetDevice(), tex->GetTextureBuffer(), pmd->GetMaterial().size());
@@ -191,7 +197,7 @@ void Application::Run() {
 		}
 		
 		//テクスチャバッファへの書き込み
-		tex->WriteToTextureBuffer(bmp->GetData(), pmd->GetTexFlag());
+		tex->WriteToTextureBuffer(imageL->GetImage(), pmd->GetTexFlag());
 
 		//PMD描画
 		pmd->Draw(command->GetCommandList(), device->GetDevice(), srv->GetTextureHeap());

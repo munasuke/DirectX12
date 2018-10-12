@@ -16,6 +16,7 @@ class Vertex;
 class TextureResource;
 class ShaderResourceView;
 class BmpLoader;
+class ImageLoader;
 class ShaderLoader;
 class PipelineState;
 class ViewPort;
@@ -54,6 +55,7 @@ private:
 	std::shared_ptr<TextureResource>	tex;			//テクスチャリソース
 	std::shared_ptr<ShaderResourceView> srv;			//シェーダリソースビュー
 	std::shared_ptr<BmpLoader>			bmp;			//BMP
+	std::shared_ptr<ImageLoader>		imageL;			//画像ロード
 	std::shared_ptr<ShaderLoader>		shader;			//シェーダ
 	std::shared_ptr<PipelineState>		pipline;		//パイプラインステートオブジェクト
 	std::shared_ptr<ViewPort>			viewPort;		//ビューポート

@@ -6,6 +6,7 @@
 #include <memory>
 
 class BmpLoader;
+class ImageLoader;
 
 //ヘッダー
 #pragma pack(1)
@@ -56,7 +57,7 @@ struct MAT{
 //PMD読み込みクラス
 class PMDLoader {
 public:
-	PMDLoader(std::shared_ptr<BmpLoader> bmp);
+	PMDLoader(std::shared_ptr<BmpLoader> bmp, std::shared_ptr<ImageLoader> imageL);
 
 	int Load(const char* _path);
 
@@ -84,6 +85,7 @@ public:
 	~PMDLoader();
 private:
 	std::weak_ptr<BmpLoader>	bmp;		//BMP
+	std::weak_ptr<ImageLoader>	imageL;
 
 	PMDHeader					header;		//ヘッダー
 	std::vector<PMDVertex>		vertices;	//頂点情報
