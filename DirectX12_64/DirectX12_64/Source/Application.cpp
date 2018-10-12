@@ -104,7 +104,8 @@ void Application::Initialize() {
 	index->Initialize(device->GetDevice(), pmd->GetIndices());
 
 	//テクスチャリソース
-	tex->Initialize(device->GetDevice(), imageL->GetImage()->width, imageL->GetImage()->height);
+	//tex->Initialize(device->GetDevice(), bmp->GetInfoHeader().biWidth, bmp->GetInfoHeader().biHeight);
+	tex->Initialize(device->GetDevice(), imageL->GetMetaData().width, imageL->GetMetaData().height);
 
 	//シェーダリソースビュー
 	srv->Initialize(device->GetDevice(), tex->GetTextureBuffer(), pmd->GetMaterial().size());
@@ -197,7 +198,8 @@ void Application::Run() {
 		}
 		
 		//テクスチャバッファへの書き込み
-		tex->WriteToTextureBuffer(imageL->GetImage(), pmd->GetTexFlag());
+		//tex->WriteToTextureBuffer(bmp->GetData(), pmd->GetTexFlag());
+		tex->WriteToTextureBuffer(imageL->GetMetaData(), imageL->GetScratchImage(), pmd->GetTexFlag());
 
 		//PMD描画
 		pmd->Draw(command->GetCommandList(), device->GetDevice(), srv->GetTextureHeap());

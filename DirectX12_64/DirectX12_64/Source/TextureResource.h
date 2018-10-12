@@ -8,8 +8,9 @@
 class TextureResource : public Result {
 public:
 	TextureResource();
-	void Initialize(ID3D12Device* _dev, UINT sizeWidth, UINT sizeHeight);//初期化
-	void WriteToTextureBuffer(const DirectX::Image* _data, std::vector<bool> textureFlag);//テクスチャバッファへ書き込む
+	void Initialize(ID3D12Device* _dev, const UINT sizeWidth, const UINT sizeHeight);//初期化
+	void WriteToTextureBuffer(std::vector<CHAR> _data, std::vector<bool> textureFlag);//テクスチャバッファへ書き込む
+	void WriteToTextureBuffer(DirectX::TexMetadata meta, uint8_t* img, std::vector<bool> textureFlag);//テクスチャバッファへ書き込む
 	ID3D12Resource* GetTextureBuffer();
 	~TextureResource();
 private:

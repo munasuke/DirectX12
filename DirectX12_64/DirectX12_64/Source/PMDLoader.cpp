@@ -51,7 +51,9 @@ int PMDLoader::Load(const char * _path) {
 		if (strlen(material[i].textureFilePath) > 0) {
 			auto texPath = GetRelativeTexturePathFromPmdPath(_path, material[i].textureFilePath);
 			//bmp.lock()->Load(texPath.c_str());
-			imageL.lock()->Load(L"PMD/neru/eye3Ne.bmp");
+			//imageL.lock()->Load(L"PMD/neru/eye3Ne.bmp");
+			//imageL.lock()->Load(L"Image/real_eye.png");
+			imageL.lock()->Load(L"Image/asobi.jpg");
 		}
 	}
 

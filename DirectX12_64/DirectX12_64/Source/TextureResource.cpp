@@ -1,5 +1,6 @@
 #include "Result.h"
 #include "TextureResource.h"
+#include "ImageLoader.h"
 
 
 
@@ -7,7 +8,7 @@ TextureResource::TextureResource() : textureBuffer(nullptr)
 {
 }
 
-void TextureResource::Initialize(ID3D12Device * _dev, UINT sizeWidth, UINT sizeHeight)
+void TextureResource::Initialize(ID3D12Device * _dev, const UINT sizeWidth, const UINT sizeHeight)
 {
 	//テクスチャリソースの作成
 	CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
@@ -42,11 +43,19 @@ void TextureResource::Initialize(ID3D12Device * _dev, UINT sizeWidth, UINT sizeH
 	box.back	= 1;
 }
 
-void TextureResource::WriteToTextureBuffer(const DirectX::Image* _data, std::vector<bool> textureFlag) {
+void TextureResource::WriteToTextureBuffer(std::vector<CHAR> _data, std::vector<bool> textureFlag) {
+	for (int i = 0; i < textureFlag.size(); i++) {
+		if (textureFlag[i]) {
+			result = textureBuffer->WriteToSubresource(0, &box, _data.data(), box.right * 4, box.bottom * 4);
+		}
+	}
+}
+
+void TextureResource::WriteToTextureBuffer(DirectX::TexMetadata meta, uint8_t* img, std::vector<bool> textureFlag) {
 	for (int i = 0; i < textureFlag.size(); i++) {
 		if (textureFlag[i]) {
 			//マテリアルにテクスチャがある場合のみ書き込む
-			result = textureBuffer->WriteToSubresource(0, &box, &_data, box.right * 4, box.bottom * 4);
+			result = textureBuffer->WriteToSubresource(0, nullptr, img, meta.width * 4, meta.height * 4);
 		}
 	}
 }
