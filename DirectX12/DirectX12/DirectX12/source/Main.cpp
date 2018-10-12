@@ -308,15 +308,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	//WIC
 	TexMetadata w_metadata;
 	ScratchImage w_image;
-	result = LoadFromWICFile(L"image/real_eye.png", WIC_FLAGS::WIC_FLAGS_NONE, &w_metadata, w_image);
+	result = LoadFromWICFile(L"image/asobi.jpg", WIC_FLAGS::WIC_FLAGS_NONE, &w_metadata, w_image);
 	auto w_img = w_image.GetImage(0, 0, 0);
 
 	//テクスチャリソースの作成
 	CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
 	D3D12_RESOURCE_DESC texResourceDesc = {};
 	texResourceDesc.Dimension			= D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-	texResourceDesc.Width				= w_img->width;
-	texResourceDesc.Height				= w_img->height;
+	texResourceDesc.Width				= w_metadata.width;
+	texResourceDesc.Height				= w_metadata.height;
 	texResourceDesc.DepthOrArraySize	= 1;
 	texResourceDesc.Format				= DXGI_FORMAT_R8G8B8A8_UNORM;
 	texResourceDesc.SampleDesc.Count	= 1;
@@ -499,10 +499,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		box.back		= 1;
 		result = textureBuffer->WriteToSubresource(
 			0,
-			&box,
-			data.data(),
-			box.right * 4,
-			box.bottom * 4
+			nullptr,
+			w_image.GetPixels(),
+			w_metadata.width * 4,
+			w_metadata.height * 4
 		);
 
 		//頂点描画
