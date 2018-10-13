@@ -21,6 +21,9 @@ public:
 	ImageRect GetImageRect();
 	~ImageLoader();
 private:
+	//string -> wstring
+	std::wstring ConvertStringToWString(std::string str);
+
 	DirectX::TexMetadata metaData;
 	DirectX::ScratchImage image;
 	std::map<std::wstring,

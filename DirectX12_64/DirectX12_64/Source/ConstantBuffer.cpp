@@ -18,6 +18,9 @@ void ConstantBuffer::Initialize(ID3D12Device * _dev, ID3D12DescriptorHeap* _heap
 	XMFLOAT3 eye	(0.0f, 10.0f, -15.0f);
 	XMFLOAT3 focus	(0.0f, 10.0f,   0.0f);
 	XMFLOAT3 upper	(0.0f,  1.0f,   0.0f);
+	//XMFLOAT3 eye	(0.0f, 17.0f, -5.0f);
+	//XMFLOAT3 focus	(0.0f, 17.0f,   0.0f);
+	//XMFLOAT3 upper	(0.0f,  1.0f,   0.0f);
 
 	//ワールド・ビュー・プロジェクション行列の作成
 	mt.world		= XMMatrixIdentity();

@@ -87,8 +87,8 @@ void Application::Initialize() {
 
 	//PMD
 	//pmd->Load("PMD/reimu/reimu_F01.pmd");
-	//pmd->Load("PMD/miku/初音ミク.pmd");
-	pmd->Load("PMD/neru/亞北ネル.pmd");
+	pmd->Load("PMD/miku/初音ミク.pmd");
+	//pmd->Load("PMD/neru/亞北ネル.pmd");
 	//pmd->Load("PMD/hibari/雲雀Ver1.10.pmd");
 
 	//BMP
