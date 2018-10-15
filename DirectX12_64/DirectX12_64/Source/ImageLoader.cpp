@@ -5,48 +5,44 @@
 using namespace DirectX;
 
 ImageLoader::ImageLoader() {
-	//Šg’£q‚Åƒ[ƒhŠÖ”‚ğ•ª‚¯‚é
-	//bmp, png, jpg—p
+	//ï¿½gï¿½ï¿½ï¿½qï¿½Åƒï¿½ï¿½[ï¿½hï¿½Öï¿½ï¿½ğ•ª‚ï¿½ï¿½ï¿½
+	//bmp, png, jpgï¿½p
 	loadFuncTbl[L"bmp"] = loadFuncTbl[L"png"] = loadFuncTbl[L"jpg"] =
 		[](const std::wstring& path, TexMetadata* meta, ScratchImage& img) -> HRESULT {
 		return LoadFromWICFile(path.c_str(), 0, meta, img); };
 
-	//tga—p
-	loadFuncTbl[L"tga"] = 
+	//tgaï¿½p
+	loadFuncTbl[L"tga"] =
 		[](const std::wstring& path, TexMetadata* meta, ScratchImage& img) -> HRESULT {
 		return LoadFromTGAFile(path.c_str(), meta, img); };
 
-	//dds—p
+	//ddsï¿½p
 	loadFuncTbl[L"dds"] =
 		[](const std::wstring& path, TexMetadata* meta, ScratchImage& img) -> HRESULT {
 		return LoadFromDDSFile(path.c_str(), 0, meta, img); };
 }
 
 int ImageLoader::Load(const std::string path) {
-	//string ¨ wstring
+	//string ï¿½ï¿½ wstring
 	std::wstring wstrPath = ConvertStringToWString(path);
-	//Šg’£q‚ğ”»’è
+	//ï¿½gï¿½ï¿½ï¿½qï¿½ğ”»’ï¿½
 	std::wstring filePath = wstrPath;
 	auto index = filePath.rfind('.');
 	filePath = filePath.substr(index + 1);
 
-<<<<<<< HEAD
 	auto result = loadFuncTbl[filePath](wstrPath, &metaData, image);
 
-=======
 	TexMetadata metaData;
-	ScratchImage img;//‰æ‘œ‚Ì–{‘Ì‚ª“ü‚é
+	ScratchImage img;//ï¿½æ‘œï¿½Ì–{ï¿½Ì‚ï¿½ï¿½ï¿½ï¿½ï¿½
 	auto result = loadFuncTbl[filePath](path, &metaData, img);
 	image = img.GetImage(0, 0, 0);
-	
->>>>>>> parent of 6480300... wicå¯¾å¿œã§ããŸ
+
 	return 0;
 }
 
 const DirectX::Image * ImageLoader::GetImage() {
 	return image;
 }
-
 
 ImageLoader::~ImageLoader() {
 }

@@ -4,21 +4,18 @@
 #include <DirectXTex/DirectXTex.h>
 #pragma comment(lib, "DirectXTex.lib")
 
-//ƒeƒNƒXƒ`ƒƒƒŠƒ\[ƒX
+//ï¿½eï¿½Nï¿½Xï¿½`ï¿½ï¿½ï¿½ï¿½ï¿½\ï¿½[ï¿½X
 class TextureResource : public Result {
 public:
 	TextureResource();
-<<<<<<< HEAD
-	//void Initialize(ID3D12Device* _dev, const UINT textureNum, const UINT sizeWidth, const UINT sizeHeight);//‰Šú‰»
-	void Initialize(ID3D12Device* _dev, std::vector<DirectX::TexMetadata> metaData);//‰Šú‰»
-	void WriteToTextureBuffer(std::vector<CHAR> _data, std::vector<bool> textureFlag);//ƒeƒNƒXƒ`ƒƒƒoƒbƒtƒ@‚Ö‘‚«‚Ş
-	void WriteToTextureBuffer(std::vector<DirectX::TexMetadata> metaData, std::vector<uint8_t*> img, std::vector<bool> textureFlag);//ƒeƒNƒXƒ`ƒƒƒoƒbƒtƒ@‚Ö‘‚«‚Ş
+	//void Initialize(ID3D12Device* _dev, const UINT textureNum, const UINT sizeWidth, const UINT sizeHeight);//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	void Initialize(ID3D12Device* _dev, std::vector<DirectX::TexMetadata> metaData);//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	void WriteToTextureBuffer(std::vector<CHAR> _data, std::vector<bool> textureFlag);//ï¿½eï¿½Nï¿½Xï¿½`ï¿½ï¿½ï¿½oï¿½bï¿½tï¿½@ï¿½Öï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	void WriteToTextureBuffer(std::vector<DirectX::TexMetadata> metaData, std::vector<uint8_t*> img, std::vector<bool> textureFlag);//ï¿½eï¿½Nï¿½Xï¿½`ï¿½ï¿½ï¿½oï¿½bï¿½tï¿½@ï¿½Öï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	std::vector<ID3D12Resource*> GetTextureBuffer();
-=======
-	void Initialize(ID3D12Device* _dev, UINT sizeWidth, UINT sizeHeight);//‰Šú‰»
-	void WriteToTextureBuffer(const DirectX::Image* _data, std::vector<bool> textureFlag);//ƒeƒNƒXƒ`ƒƒƒoƒbƒtƒ@‚Ö‘‚«‚Ş
+	void Initialize(ID3D12Device* _dev, UINT sizeWidth, UINT sizeHeight);//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	void WriteToTextureBuffer(const DirectX::Image* _data, std::vector<bool> textureFlag);//ï¿½eï¿½Nï¿½Xï¿½`ï¿½ï¿½ï¿½oï¿½bï¿½tï¿½@ï¿½Öï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	ID3D12Resource* GetTextureBuffer();
->>>>>>> parent of 6480300... wicå¯¾å¿œã§ããŸ
 	~TextureResource();
 private:
 	D3D12_RESOURCE_DESC texResourceDesc = {};
@@ -26,4 +23,3 @@ private:
 	std::vector<ID3D12Resource*> textureBuffer;
 	D3D12_BOX box = {};
 };
-

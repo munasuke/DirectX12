@@ -8,8 +8,8 @@
 
 PMDLoader::PMDLoader(std::shared_ptr<BmpLoader> bmp, std::shared_ptr<ImageLoader> imageL) :
 	textureNum(0),
-	resource(nullptr), 
-	descriptorHeap(nullptr), 
+	resource(nullptr),
+	descriptorHeap(nullptr),
 	data(nullptr)
 {
 	this->bmp = bmp;
@@ -23,44 +23,39 @@ int PMDLoader::Load(const char * _path) {
 		MessageBox(nullptr, TEXT("Can't load PMDFile"), TEXT("Error"), MB_OK);
 		return -1;
 	}
-	//ƒwƒbƒ_[“Ç‚İ‚İ
+	//ï¿½wï¿½bï¿½_ï¿½[ï¿½Ç‚İï¿½ï¿½ï¿½
 	fread(&header, sizeof(header), 1, fp);
 	//fread(&pmd.header.magic, sizeof(pmd.header.magic), 1, fp);
 	//fread(&pmd.header.version, sizeof(pmd.header) - sizeof(pmd.header.magic), 1, fp);
-	
-	//’¸“_ƒf[ƒ^“Ç‚İ‚İ
+
+	//ï¿½ï¿½ï¿½_ï¿½fï¿½[ï¿½^ï¿½Ç‚İï¿½ï¿½ï¿½
 	vertices.resize(header.vertexNum);
 	fread(&vertices[0], sizeof(PMDVertex), header.vertexNum, fp);
 
-	//ƒCƒ“ƒfƒbƒNƒX‘”“Ç‚İ‚İ
+	//ï¿½Cï¿½ï¿½ï¿½fï¿½bï¿½Nï¿½Xï¿½ï¿½ï¿½ï¿½ï¿½Ç‚İï¿½ï¿½ï¿½
 	fread(&indicesNum, sizeof(UINT), 1, fp);
-	//ƒCƒ“ƒfƒbƒNƒXƒf[ƒ^“Ç‚İ‚İ
+	//ï¿½Cï¿½ï¿½ï¿½fï¿½bï¿½Nï¿½Xï¿½fï¿½[ï¿½^ï¿½Ç‚İï¿½ï¿½ï¿½
 	indices.resize(indicesNum);
 	fread(&indices[0], sizeof(USHORT), indicesNum, fp);
 
-	//ƒ}ƒeƒŠƒAƒ‹‘”“Ç‚İ‚İ
+	//ï¿½}ï¿½eï¿½ï¿½ï¿½Aï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç‚İï¿½ï¿½ï¿½
 	fread(&materialNum, sizeof(UINT), 1, fp);
-	//ƒ}ƒeƒŠƒAƒ‹ƒf[ƒ^“Ç‚İ‚İ
+	//ï¿½}ï¿½eï¿½ï¿½ï¿½Aï¿½ï¿½ï¿½fï¿½[ï¿½^ï¿½Ç‚İï¿½ï¿½ï¿½
 	material.resize(materialNum);
 	fread(&material[0], sizeof(PMDMaterial), materialNum, fp);
-	
+
 	fclose(fp);
 
-	//ƒeƒNƒXƒ`ƒƒ“Ç‚İ‚İ
+	//ï¿½eï¿½Nï¿½Xï¿½`ï¿½ï¿½ï¿½Ç‚İï¿½ï¿½ï¿½
 	for (INT i = 0; i < material.size(); ++i){
-		//ƒeƒNƒXƒ`ƒƒ‚ª‚ ‚éê‡‚Ì‚İ“Ç‚İ‚İ
+		//ï¿½eï¿½Nï¿½Xï¿½`ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ê‡ï¿½Ì‚İ“Ç‚İï¿½ï¿½ï¿½
 		if (strlen(material[i].textureFilePath) > 0) {
-			//ƒeƒNƒXƒ`ƒƒ‚Ì–‡”
+			//ï¿½eï¿½Nï¿½Xï¿½`ï¿½ï¿½ï¿½Ì–ï¿½ï¿½ï¿½
 			++textureNum;
-			//‘Š‘ÎƒpƒX‚ğæ“¾
+			//ï¿½ï¿½ï¿½Îƒpï¿½Xï¿½ï¿½ï¿½æ“¾
 			auto texPath = GetRelativeTexturePathFromPmdPath(_path, material[i].textureFilePath);
-<<<<<<< HEAD
-			//ƒeƒNƒXƒ`ƒƒ“Ç‚İ‚İ
+			//ï¿½eï¿½Nï¿½Xï¿½`ï¿½ï¿½ï¿½Ç‚İï¿½ï¿½ï¿½
 			imageL.lock()->Load(texPath.c_str());
-=======
-			//bmp.lock()->Load(texPath.c_str());
-			imageL.lock()->Load(L"PMD/neru/eye3Ne.bmp");
->>>>>>> parent of 6480300... wicå¯¾å¿œã§ããŸ
 		}
 	}
 
@@ -102,7 +97,7 @@ void PMDLoader::Initialize(ID3D12Device * _dev) {
 	cbvHeapDesc.Type						= D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	_dev->CreateDescriptorHeap(&cbvHeapDesc, IID_PPV_ARGS(&descriptorHeap));
 
-	//ƒ}ƒeƒŠƒAƒ‹•ªCBV‚ğì¬‚·‚é
+	//ï¿½}ï¿½eï¿½ï¿½ï¿½Aï¿½ï¿½ï¿½ï¿½CBVï¿½ï¿½ï¿½ì¬ï¿½ï¿½ï¿½ï¿½
 	auto handle		= descriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	auto address	= resource->GetGPUVirtualAddress();
 	for(UINT i = 0; i < material.size(); ++i) {
@@ -115,37 +110,37 @@ void PMDLoader::Initialize(ID3D12Device * _dev) {
 		handle.ptr += _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	}
 
-	//ƒ}ƒeƒŠƒAƒ‹‚ğƒVƒF[ƒ_‚É“n‚·
+	//ï¿½}ï¿½eï¿½ï¿½ï¿½Aï¿½ï¿½ï¿½ï¿½ï¿½Vï¿½Fï¿½[ï¿½_ï¿½É“nï¿½ï¿½
 	result = resource->Map(0, nullptr, (void**)(&data));
 	for (UINT i = 0; i < material.size(); ++i) {
-		//ƒfƒBƒtƒ…[ƒY¬•ª
+		//ï¿½fï¿½Bï¿½tï¿½ï¿½ï¿½[ï¿½Yï¿½ï¿½ï¿½ï¿½
 		mat.diffuse.x = material[i].diffuse.x;
 		mat.diffuse.y = material[i].diffuse.y;
 		mat.diffuse.z = material[i].diffuse.z;
 		mat.diffuse.w = material[i].alpha;
 
-		//ƒXƒyƒLƒ…ƒ‰¬•ª
+		//ï¿½Xï¿½yï¿½Lï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		mat.specular.x = material[i].specular.x;
 		mat.specular.y = material[i].specular.y;
 		mat.specular.z = material[i].specular.z;
 		mat.specular.w = material[i].specularPower;
 
-		//ƒAƒ“ƒrƒGƒ“ƒg¬•ª
+		//ï¿½Aï¿½ï¿½ï¿½rï¿½Gï¿½ï¿½ï¿½gï¿½ï¿½ï¿½ï¿½
 		mat.ambient.x = material[i].ambient.x;
 		mat.ambient.y = material[i].ambient.y;
 		mat.ambient.z = material[i].ambient.z;
 
-		//ƒeƒNƒXƒ`ƒƒ‚Ì‚ ‚è‚È‚µ”»’è
+		//ï¿½eï¿½Nï¿½Xï¿½`ï¿½ï¿½ï¿½Ì‚ï¿½ï¿½ï¿½ï¿½È‚ï¿½ï¿½ï¿½ï¿½ï¿½
 		mat.texFlag = material[i].textureFilePath[0] != '\0' ? true : false;
 		texFlag.emplace_back(mat.texFlag);
 
-		//ƒ}ƒeƒŠƒAƒ‹”Ô†‚ÆƒeƒNƒXƒ`ƒƒ‚Ì‚ ‚è‚È‚µ‚ğ•\¦
+		//ï¿½}ï¿½eï¿½ï¿½ï¿½Aï¿½ï¿½ï¿½Ôï¿½ï¿½Æƒeï¿½Nï¿½Xï¿½`ï¿½ï¿½ï¿½Ì‚ï¿½ï¿½ï¿½ï¿½È‚ï¿½ï¿½ï¿½ï¿½\ï¿½ï¿½
 		std::cout << i << ":" << std::boolalpha << (bool)(mat.texFlag) << std::endl;
 
-		//ƒ}ƒeƒŠƒAƒ‹¬•ª‚ğGPU‚É“Š‚°‚é
+		//ï¿½}ï¿½eï¿½ï¿½ï¿½Aï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½GPUï¿½É“ï¿½ï¿½ï¿½ï¿½ï¿½
 		memcpy(data, &mat, sizeof(MAT));
 
-		//ƒf[ƒ^‚ğ‚¸‚ç‚·
+		//ï¿½fï¿½[ï¿½^ï¿½ï¿½ï¿½ï¿½ï¿½ç‚·
 		data = (UINT8*)(((sizeof(DirectX::XMFLOAT3) + 0xff) &~ 0xff) + (CHAR*)(data));
 	}
 }
@@ -153,27 +148,27 @@ void PMDLoader::Initialize(ID3D12Device * _dev) {
 void PMDLoader::Draw(ID3D12GraphicsCommandList * _list, ID3D12Device * _dev, ID3D12DescriptorHeap* texHeap) {
 	UINT offset = 0;
 	for (UINT i = 0; i < material.size(); ++i) {
-		//ƒeƒNƒXƒ`ƒƒ‚ÌƒfƒXƒNƒŠƒvƒ^‚ğƒZƒbƒg
+		//ï¿½eï¿½Nï¿½Xï¿½`ï¿½ï¿½ï¿½Ìƒfï¿½Xï¿½Nï¿½ï¿½ï¿½vï¿½^ï¿½ï¿½ï¿½Zï¿½bï¿½g
 		_list->SetDescriptorHeaps(1, &texHeap);
 		auto texHandle = texHeap->GetGPUDescriptorHandleForHeapStart();
 		_list->SetGraphicsRootDescriptorTable(0, texHandle);
 
-		//ƒ}ƒeƒŠƒAƒ‹‚Ì”•ªƒfƒXƒNƒŠƒvƒ^‚ğƒZƒbƒg
+		//ï¿½}ï¿½eï¿½ï¿½ï¿½Aï¿½ï¿½ï¿½Ìï¿½ï¿½ï¿½ï¿½fï¿½Xï¿½Nï¿½ï¿½ï¿½vï¿½^ï¿½ï¿½ï¿½Zï¿½bï¿½g
 		auto handle = descriptorHeap->GetGPUDescriptorHandleForHeapStart();
 		handle.ptr += i * _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 		_list->SetDescriptorHeaps(1, &descriptorHeap);
 		_list->SetGraphicsRootDescriptorTable(2, handle);
 
-		//ƒ}ƒeƒŠƒAƒ‹•Ê‚É•`‰æ
+		//ï¿½}ï¿½eï¿½ï¿½ï¿½Aï¿½ï¿½ï¿½Ê‚É•`ï¿½ï¿½
 		_list->DrawIndexedInstanced(material[i].indexCount, 1, offset, 0, 0);
 
-		//ƒ}ƒeƒŠƒAƒ‹‚ÌƒCƒ“ƒfƒbƒNƒX•ª‚¸‚ç‚·
+		//ï¿½}ï¿½eï¿½ï¿½ï¿½Aï¿½ï¿½ï¿½ÌƒCï¿½ï¿½ï¿½fï¿½bï¿½Nï¿½Xï¿½ï¿½ï¿½ï¿½ï¿½ç‚·
 		offset += material[i].indexCount;
 	}
 }
 
 void PMDLoader::SetMaterialColor(UINT index) {
-	//Œ¸ŠF
+	//ï¿½ï¿½ï¿½ï¿½ï¿½F
 	memcpy(data, &material[index].diffuse, sizeof(DirectX::XMFLOAT3));
 }
 
@@ -207,17 +202,17 @@ std::vector<bool> PMDLoader::GetTexFlag()
 }
 
 std::string PMDLoader::GetRelativeTexturePathFromPmdPath(const char * modelPath, const char * texturePath) {
-	//ƒeƒNƒXƒ`ƒƒƒf[ƒ^‚Ì“Ç‚İ‚İ
-	//ƒtƒHƒ‹ƒ_‚Ì‹æØ‚è‚É/‚©\\‚Ì‚Ç‚¿‚ç‚©‚ªg‚í‚ê‚é
+	//ï¿½eï¿½Nï¿½Xï¿½`ï¿½ï¿½ï¿½fï¿½[ï¿½^ï¿½Ì“Ç‚İï¿½ï¿½ï¿½
+	//ï¿½tï¿½Hï¿½ï¿½ï¿½_ï¿½Ì‹ï¿½ï¿½Ø‚ï¿½ï¿½ï¿½/ï¿½ï¿½\\ï¿½Ì‚Ç‚ï¿½ï¿½ç‚©ï¿½ï¿½ï¿½gï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
 	std::string strModelPath = modelPath;
 
 	auto index1 = strModelPath.rfind('/');
 	auto index2 = strModelPath.rfind('\\');
 	index2 = std::string::npos ? 0 : index2;
-	//ƒtƒHƒ‹ƒ_‚Ì‹æØ‚è‚É‚Ç‚¿‚ç‚ªg‚í‚ê‚Ä‚¢‚é‚©”äŠr‚·‚é
+	//ï¿½tï¿½Hï¿½ï¿½ï¿½_ï¿½Ì‹ï¿½ï¿½Ø‚ï¿½ï¿½É‚Ç‚ï¿½ï¿½ç‚ªï¿½gï¿½ï¿½ï¿½ï¿½ï¿½Ä‚ï¿½ï¿½é‚©ï¿½ï¿½ï¿½rï¿½ï¿½ï¿½ï¿½
 	auto separation = max(index1, index2);
-	//ƒAƒvƒŠ‚©‚ç‚Ì‘Š‘ÎƒpƒX‚ğ¶¬
+	//ï¿½Aï¿½vï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì‘ï¿½ï¿½Îƒpï¿½Xï¿½ğ¶ï¿½
 	auto textureFilePath = strModelPath.substr(0, separation) + "/" + texturePath;
 
 	return textureFilePath;

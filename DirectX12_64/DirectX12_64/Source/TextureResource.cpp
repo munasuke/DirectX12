@@ -7,10 +7,9 @@ TextureResource::TextureResource()
 {
 }
 
-<<<<<<< HEAD
 //void TextureResource::Initialize(ID3D12Device * _dev, const UINT textureNum, const UINT sizeWidth, const UINT sizeHeight)
 //{
-//	//ƒeƒNƒXƒ`ƒƒƒŠƒ\[ƒX‚Ìì¬
+//	//ï¿½eï¿½Nï¿½Xï¿½`ï¿½ï¿½ï¿½ï¿½ï¿½\ï¿½[ï¿½Xï¿½Ìì¬
 //	CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
 //	texResourceDesc.Dimension			= D3D12_RESOURCE_DIMENSION::D3D12_RESOURCE_DIMENSION_TEXTURE2D;
 //	texResourceDesc.Width				= sizeWidth;
@@ -27,9 +26,9 @@ TextureResource::TextureResource()
 //	hprop.CreationNodeMask		= 1;
 //	hprop.VisibleNodeMask		= 1;
 //
-//	//ƒeƒNƒXƒ`ƒƒ•ªŠm•Û
+//	//ï¿½eï¿½Nï¿½Xï¿½`ï¿½ï¿½ï¿½ï¿½ï¿½mï¿½ï¿½
 //	textureBuffer.resize(textureNum);
-//	//ƒeƒNƒXƒ`ƒƒ•ªƒoƒbƒtƒ@[ì¬
+//	//ï¿½eï¿½Nï¿½Xï¿½`ï¿½ï¿½ï¿½ï¿½ï¿½oï¿½bï¿½tï¿½@ï¿½[ï¿½ì¬
 //	for (auto& texBuff : textureBuffer) {
 //		result = _dev->CreateCommittedResource(
 //			&hprop,
@@ -48,11 +47,9 @@ TextureResource::TextureResource()
 //	box.back	= 1;
 //}
 
-void TextureResource::Initialize(ID3D12Device * _dev, std::vector<DirectX::TexMetadata> metaData) {
-=======
 void TextureResource::Initialize(ID3D12Device * _dev, UINT sizeWidth, UINT sizeHeight)
 {
-	//ƒeƒNƒXƒ`ƒƒƒŠƒ\[ƒX‚Ìì¬
+	//ï¿½eï¿½Nï¿½Xï¿½`ï¿½ï¿½ï¿½ï¿½ï¿½\ï¿½[ï¿½Xï¿½Ìì¬
 	CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
 	texResourceDesc.Dimension			= D3D12_RESOURCE_DIMENSION::D3D12_RESOURCE_DIMENSION_TEXTURE2D;
 	texResourceDesc.Width				= sizeWidth;
@@ -62,7 +59,6 @@ void TextureResource::Initialize(ID3D12Device * _dev, UINT sizeWidth, UINT sizeH
 	texResourceDesc.SampleDesc.Count	= 1;
 	texResourceDesc.Flags				= D3D12_RESOURCE_FLAGS::D3D12_RESOURCE_FLAG_NONE;
 	texResourceDesc.Layout				= D3D12_TEXTURE_LAYOUT::D3D12_TEXTURE_LAYOUT_UNKNOWN;
->>>>>>> parent of 6480300... wicå¯¾å¿œã§ããŸ
 
 	hprop.Type					= D3D12_HEAP_TYPE::D3D12_HEAP_TYPE_CUSTOM;
 	hprop.CPUPageProperty		= D3D12_CPU_PAGE_PROPERTY::D3D12_CPU_PAGE_PROPERTY_WRITE_BACK;
@@ -70,9 +66,9 @@ void TextureResource::Initialize(ID3D12Device * _dev, UINT sizeWidth, UINT sizeH
 	hprop.CreationNodeMask		= 1;
 	hprop.VisibleNodeMask		= 1;
 
-	//ƒeƒNƒXƒ`ƒƒ•ªƒoƒbƒtƒ@[ì¬
+	//ï¿½eï¿½Nï¿½Xï¿½`ï¿½ï¿½ï¿½ï¿½ï¿½oï¿½bï¿½tï¿½@ï¿½[ï¿½ì¬
 	for (auto& meta : metaData) {
-		//ƒeƒNƒXƒ`ƒƒƒŠƒ\[ƒX‚Ìì¬
+		//ï¿½eï¿½Nï¿½Xï¿½`ï¿½ï¿½ï¿½ï¿½ï¿½\ï¿½[ï¿½Xï¿½Ìì¬
 		CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
 		texResourceDesc.Dimension			= D3D12_RESOURCE_DIMENSION::D3D12_RESOURCE_DIMENSION_TEXTURE2D;
 		texResourceDesc.Width				= meta.width;
@@ -104,7 +100,6 @@ void TextureResource::Initialize(ID3D12Device * _dev, UINT sizeWidth, UINT sizeH
 
 }
 
-<<<<<<< HEAD
 void TextureResource::WriteToTextureBuffer(std::vector<CHAR> _data, std::vector<bool> textureFlag) {
 	//for (int i = 0; i < textureFlag.size(); i++) {
 	//	if (textureFlag[i]) {
@@ -127,20 +122,13 @@ void TextureResource::WriteToTextureBuffer(std::vector<DirectX::TexMetadata> met
 		if (flag) {
 			result = textureBuffer[i]->WriteToSubresource(0, nullptr, img[i], metaData[i].width * 4, metaData[i].height * 4);
 			++i;
-=======
-void TextureResource::WriteToTextureBuffer(const DirectX::Image* _data, std::vector<bool> textureFlag) {
-	for (int i = 0; i < textureFlag.size(); i++) {
-		if (textureFlag[i]) {
-			//ƒ}ƒeƒŠƒAƒ‹‚ÉƒeƒNƒXƒ`ƒƒ‚ª‚ ‚éê‡‚Ì‚İ‘‚«‚Ş
-			result = textureBuffer->WriteToSubresource(0, &box, &_data, box.right * 4, box.bottom * 4);
->>>>>>> parent of 6480300... wicå¯¾å¿œã§ããŸ
 		}
 	}
 
 	//for (int i = 0; i < textureFlag.size(); i++) {
 	//	if (textureFlag[i]) {
 	//		D3D12_BOX box = {};
-	//		//ƒ}ƒeƒŠƒAƒ‹‚ÉƒeƒNƒXƒ`ƒƒ‚ª‚ ‚éê‡‚Ì‚İ‘‚«‚Ş
+	//		//ï¿½}ï¿½eï¿½ï¿½ï¿½Aï¿½ï¿½ï¿½Éƒeï¿½Nï¿½Xï¿½`ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ê‡ï¿½Ì‚İï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	//		result = textureBuffer->WriteToSubresource(0, &box, img, meta.width * 4, meta.height * 4);
 	//	}
 	//}

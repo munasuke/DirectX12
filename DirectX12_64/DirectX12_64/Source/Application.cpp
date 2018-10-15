@@ -55,86 +55,81 @@ Application::Application() {
 	depth			= std::make_shared<DepthStencilBuffer>();
 }
 
-//‰Šú‰»
+//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 void Application::Initialize() {
-	//ƒEƒBƒ“ƒhƒE‚ÌƒƒfƒBƒA‚ğg‚¤‚½‚ß‚É•K—v
+	//ï¿½Eï¿½Bï¿½ï¿½ï¿½hï¿½Eï¿½Ìƒï¿½ï¿½fï¿½Bï¿½Aï¿½ï¿½ï¿½gï¿½ï¿½ï¿½ï¿½ï¿½ß‚É•Kï¿½v
 	CoInitializeEx(nullptr, COINIT_MULTITHREADED);
 
-	//ƒEƒBƒ“ƒhƒE
+	//ï¿½Eï¿½Bï¿½ï¿½ï¿½hï¿½E
 	window->InitWindow();
 
-	//ƒRƒ}ƒ“ƒh
+	//ï¿½Rï¿½}ï¿½ï¿½ï¿½h
 	command->InitCommand(device->GetDevice());
 
-	//ƒXƒƒbƒvƒ`ƒFƒCƒ“
+	//ï¿½Xï¿½ï¿½ï¿½bï¿½vï¿½`ï¿½Fï¿½Cï¿½ï¿½
 	swapChain->InitSwapChain(command->GetCommandQueue(), window->GetHandleWindow());
 
-	//ƒfƒXƒNƒŠƒvƒ^
+	//ï¿½fï¿½Xï¿½Nï¿½ï¿½ï¿½vï¿½^
 	descriptor->InitDescriptor(device->GetDevice());
 
-	//ƒŒƒ“ƒ_[ƒ^[ƒQƒbƒg
-	renderTarget->InitRenderTarget(swapChain->GetSwapChainDesc().BufferCount, 
+	//ï¿½ï¿½ï¿½ï¿½ï¿½_ï¿½[ï¿½^ï¿½[ï¿½Qï¿½bï¿½g
+	renderTarget->InitRenderTarget(swapChain->GetSwapChainDesc().BufferCount,
 		device->GetDevice(), swapChain->GetSwapChain(), descriptor->GetDescriptorHandle(), descriptor->GetDescriptorSize());
 
-	//ƒTƒ“ƒvƒ‰
+	//ï¿½Tï¿½ï¿½ï¿½vï¿½ï¿½
 	sampler->InitSampler();
 
-	//ƒ‹[ƒgƒVƒOƒlƒ`ƒƒ
+	//ï¿½ï¿½ï¿½[ï¿½gï¿½Vï¿½Oï¿½lï¿½`ï¿½ï¿½
 	root->InitRootSignature(sampler->GetSamplerDesc(), device->GetDevice(), D3D12_SHADER_VISIBILITY::D3D12_SHADER_VISIBILITY_ALL);
 
-	//ƒtƒFƒ“ƒX
+	//ï¿½tï¿½Fï¿½ï¿½ï¿½X
 	fence->InitFence(device->GetDevice());
 
 	//PMD
 	pmd->Load("PMD/reimu/reimu_F01.pmd");
-	//pmd->Load("PMD/miku/‰‰¹ƒ~ƒN.pmd");
-	//pmd->Load("PMD/neru/˜±–kƒlƒ‹.pmd");
-	//pmd->Load("PMD/hibari/‰_Ver1.10.pmd");
+	//pmd->Load("PMD/miku/ï¿½ï¿½ï¿½ï¿½ï¿½~ï¿½N.pmd");
+	//pmd->Load("PMD/neru/ï¿½ï¿½ï¿½kï¿½lï¿½ï¿½.pmd");
+	//pmd->Load("PMD/hibari/ï¿½_ï¿½ï¿½Ver1.10.pmd");
 
 	//BMP
 	//bmp->Load("PMD/miku/eye2.bmp");
 
-	//‰æ‘œƒ[ƒh
+	//ï¿½æ‘œï¿½ï¿½ï¿½[ï¿½h
 	//imageL->Load(L"Image/real_eye.png");
 
-	//’¸“_ƒoƒbƒtƒ@
+	//ï¿½ï¿½ï¿½_ï¿½oï¿½bï¿½tï¿½@
 	vertex->Initialize(device->GetDevice(), pmd->GetPMDVertex());
 
-	//ƒCƒ“ƒfƒbƒNƒX
+	//ï¿½Cï¿½ï¿½ï¿½fï¿½bï¿½Nï¿½X
 	index->Initialize(device->GetDevice(), pmd->GetIndices());
 
-	//ƒeƒNƒXƒ`ƒƒƒŠƒ\[ƒX
-<<<<<<< HEAD
-	//tex->Initialize(device->GetDevice(), bmp->GetInfoHeader().biWidth, bmp->GetInfoHeader().biHeight);
-	tex->Initialize(device->GetDevice(), imageL->GetMetaArray());
-=======
+	//ï¿½eï¿½Nï¿½Xï¿½`ï¿½ï¿½ï¿½ï¿½ï¿½\ï¿½[ï¿½X
 	tex->Initialize(device->GetDevice(), imageL->GetImage()->width, imageL->GetImage()->height);
->>>>>>> parent of 6480300... wicå¯¾å¿œã§ããŸ
 
-	//ƒVƒF[ƒ_ƒŠƒ\[ƒXƒrƒ…[
+	//ï¿½Vï¿½Fï¿½[ï¿½_ï¿½ï¿½ï¿½\ï¿½[ï¿½Xï¿½rï¿½ï¿½ï¿½[
 	srv->Initialize(device->GetDevice(), tex->GetTextureBuffer(), pmd->GetMaterial().size());
 
-	//ƒRƒ“ƒXƒ^ƒ“ƒgƒoƒbƒtƒ@
+	//ï¿½Rï¿½ï¿½ï¿½Xï¿½^ï¿½ï¿½ï¿½gï¿½oï¿½bï¿½tï¿½@
 	cb->Initialize(device->GetDevice(), srv->GetTextureHeap());
 
-	//[“xƒoƒbƒtƒ@
+	//ï¿½[ï¿½xï¿½oï¿½bï¿½tï¿½@
 	depth->Initialize(device->GetDevice(), srv->GetDescriptorHeapDesc());
 
-	//PMD‰Šú‰»
+	//PMDï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	pmd->Initialize(device->GetDevice());
 
-	//ƒVƒF[ƒ_
+	//ï¿½Vï¿½Fï¿½[ï¿½_
 	shader->Load(root->GetError());
 
-	//ƒpƒCƒvƒ‰ƒCƒ“ƒXƒe[ƒgƒIƒuƒWƒFƒNƒg
-	pipline->Initialize(device->GetDevice(), shader->GetVS(), shader->GetPS(), 
+	//ï¿½pï¿½Cï¿½vï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½Xï¿½eï¿½[ï¿½gï¿½Iï¿½uï¿½Wï¿½Fï¿½Nï¿½g
+	pipline->Initialize(device->GetDevice(), shader->GetVS(), shader->GetPS(),
 		vertex->GetInputDescNum(), vertex->GetInputDesc(), root->GetRootSignature());
 
-	//ƒrƒ…[ƒ|[ƒg
+	//ï¿½rï¿½ï¿½ï¿½[ï¿½|ï¿½[ï¿½g
 	viewPort->Initialize();
 }
 
-//ƒƒCƒ“ƒ‹[ƒv
+//ï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½ï¿½ï¿½[ï¿½v
 void Application::Run() {
 	window->Show();
 	while(msg.message != WM_QUIT){
@@ -142,86 +137,81 @@ void Application::Run() {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
-		
-		//–½—ß‚ÌƒNƒŠƒA
+
+		//ï¿½ï¿½ï¿½ß‚ÌƒNï¿½ï¿½ï¿½A
 		command->GetCommandAllocator()->Reset();
 		command->GetCommandList()->Reset(command->GetCommandAllocator(), pipline->GetPiplineState());
 
-		//ƒ‹[ƒgƒVƒOƒlƒ`ƒƒ‚ÌƒZƒbƒg
+		//ï¿½ï¿½ï¿½[ï¿½gï¿½Vï¿½Oï¿½lï¿½`ï¿½ï¿½ï¿½ÌƒZï¿½bï¿½g
 		command->GetCommandList()->SetGraphicsRootSignature(root->GetRootSignature());
 
-		//ƒpƒCƒvƒ‰ƒCƒ“‚ÌƒZƒbƒg
+		//ï¿½pï¿½Cï¿½vï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½ÌƒZï¿½bï¿½g
 		command->GetCommandList()->SetPipelineState(pipline->GetPiplineState());
 
-		//ƒrƒ…[ƒ|[ƒg‚ÌƒZƒbƒg
+		//ï¿½rï¿½ï¿½ï¿½[ï¿½|ï¿½[ï¿½gï¿½ÌƒZï¿½bï¿½g
 		command->GetCommandList()->RSSetViewports(1, &viewPort->GetViewPort());
 
-		//ƒVƒU[‚ÌƒZƒbƒg
+		//ï¿½Vï¿½Uï¿½[ï¿½ÌƒZï¿½bï¿½g
 		command->GetCommandList()->RSSetScissorRects(1, &window->GetScissorRect());
 
-		//ƒoƒŠƒA‚ğ’£‚é
+		//ï¿½oï¿½ï¿½ï¿½Aï¿½ğ’£‚ï¿½
 		command->GetCommandList()->ResourceBarrier(
 			1,
 			&CD3DX12_RESOURCE_BARRIER::Transition(
-				renderTarget->GetRenderTarget()[swapChain->GetSwapChain()->GetCurrentBackBufferIndex()], 
+				renderTarget->GetRenderTarget()[swapChain->GetSwapChain()->GetCurrentBackBufferIndex()],
 				D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_PRESENT,
 				D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_RENDER_TARGET)
 		);
 
-		//‰æ–Ê‚ÉF‚ğ•t‚¯‚é
-		//ƒoƒbƒNƒoƒbƒtƒ@‚ÌƒCƒ“ƒfƒbƒNƒX‚ğæ“¾
+		//ï¿½ï¿½ï¿½Ê‚ÉFï¿½ï¿½ï¿½tï¿½ï¿½ï¿½ï¿½
+		//ï¿½oï¿½bï¿½Nï¿½oï¿½bï¿½tï¿½@ï¿½ÌƒCï¿½ï¿½ï¿½fï¿½bï¿½Nï¿½Xï¿½ï¿½ï¿½æ“¾
 		auto bbIndex = swapChain->GetSwapChain()->GetCurrentBackBufferIndex();
 
-		//ƒŒƒ“ƒ_[ƒ^[ƒQƒbƒg‚Ìw’è
-		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(descriptor->GetDescriptorHeap()->GetCPUDescriptorHandleForHeapStart(), 
+		//ï¿½ï¿½ï¿½ï¿½ï¿½_ï¿½[ï¿½^ï¿½[ï¿½Qï¿½bï¿½gï¿½Ìwï¿½ï¿½
+		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(descriptor->GetDescriptorHeap()->GetCPUDescriptorHandleForHeapStart(),
 			bbIndex, descriptor->GetDescriptorSize());
 		command->GetCommandList()->OMSetRenderTargets(1, &rtvHandle, false, &depth->GetHeap()->GetCPUDescriptorHandleForHeapStart());
 
-		//ƒNƒŠƒAƒJƒ‰[‚Ìİ’è
+		//ï¿½Nï¿½ï¿½ï¿½Aï¿½Jï¿½ï¿½ï¿½[ï¿½Ìİ’ï¿½
 		const FLOAT color[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
-		//ƒŒƒ“ƒ_[ƒ^[ƒQƒbƒg‚ÌƒNƒŠƒA
+		//ï¿½ï¿½ï¿½ï¿½ï¿½_ï¿½[ï¿½^ï¿½[ï¿½Qï¿½bï¿½gï¿½ÌƒNï¿½ï¿½ï¿½A
 		command->GetCommandList()->ClearRenderTargetView(rtvHandle, color, 0, nullptr);
 
-		//OŠpƒ|ƒŠƒSƒ“•`‰æ‚É‚·‚é
+		//ï¿½Oï¿½pï¿½|ï¿½ï¿½ï¿½Sï¿½ï¿½ï¿½`ï¿½ï¿½ï¿½É‚ï¿½ï¿½ï¿½
 		command->GetCommandList()->IASetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-		//’¸“_ƒoƒbƒtƒ@‚ÌƒZƒbƒg
+		//ï¿½ï¿½ï¿½_ï¿½oï¿½bï¿½tï¿½@ï¿½ÌƒZï¿½bï¿½g
 		command->GetCommandList()->IASetVertexBuffers(0, 1, &vertex->GetVBV());
 
-		//ƒCƒ“ƒfƒbƒNƒXƒoƒbƒtƒ@‚ÌƒZƒbƒg
+		//ï¿½Cï¿½ï¿½ï¿½fï¿½bï¿½Nï¿½Xï¿½oï¿½bï¿½tï¿½@ï¿½ÌƒZï¿½bï¿½g
 		command->GetCommandList()->IASetIndexBuffer(&index->GetIndexBufferView());
 
-		//[“xƒoƒbƒtƒ@‚ÌƒZƒbƒg
+		//ï¿½[ï¿½xï¿½oï¿½bï¿½tï¿½@ï¿½ÌƒZï¿½bï¿½g
 		depth->SetDescriptor(command->GetCommandList());
 
-		//SRV,ƒRƒ“ƒXƒ^ƒ“ƒgƒoƒbƒtƒ@‚ÌƒfƒXƒNƒŠƒvƒ^‚ğƒZƒbƒg
+		//SRV,ï¿½Rï¿½ï¿½ï¿½Xï¿½^ï¿½ï¿½ï¿½gï¿½oï¿½bï¿½tï¿½@ï¿½Ìƒfï¿½Xï¿½Nï¿½ï¿½ï¿½vï¿½^ï¿½ï¿½ï¿½Zï¿½bï¿½g
 		cb->UpDataWVP();
 		for (UINT i = 0; i < 2; i++){
 			cb->SetDescriptor(command->GetCommandList(), i, srv->GetTextureHeap(), device->GetDevice());
 		}
-		
-		//ƒeƒNƒXƒ`ƒƒƒoƒbƒtƒ@‚Ö‚Ì‘‚«‚İ
-<<<<<<< HEAD
-		//tex->WriteToTextureBuffer(bmp->GetData(), pmd->GetTexFlag());
-		tex->WriteToTextureBuffer(imageL->GetMetaArray(), imageL->GetScratchImageArray(), pmd->GetTexFlag());
-=======
-		tex->WriteToTextureBuffer(imageL->GetImage(), pmd->GetTexFlag());
->>>>>>> parent of 6480300... wicå¯¾å¿œã§ããŸ
 
-		//PMD•`‰æ
+		//ï¿½eï¿½Nï¿½Xï¿½`ï¿½ï¿½ï¿½oï¿½bï¿½tï¿½@ï¿½Ö‚Ìï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+		tex->WriteToTextureBuffer(imageL->GetImage(), pmd->GetTexFlag());
+
+		//PMDï¿½`ï¿½ï¿½
 		pmd->Draw(command->GetCommandList(), device->GetDevice(), srv->GetTextureHeap());
 
-		//ƒoƒŠƒA‚ğ’£‚é
+		//ï¿½oï¿½ï¿½ï¿½Aï¿½ğ’£‚ï¿½
 		command->GetCommandList()->ResourceBarrier(
 			1,
 			&CD3DX12_RESOURCE_BARRIER::Transition(
-				renderTarget->GetRenderTarget()[swapChain->GetSwapChain()->GetCurrentBackBufferIndex()], 
+				renderTarget->GetRenderTarget()[swapChain->GetSwapChain()->GetCurrentBackBufferIndex()],
 				D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_RENDER_TARGET,
 				D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_PRESENT)
 		);
 
-		//ƒRƒ}ƒ“ƒhƒŠƒXƒg‚ğ•Â‚¶‚é
+		//ï¿½Rï¿½}ï¿½ï¿½ï¿½hï¿½ï¿½ï¿½Xï¿½gï¿½ï¿½ï¿½Â‚ï¿½ï¿½ï¿½
 		command->GetCommandList()->Close();
 
 		command->Execute();
@@ -229,16 +219,16 @@ void Application::Run() {
 		swapChain->GetSwapChain()->Present(1, 0);
 		command->GetCommandQueue()->Signal(fence->GetFence(), fence->GetFenceValue(true));
 		while (fence->GetFence()->GetCompletedValue() != fence->GetFenceValue()){
-			//‘Ò‹@
+			//ï¿½Ò‹@
 		}
 
-		//ƒQ[ƒ€‚Ìˆ—
-		//ƒQ[ƒ€‚Ìis
-		//•`‰æˆ—
+		//ï¿½Qï¿½[ï¿½ï¿½ï¿½Ìï¿½ï¿½ï¿½
+		//ï¿½Qï¿½[ï¿½ï¿½ï¿½Ìiï¿½s
+		//ï¿½`ï¿½æˆï¿½ï¿½
 	}
 }
 
-//I—¹
+//ï¿½Iï¿½ï¿½
 void Application::Terminate() {
 	CoUninitialize();
 }
