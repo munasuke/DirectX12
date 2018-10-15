@@ -98,7 +98,7 @@ void TextureResource::WriteToTextureBuffer(std::vector<CHAR> _data, std::vector<
 	//}
 }
 
-void TextureResource::WriteToTextureBuffer(std::vector<DirectX::TexMetadata> metaData, uint8_t* img, std::vector<bool> textureFlag) {
+void TextureResource::WriteToTextureBuffer(std::vector<DirectX::TexMetadata> metaData, std::vector<uint8_t*> img, std::vector<bool> textureFlag) {
 	//for (auto& texBuff : textureBuffer) {
 	//	for (UINT i = 0; i < textureFlag.size(); i++) {
 	//		if (textureFlag[i]) {
@@ -110,7 +110,7 @@ void TextureResource::WriteToTextureBuffer(std::vector<DirectX::TexMetadata> met
 	UINT i = 0;
 	for (auto flag : textureFlag) {
 		if (flag) {
-			result = textureBuffer[i]->WriteToSubresource(0, nullptr, img, metaData[i].width * 4, metaData[i].height * 4);
+			result = textureBuffer[i]->WriteToSubresource(0, nullptr, img[i], metaData[i].width * 4, metaData[i].height * 4);
 			++i;
 		}
 	}

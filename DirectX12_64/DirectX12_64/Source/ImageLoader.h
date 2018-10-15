@@ -20,6 +20,7 @@ public:
 	DirectX::TexMetadata GetMetaData();
 	std::vector<DirectX::TexMetadata> GetMetaArray();
 	uint8_t* GetScratchImage();
+	std::vector<uint8_t*> GetScratchImageArray();
 	ImageRect GetImageRect();
 	~ImageLoader();
 private:
@@ -29,6 +30,7 @@ private:
 	DirectX::TexMetadata metaData;
 	std::vector<DirectX::TexMetadata> metaDataArray;
 	DirectX::ScratchImage image;
+	std::vector<uint8_t*> imageArray;
 	std::map
 		<std::wstring, 
 		std::function<HRESULT(const std::wstring& path, 

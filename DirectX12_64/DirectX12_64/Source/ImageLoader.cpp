@@ -32,6 +32,7 @@ int ImageLoader::Load(const std::string path) {
 
 	auto result = loadFuncTbl[filePath](wstrPath, &metaData, image);
 	metaDataArray.emplace_back(metaData);
+	imageArray.emplace_back(image.GetPixels());
 
 	return 0;
 }
@@ -48,6 +49,10 @@ std::vector<DirectX::TexMetadata> ImageLoader::GetMetaArray() {
 uint8_t * ImageLoader::GetScratchImage() {
 	auto imgPixels = image.GetPixels();
 	return imgPixels;
+}
+
+std::vector<uint8_t*> ImageLoader::GetScratchImageArray() {
+	return imageArray;
 }
 
 ImageRect ImageLoader::GetImageRect() {

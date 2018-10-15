@@ -150,7 +150,8 @@ void PMDLoader::Draw(ID3D12GraphicsCommandList * _list, ID3D12Device * _dev, ID3
 	for (UINT i = 0; i < material.size(); ++i) {
 		//テクスチャのデスクリプタをセット
 		_list->SetDescriptorHeaps(1, &texHeap);
-		_list->SetGraphicsRootDescriptorTable(0, texHeap->GetGPUDescriptorHandleForHeapStart());
+		auto texHandle = texHeap->GetGPUDescriptorHandleForHeapStart();
+		_list->SetGraphicsRootDescriptorTable(0, texHandle);
 
 		//マテリアルの数分デスクリプタをセット
 		auto handle = descriptorHeap->GetGPUDescriptorHandleForHeapStart();

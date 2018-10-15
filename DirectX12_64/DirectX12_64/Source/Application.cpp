@@ -199,7 +199,7 @@ void Application::Run() {
 		
 		//テクスチャバッファへの書き込み
 		//tex->WriteToTextureBuffer(bmp->GetData(), pmd->GetTexFlag());
-		tex->WriteToTextureBuffer(imageL->GetMetaArray(), imageL->GetScratchImage(), pmd->GetTexFlag());
+		tex->WriteToTextureBuffer(imageL->GetMetaArray(), imageL->GetScratchImageArray(), pmd->GetTexFlag());
 
 		//PMD描画
 		pmd->Draw(command->GetCommandList(), device->GetDevice(), srv->GetTextureHeap());
