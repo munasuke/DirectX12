@@ -5,7 +5,7 @@
 class ShaderResourceView : public Result {
 public:
 	ShaderResourceView();
-	void Initialize(ID3D12Device* _dev, std::vector<ID3D12Resource*> _texBuffer, UINT size);
+	void Initialize(ID3D12Device* _dev, ID3D12Resource* _texBuffer, UINT size);
 	ID3D12DescriptorHeap* GetTextureHeap();
 	D3D12_DESCRIPTOR_HEAP_DESC GetDescriptorHeapDesc();
 	ID3D12DescriptorHeap* const* GetTextureHeap2();

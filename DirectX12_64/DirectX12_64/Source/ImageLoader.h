@@ -14,7 +14,6 @@ public:
 	int Load(const std::string path);
 	DirectX::TexMetadata GetMetaData();
 	uint8_t* GetScratchImage();
-	ImageRect GetImageRect();
 	~ImageLoader();
 private:
 	//string��wstring�ɕϊ�

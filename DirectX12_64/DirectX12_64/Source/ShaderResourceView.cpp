@@ -7,7 +7,7 @@ ShaderResourceView::ShaderResourceView() : textureHeap(nullptr)
 {
 }
 
-void ShaderResourceView::Initialize(ID3D12Device* _dev, std::vector<ID3D12Resource*> _texBuffer, UINT size) {
+void ShaderResourceView::Initialize(ID3D12Device* _dev, ID3D12Resource* _texBuffer, UINT size) {
 	//シェーダリソースビューの作成
 	heapDesc.NumDescriptors = 2 + size;//領域確保
 	heapDesc.Type			= D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
@@ -19,9 +19,7 @@ void ShaderResourceView::Initialize(ID3D12Device* _dev, std::vector<ID3D12Resour
 	srvDesc.Texture2D.MipLevels		= 1;
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 
-	for (auto texBuff : _texBuffer) {
-		_dev->CreateShaderResourceView(texBuff, &srvDesc, textureHeap->GetCPUDescriptorHandleForHeapStart());
-	}
+	_dev->CreateShaderResourceView(_texBuffer, &srvDesc, textureHeap->GetCPUDescriptorHandleForHeapStart());
 }
 
 ID3D12DescriptorHeap * ShaderResourceView::GetTextureHeap() {

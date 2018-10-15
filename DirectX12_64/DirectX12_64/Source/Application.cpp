@@ -86,9 +86,9 @@ void Application::Initialize() {
 	fence->InitFence(device->GetDevice());
 
 	//PMD
-	pmd->Load("PMD/reimu/reimu_F01.pmd");
-	//pmd->Load("PMD/miku/�����~�N.pmd");
-	//pmd->Load("PMD/neru/���k�l��.pmd");
+	//pmd->Load("PMD/reimu/reimu_F01.pmd");
+	pmd->Load("PMD/miku/初音ミク.pmd");
+	//pmd->Load("PMD/neru/亞北ネル.pmd");
 	//pmd->Load("PMD/hibari/�_��Ver1.10.pmd");
 
 	//BMP
@@ -104,7 +104,7 @@ void Application::Initialize() {
 	index->Initialize(device->GetDevice(), pmd->GetIndices());
 
 	//�e�N�X�`�����\�[�X
-	tex->Initialize(device->GetDevice(), imageL->GetImage()->width, imageL->GetImage()->height);
+	tex->Initialize(device->GetDevice(), imageL->GetMetaData());
 
 	//�V�F�[�_���\�[�X�r���[
 	srv->Initialize(device->GetDevice(), tex->GetTextureBuffer(), pmd->GetMaterial().size());
@@ -197,7 +197,7 @@ void Application::Run() {
 		}
 
 		//�e�N�X�`���o�b�t�@�ւ̏�������
-		tex->WriteToTextureBuffer(imageL->GetImage(), pmd->GetTexFlag());
+		tex->WriteToTextureBuffer(imageL->GetMetaData(), imageL->GetScratchImage(), pmd->GetTexFlag());
 
 		//PMD�`��
 		pmd->Draw(command->GetCommandList(), device->GetDevice(), srv->GetTextureHeap());

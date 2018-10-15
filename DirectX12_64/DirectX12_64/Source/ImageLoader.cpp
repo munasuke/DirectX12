@@ -5,7 +5,7 @@
 using namespace DirectX;
 
 ImageLoader::ImageLoader() {
-	//�g���q�Ń��[�h�֐��𕪂���
+	//拡張子で関数変える
 	//bmp, png, jpg�p
 	loadFuncTbl[L"bmp"] = loadFuncTbl[L"png"] = loadFuncTbl[L"jpg"] =
 		[](const std::wstring& path, TexMetadata* meta, ScratchImage& img) -> HRESULT {
@@ -32,16 +32,17 @@ int ImageLoader::Load(const std::string path) {
 
 	auto result = loadFuncTbl[filePath](wstrPath, &metaData, image);
 
-	TexMetadata metaData;
-	ScratchImage img;//�摜�̖{�̂�����
-	auto result = loadFuncTbl[filePath](path, &metaData, img);
-	image = img.GetImage(0, 0, 0);
-
 	return 0;
 }
 
-const DirectX::Image * ImageLoader::GetImage() {
-	return image;
+DirectX::TexMetadata ImageLoader::GetMetaData()
+{
+	return metaData;
+}
+
+uint8_t * ImageLoader::GetScratchImage()
+{
+	return image.GetPixels();
 }
 
 ImageLoader::~ImageLoader() {
