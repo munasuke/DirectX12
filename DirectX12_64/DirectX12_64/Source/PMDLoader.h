@@ -79,6 +79,7 @@ public:
 	*/
 	std::string					GetRelativeTexturePathFromPmdPath(const char* modelPath, const char* texturePath);
 	UINT8*						GetData();		//データを返す
+	UINT						GetTextureNum();
 
 	void UpdateData();
 
@@ -86,6 +87,8 @@ public:
 private:
 	std::weak_ptr<BmpLoader>	bmp;		//BMP
 	std::weak_ptr<ImageLoader>	imageL;
+
+	UINT textureNum;
 
 	PMDHeader					header;		//ヘッダー
 	std::vector<PMDVertex>		vertices;	//頂点情報

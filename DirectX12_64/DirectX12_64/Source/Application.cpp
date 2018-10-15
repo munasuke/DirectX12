@@ -86,8 +86,8 @@ void Application::Initialize() {
 	fence->InitFence(device->GetDevice());
 
 	//PMD
-	//pmd->Load("PMD/reimu/reimu_F01.pmd");
-	pmd->Load("PMD/miku/初音ミク.pmd");
+	pmd->Load("PMD/reimu/reimu_F01.pmd");
+	//pmd->Load("PMD/miku/初音ミク.pmd");
 	//pmd->Load("PMD/neru/亞北ネル.pmd");
 	//pmd->Load("PMD/hibari/雲雀Ver1.10.pmd");
 
@@ -105,7 +105,7 @@ void Application::Initialize() {
 
 	//テクスチャリソース
 	//tex->Initialize(device->GetDevice(), bmp->GetInfoHeader().biWidth, bmp->GetInfoHeader().biHeight);
-	tex->Initialize(device->GetDevice(), imageL->GetMetaData().width, imageL->GetMetaData().height);
+	tex->Initialize(device->GetDevice(), imageL->GetMetaArray());
 
 	//シェーダリソースビュー
 	srv->Initialize(device->GetDevice(), tex->GetTextureBuffer(), pmd->GetMaterial().size());
@@ -199,7 +199,7 @@ void Application::Run() {
 		
 		//テクスチャバッファへの書き込み
 		//tex->WriteToTextureBuffer(bmp->GetData(), pmd->GetTexFlag());
-		tex->WriteToTextureBuffer(imageL->GetMetaData(), imageL->GetScratchImage(), pmd->GetTexFlag());
+		tex->WriteToTextureBuffer(imageL->GetMetaArray(), imageL->GetScratchImage(), pmd->GetTexFlag());
 
 		//PMD描画
 		pmd->Draw(command->GetCommandList(), device->GetDevice(), srv->GetTextureHeap());

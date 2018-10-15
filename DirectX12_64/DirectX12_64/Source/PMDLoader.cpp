@@ -7,6 +7,7 @@
 #include <string>
 
 PMDLoader::PMDLoader(std::shared_ptr<BmpLoader> bmp, std::shared_ptr<ImageLoader> imageL) :
+	textureNum(0),
 	resource(nullptr), 
 	descriptorHeap(nullptr), 
 	data(nullptr)
@@ -49,11 +50,12 @@ int PMDLoader::Load(const char * _path) {
 	for (INT i = 0; i < material.size(); ++i){
 		//テクスチャがある場合のみ読み込み
 		if (strlen(material[i].textureFilePath) > 0) {
+			//テクスチャの枚数
+			++textureNum;
+			//相対パスを取得
 			auto texPath = GetRelativeTexturePathFromPmdPath(_path, material[i].textureFilePath);
-			//bmp.lock()->Load(texPath.c_str());
-			//imageL.lock()->Load(L"PMD/neru/eye3Ne.bmp");
-			//imageL.lock()->Load(L"Image/real_eye.png");
-			imageL.lock()->Load(L"Image/asobi.jpg");
+			//テクスチャ読み込み
+			imageL.lock()->Load(texPath.c_str());
 		}
 	}
 
@@ -217,6 +219,10 @@ std::string PMDLoader::GetRelativeTexturePathFromPmdPath(const char * modelPath,
 
 UINT8 * PMDLoader::GetData(void) {
 	return data;
+}
+
+UINT PMDLoader::GetTextureNum() {
+	return textureNum;
 }
 
 void PMDLoader::UpdateData() {
