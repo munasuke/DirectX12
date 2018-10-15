@@ -331,4 +331,4 @@ ASALocalRun/
 # ResourceFiles
 IntelligentQube/IntelligentQube/models/*
 
-DirectX12_64/DirectX12_64/PMD/*
+dx12/dx12/PMD/*
