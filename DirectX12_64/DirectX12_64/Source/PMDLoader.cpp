@@ -54,8 +54,13 @@ int PMDLoader::Load(const char * _path) {
 			++textureNum;
 			//相対パスを取得
 			auto texPath = GetRelativeTexturePathFromPmdPath(_path, material[i].textureFilePath);
+<<<<<<< HEAD
 			//テクスチャ読み込み
 			imageL.lock()->Load(texPath.c_str());
+=======
+			//bmp.lock()->Load(texPath.c_str());
+			imageL.lock()->Load(L"PMD/neru/eye3Ne.bmp");
+>>>>>>> parent of 6480300... wic蟇ｾ蠢懊〒縺阪◆
 		}
 	}
 

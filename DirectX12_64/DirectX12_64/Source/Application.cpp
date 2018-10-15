@@ -104,8 +104,12 @@ void Application::Initialize() {
 	index->Initialize(device->GetDevice(), pmd->GetIndices());
 
 	//テクスチャリソース
+<<<<<<< HEAD
 	//tex->Initialize(device->GetDevice(), bmp->GetInfoHeader().biWidth, bmp->GetInfoHeader().biHeight);
 	tex->Initialize(device->GetDevice(), imageL->GetMetaArray());
+=======
+	tex->Initialize(device->GetDevice(), imageL->GetImage()->width, imageL->GetImage()->height);
+>>>>>>> parent of 6480300... wic蟇ｾ蠢懊〒縺阪◆
 
 	//シェーダリソースビュー
 	srv->Initialize(device->GetDevice(), tex->GetTextureBuffer(), pmd->GetMaterial().size());
@@ -198,8 +202,12 @@ void Application::Run() {
 		}
 		
 		//テクスチャバッファへの書き込み
+<<<<<<< HEAD
 		//tex->WriteToTextureBuffer(bmp->GetData(), pmd->GetTexFlag());
 		tex->WriteToTextureBuffer(imageL->GetMetaArray(), imageL->GetScratchImageArray(), pmd->GetTexFlag());
+=======
+		tex->WriteToTextureBuffer(imageL->GetImage(), pmd->GetTexFlag());
+>>>>>>> parent of 6480300... wic蟇ｾ蠢懊〒縺阪◆
 
 		//PMD描画
 		pmd->Draw(command->GetCommandList(), device->GetDevice(), srv->GetTextureHeap());

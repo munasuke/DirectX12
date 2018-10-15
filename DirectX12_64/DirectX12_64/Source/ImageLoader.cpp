@@ -30,23 +30,21 @@ int ImageLoader::Load(const std::string path) {
 	auto index = filePath.rfind('.');
 	filePath = filePath.substr(index + 1);
 
+<<<<<<< HEAD
 	auto result = loadFuncTbl[filePath](wstrPath, &metaData, image);
 
+=======
+	TexMetadata metaData;
+	ScratchImage img;//‰æ‘œ‚Ì–{‘Ì‚ª“ü‚é
+	auto result = loadFuncTbl[filePath](path, &metaData, img);
+	image = img.GetImage(0, 0, 0);
+	
+>>>>>>> parent of 6480300... wicå¯¾å¿œã§ããŸ
 	return 0;
 }
 
-DirectX::TexMetadata ImageLoader::GetMetaData()
-{
-	return metaData;
-}
-
-uint8_t * ImageLoader::GetScratchImage() {
-	auto imgPixels = image.GetPixels();
-	return imgPixels;
-}
-
-ImageRect ImageLoader::GetImageRect() {
-	return imageRec;
+const DirectX::Image * ImageLoader::GetImage() {
+	return image;
 }
 
 
