@@ -18,9 +18,6 @@ void ConstantBuffer::Initialize(ID3D12Device * _dev, ID3D12DescriptorHeap* _heap
 	XMFLOAT3 eye(0.0f, 10.0f, -15.0f);
 	XMFLOAT3 focus(0.0f, 10.0f, 0.0f);
 	XMFLOAT3 upper(0.0f, 1.0f, 0.0f);
-	//XMFLOAT3 eye	(0.0f, 17.0f, -5.0f);
-	//XMFLOAT3 focus	(0.0f, 17.0f,   0.0f);
-	//XMFLOAT3 upper	(0.0f,  1.0f,   0.0f);
 
 	//ワールド・ビュー・プロジェクション行列の作成
 	mt.world = XMMatrixIdentity();
@@ -29,20 +26,20 @@ void ConstantBuffer::Initialize(ID3D12Device * _dev, ID3D12DescriptorHeap* _heap
 		static_cast<FLOAT>(WIN_WIDTH) / static_cast<FLOAT>(WIN_HEIGHT), 0.01f, 500.0f);
 
 	//プロパティ設定
-	heapProperties.Type = D3D12_HEAP_TYPE::D3D12_HEAP_TYPE_UPLOAD;
+	heapProperties.Type					= D3D12_HEAP_TYPE::D3D12_HEAP_TYPE_UPLOAD;
 	heapProperties.MemoryPoolPreference = D3D12_MEMORY_POOL::D3D12_MEMORY_POOL_UNKNOWN;
-	heapProperties.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY::D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
-	heapProperties.VisibleNodeMask = 1;
-	heapProperties.CreationNodeMask = 1;
+	heapProperties.CPUPageProperty		= D3D12_CPU_PAGE_PROPERTY::D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+	heapProperties.VisibleNodeMask		= 1;
+	heapProperties.CreationNodeMask		= 1;
 
 	//リソース設定
-	cbvResDesc.Dimension = D3D12_RESOURCE_DIMENSION::D3D12_RESOURCE_DIMENSION_BUFFER;//1次元バッファ
-	cbvResDesc.Width = (sizeof(mt) + 0xff) &~0xff;								//255アライメント
-	cbvResDesc.Height = 1;														//1次元なので１を設定
+	cbvResDesc.Dimension		= D3D12_RESOURCE_DIMENSION::D3D12_RESOURCE_DIMENSION_BUFFER;//1次元バッファ
+	cbvResDesc.Width			= (sizeof(mt) + 0xff) &~0xff;								//255アライメント
+	cbvResDesc.Height			= 1;														//1次元なので１を設定
 	cbvResDesc.DepthOrArraySize = 1;														//深さはないので１を設定
-	cbvResDesc.MipLevels = 1;														//ミップはない
+	cbvResDesc.MipLevels		= 1;														//ミップはない
 	cbvResDesc.SampleDesc.Count = 1;														//ないと失敗する
-	cbvResDesc.Layout = D3D12_TEXTURE_LAYOUT::D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+	cbvResDesc.Layout			= D3D12_TEXTURE_LAYOUT::D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 
 	//行列リソースを作成
 	result = _dev->CreateCommittedResource(

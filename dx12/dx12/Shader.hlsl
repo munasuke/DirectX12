@@ -4,9 +4,9 @@ SamplerState smp : register(s0);
 
 cbuffer wvp : register(b0)
 {
-    float4x4 world; //ワールド行列
-    float4x4 view; //ビュー行列
-    float4x4 projection; //プロジェクション行列
+    float4x4 world;         //ワールド行列
+    float4x4 view;          //ビュー行列
+    float4x4 projection;    //プロジェクション行列
 };
 
 cbuffer material : register(b1)
@@ -19,10 +19,10 @@ cbuffer material : register(b1)
 
 struct Out
 {
-    float4 svpos : SV_POSITION;
-    float4 pos : POSITION;
-    float3 normal : NORMAL;
-    float2 uv : TEXCOORD;
+    float4 svpos    : SV_POSITION;
+    float4 pos      : POSITION;
+    float3 normal   : NORMAL;
+    float2 uv       : TEXCOORD;
 };
 
 //VertexShader

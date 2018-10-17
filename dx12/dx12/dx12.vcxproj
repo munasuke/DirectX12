@@ -85,6 +85,7 @@
       <SDLCheck>false</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(DXTEX_DIR)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(DXTEX_DIR)\DirectXTex\Bin\Desktop_2017_Win10\x64\Debug</AdditionalLibraryDirectories>
@@ -142,6 +143,7 @@
     <ClCompile Include="Source\ImageLoader.cpp" />
     <ClCompile Include="Source\Index.cpp" />
     <ClCompile Include="Source\main.cpp" />
+    <ClCompile Include="Source\Model.cpp" />
     <ClCompile Include="Source\Parameter.cpp" />
     <ClCompile Include="Source\PipelineState.cpp" />
     <ClCompile Include="Source\PMDLoader.cpp" />
@@ -171,6 +173,7 @@
     <ClInclude Include="Source\ImageLoader.h" />
     <ClInclude Include="Source\Index.h" />
     <ClInclude Include="Source\Matrix.h" />
+    <ClInclude Include="Source\Model.h" />
     <ClInclude Include="Source\Parameter.h" />
     <ClInclude Include="Source\PipelineState.h" />
     <ClInclude Include="Source\PMDLoader.h" />
