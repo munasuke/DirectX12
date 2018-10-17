@@ -12,17 +12,15 @@ public:
 
 	int Load(const std::string path);
 	DirectX::TexMetadata GetMetaData();
-	std::vector<DirectX::TexMetadata> GetMetaArray();
 	uint8_t* GetScratchImage();
-	std::vector<uint8_t*> GetScratchImageArray();
 	~ImageLoader();
 private:
 	std::wstring ConvertStringToWString(std::string str);
 
-	DirectX::TexMetadata metaData;
-	std::vector<DirectX::TexMetadata> metaDataArray;
-	DirectX::ScratchImage image;
-	std::vector<uint8_t*> imageArray;
+	DirectX::TexMetadata	metaData;
+	DirectX::ScratchImage	image;
+
+	//Šg’£q‚Åƒ[ƒhŠÖ”‚ğ•ª‚¯‚é
 	std::map
 		<std::wstring,
 		std::function<HRESULT(const std::wstring& path,

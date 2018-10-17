@@ -5,29 +5,33 @@
 using namespace DirectX;
 
 ImageLoader::ImageLoader() {
-	//拡張子で関数変える
+	//拡張子でロード関数を変更
+	//bmp, png, jpg
 	loadFuncTbl[L"bmp"] = loadFuncTbl[L"png"] = loadFuncTbl[L"jpg"] =
 		[](const std::wstring& path, TexMetadata* meta, ScratchImage& img) -> HRESULT {
 		return LoadFromWICFile(path.c_str(), 0, meta, img); };
 
+	//tga
 	loadFuncTbl[L"tga"] =
 		[](const std::wstring& path, TexMetadata* meta, ScratchImage& img) -> HRESULT {
 		return LoadFromTGAFile(path.c_str(), meta, img); };
 
+	//dds
 	loadFuncTbl[L"dds"] =
 		[](const std::wstring& path, TexMetadata* meta, ScratchImage& img) -> HRESULT {
 		return LoadFromDDSFile(path.c_str(), 0, meta, img); };
 }
 
 int ImageLoader::Load(const std::string path) {
-	std::wstring wstrPath = ConvertStringToWString(path);
-	std::wstring filePath = wstrPath;
-	auto index = filePath.rfind('.');
-	filePath = filePath.substr(index + 1);
+	//StringをWStringに変換
+	std::wstring wstr = ConvertStringToWString(path);
 
-	auto result = loadFuncTbl[filePath](wstrPath, &metaData, image);
-	metaDataArray.emplace_back(metaData);
-	imageArray.emplace_back(image.GetPixels());
+	//拡張子を判定
+	auto index = wstr.rfind('.');
+	auto filePath = wstr.substr(index + 1);
+
+	//画像読み込み
+	auto result = loadFuncTbl[filePath](wstr, &metaData, image);
 
 	return 0;
 }
@@ -37,17 +41,9 @@ DirectX::TexMetadata ImageLoader::GetMetaData()
 	return metaData;
 }
 
-std::vector<DirectX::TexMetadata> ImageLoader::GetMetaArray() {
-	return metaDataArray;
-}
-
 uint8_t * ImageLoader::GetScratchImage() {
 	auto imgPixels = image.GetPixels();
 	return imgPixels;
-}
-
-std::vector<uint8_t*> ImageLoader::GetScratchImageArray() {
-	return imageArray;
 }
 
 ImageLoader::~ImageLoader() {

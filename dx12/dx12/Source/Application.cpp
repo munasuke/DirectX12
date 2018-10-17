@@ -30,70 +30,89 @@ namespace {
 }
 
 Application::Application() {
-	window = std::make_shared<Window>();
-	device = std::make_shared<Device>();
-	command = std::make_shared<Command>();
-	swapChain = std::make_shared<SwapChain>();
-	descriptor = std::make_shared<Descriptor>();
-	renderTarget = std::make_shared<RenderTarget>();
-	sampler = std::make_shared<Sampler>();
-	root = std::make_shared<RootSignature>();
-	fence = std::make_shared<Fence>();
-	vertex = std::make_shared<Vertex>();
-	tex = std::make_shared<TextureResource>();
-	srv = std::make_shared<ShaderResourceView>();
-	bmp = std::make_shared<BmpLoader>();
-	imageL = std::make_shared<ImageLoader>();
-	shader = std::make_shared<ShaderLoader>();
-	pipline = std::make_shared<PipelineState>();
-	viewPort = std::make_shared<ViewPort>();
-	cb = std::make_shared<ConstantBuffer>();
-	pmd = std::make_shared<PMDLoader>(bmp, imageL);
-	index = std::make_shared<Index>();
-	depth = std::make_shared<DepthStencilBuffer>();
+	window			= std::make_shared<Window>();
+	device			= std::make_shared<Device>();
+	command			= std::make_shared<Command>();
+	swapChain		= std::make_shared<SwapChain>();
+	descriptor		= std::make_shared<Descriptor>();
+	renderTarget	= std::make_shared<RenderTarget>();
+	sampler			= std::make_shared<Sampler>();
+	root			= std::make_shared<RootSignature>();
+	fence			= std::make_shared<Fence>();
+	vertex			= std::make_shared<Vertex>();
+	tex				= std::make_shared<TextureResource>();
+	srv				= std::make_shared<ShaderResourceView>();
+	bmp				= std::make_shared<BmpLoader>();
+	imageL			= std::make_shared<ImageLoader>();
+	shader			= std::make_shared<ShaderLoader>();
+	pipline			= std::make_shared<PipelineState>();
+	viewPort		= std::make_shared<ViewPort>();
+	cb				= std::make_shared<ConstantBuffer>();
+	pmd				= std::make_shared<PMDLoader>(bmp, imageL);
+	index			= std::make_shared<Index>();
+	depth			= std::make_shared<DepthStencilBuffer>();
 }
 
 void Application::Initialize() {
 	CoInitializeEx(nullptr, COINIT_MULTITHREADED);
 
+	//ウィンドウ
 	window->InitWindow();
 
+	//コマンド周り
 	command->InitCommand(device->GetDevice());
 
+	//スワップチェイン
 	swapChain->InitSwapChain(command->GetCommandQueue(), window->GetHandleWindow());
 
+	//デスクリプタ
 	descriptor->InitDescriptor(device->GetDevice());
 
+	//レンダーターゲット
 	renderTarget->InitRenderTarget(swapChain->GetSwapChainDesc().BufferCount,
 		device->GetDevice(), swapChain->GetSwapChain(), descriptor->GetDescriptorHandle(), descriptor->GetDescriptorSize());
 
+	//サンプラ
 	sampler->InitSampler();
 
+	//ルートシグネチャ
 	root->InitRootSignature(sampler->GetSamplerDesc(), device->GetDevice(), D3D12_SHADER_VISIBILITY::D3D12_SHADER_VISIBILITY_ALL);
 
+	//フェンス
 	fence->InitFence(device->GetDevice());
 
-	pmd->Load("PMD/miku/初音ミク.pmd");
+	//PMD
+	pmd->Load("PMD/neru/亞北ネル.pmd");
 
+	//頂点バッファ
 	vertex->Initialize(device->GetDevice(), pmd->GetPMDVertex());
 
+	//インデックスバッファ
 	index->Initialize(device->GetDevice(), pmd->GetIndices());
 
+	//テクスチャバッファ
 	tex->Initialize(device->GetDevice(), imageL->GetMetaData());
 
+	//シェーダリソースビュー
 	srv->Initialize(device->GetDevice(), tex->GetTextureBuffer(), pmd->GetMaterial().size());
 
+	//定数バッファ
 	cb->Initialize(device->GetDevice(), srv->GetTextureHeap());
 
+	//深度バッファ
 	depth->Initialize(device->GetDevice(), srv->GetDescriptorHeapDesc());
 
+	//PMD初期化
 	pmd->Initialize(device->GetDevice());
 
+	//シェーダ
 	shader->Load(root->GetError());
 
+	//パイプライン
 	pipline->Initialize(device->GetDevice(), shader->GetVS(), shader->GetPS(),
 		vertex->GetInputDescNum(), vertex->GetInputDesc(), root->GetRootSignature());
 
+	//ビューポート
 	viewPort->Initialize();
 }
 
