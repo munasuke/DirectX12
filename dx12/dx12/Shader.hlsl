@@ -1,7 +1,12 @@
-//テクスチャの0番レジスタとサンプラの0番レジスタを設定
-Texture2D<float4> tex : register(t0);
+//テクスチャ
+Texture2D<float4> tex   : register(t0); //通常テクスチャ
+Texture2D<float4> sph   : register(t1); //乗算テクスチャ
+Texture2D<float4> spa   : register(t2); //加算テクスチャ
+Texture2D<float4> toon  : register(t3); //トゥーンテクスチャ
+
 SamplerState smp : register(s0);
 
+//カメラ
 cbuffer wvp : register(b0)
 {
     float4x4 world;         //ワールド行列
@@ -9,6 +14,7 @@ cbuffer wvp : register(b0)
     float4x4 projection;    //プロジェクション行列
 };
 
+//マテリアル
 cbuffer material : register(b1)
 {
     float4  diffuse;    //減衰色

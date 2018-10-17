@@ -13,48 +13,54 @@ RootSignature::RootSignature() :
 }
 
 void RootSignature::InitRootSignature(D3D12_STATIC_SAMPLER_DESC _samplerDesc, ID3D12Device* _dev, D3D12_SHADER_VISIBILITY _shaderVisibility) {
-	//デスクリプタレンジ
-	//t0
-	descriptorRange[0].RangeType							= D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	/*
+		デスクリプタレンジ
+	*/
+	//b0(カメラ)
+	descriptorRange[0].RangeType							= D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
 	descriptorRange[0].NumDescriptors						= 1;
 	descriptorRange[0].BaseShaderRegister					= 0;
 	descriptorRange[0].RegisterSpace						= 0;
 	descriptorRange[0].OffsetInDescriptorsFromTableStart	= D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	//b0
+	//b1(マテリアル情報)
 	descriptorRange[1].RangeType							= D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
 	descriptorRange[1].NumDescriptors						= 1;
-	descriptorRange[1].BaseShaderRegister					= 0;
+	descriptorRange[1].BaseShaderRegister					= 1;
 	descriptorRange[1].RegisterSpace						= 0;
 	descriptorRange[1].OffsetInDescriptorsFromTableStart	= D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	//b1
-	descriptorRange[2].RangeType							= D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+	//t0(通常テクスチャ)
+	descriptorRange[2].RangeType							= D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	descriptorRange[2].NumDescriptors						= 1;
-	descriptorRange[2].BaseShaderRegister					= 1;
+	descriptorRange[2].BaseShaderRegister					= 0;
 	descriptorRange[2].RegisterSpace						= 0;
 	descriptorRange[2].OffsetInDescriptorsFromTableStart	= D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	//パラメータ
-	//t0
+	/*
+		パラメータ
+	*/
+	//b0(カメラ)
 	parameter[0].ParameterType							= D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	parameter[0].ShaderVisibility						= _shaderVisibility;
+	parameter[0].ShaderVisibility						= D3D12_SHADER_VISIBILITY_ALL;
 	parameter[0].DescriptorTable.NumDescriptorRanges	= 1;
 	parameter[0].DescriptorTable.pDescriptorRanges		= &descriptorRange[0];
 
-	//b0
+	//b1(マテリアル情報)
 	parameter[1].ParameterType							= D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	parameter[1].ShaderVisibility						= D3D12_SHADER_VISIBILITY_ALL;
 	parameter[1].DescriptorTable.NumDescriptorRanges	= 1;
 	parameter[1].DescriptorTable.pDescriptorRanges		= &descriptorRange[1];
 
-	//b1
+	//t0(通常テクスチャ)
 	parameter[2].ParameterType							= D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	parameter[2].ShaderVisibility						= D3D12_SHADER_VISIBILITY_ALL;
+	parameter[2].ShaderVisibility						= _shaderVisibility;
 	parameter[2].DescriptorTable.NumDescriptorRanges	= 1;
 	parameter[2].DescriptorTable.pDescriptorRanges		= &descriptorRange[2];
 
-	//ルートシグネチャ
+	/*
+		ルートシグネチャ
+	*/
 	rsDesc.NumParameters		= _countof(parameter);
 	rsDesc.NumStaticSamplers	= 1;
 	rsDesc.pParameters			= parameter;
