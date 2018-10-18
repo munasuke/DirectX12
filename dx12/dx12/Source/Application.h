@@ -24,6 +24,8 @@ class ConstantBuffer;
 class PMDLoader;
 class Index;
 class DepthStencilBuffer;
+class Model;
+class Camera;
 
 class Application {
 public:
@@ -63,5 +65,7 @@ private:
 	std::shared_ptr<PMDLoader>			pmd;			//PMD
 	std::shared_ptr<Index>				index;			//インデックス
 	std::shared_ptr<DepthStencilBuffer>	depth;			//深度バッファ
+	std::shared_ptr<Model>				model;			//モデル
+	std::shared_ptr<Camera>				camera;			//カメラ
 };
 

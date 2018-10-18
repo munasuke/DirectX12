@@ -24,6 +24,8 @@
 #include "PMDLoader.h"
 #include "Index.h"
 #include "DepthStencilBuffer.h"
+#include "Model.h"
+#include "Camera.h"
 
 namespace {
 	MSG msg = {};
@@ -51,6 +53,8 @@ Application::Application() {
 	pmd				= std::make_shared<PMDLoader>(bmp, imageL);
 	index			= std::make_shared<Index>();
 	depth			= std::make_shared<DepthStencilBuffer>();
+	model			= std::make_shared<Model>();
+	camera			= std::make_shared<Camera>();
 }
 
 void Application::Initialize() {
@@ -91,19 +95,22 @@ void Application::Initialize() {
 	index->Initialize(device->GetDevice(), pmd->GetIndices());
 
 	//テクスチャバッファ
-	tex->Initialize(device->GetDevice(), imageL->GetMetaData());
+	//tex->Initialize(device->GetDevice(), imageL->GetMetaData());
 
 	//シェーダリソースビュー
-	srv->Initialize(device->GetDevice(), tex->GetTextureBuffer(), pmd->GetMaterial().size());
+	//srv->Initialize(device->GetDevice(), tex->GetTextureBuffer(), pmd->GetMaterial().size());
 
 	//定数バッファ
-	cb->Initialize(device->GetDevice(), srv->GetTextureHeap());
+	//cb->Initialize(device->GetDevice(), srv->GetTextureHeap());
+
+	camera->Initialize(device->GetDevice());
+	model->Initialize(device->GetDevice(), imageL->GetMetaData(), pmd->GetMaterial());
 
 	//深度バッファ
 	depth->Initialize(device->GetDevice(), srv->GetDescriptorHeapDesc());
 
 	//PMD初期化
-	pmd->Initialize(device->GetDevice());
+	//pmd->Initialize(device->GetDevice());
 
 	//シェーダ
 	shader->Load(root->GetError());
@@ -161,14 +168,22 @@ void Application::Run() {
 
 		depth->SetDescriptor(command->GetCommandList());
 
-		cb->UpDataWVP();
-		for (UINT i = 0; i < 2; i++) {
-			cb->SetDescriptor(command->GetCommandList(), i, srv->GetTextureHeap(), device->GetDevice());
-		}
+		//
+		//cb->UpDataWVP();
+		//for (UINT i = 0; i < 2; i++) {
+		//	cb->SetDescriptor(command->GetCommandList(), i, srv->GetTextureHeap(), device->GetDevice());
+		//}
 
-		tex->WriteToTextureBuffer(imageL->GetMetaData(), imageL->GetScratchImage(), pmd->GetTexFlag());
+		camera->UpdateWVP();
+		camera->SetDescriptor(command->GetCommandList(), device->GetDevice());
 
-		pmd->Draw(command->GetCommandList(), device->GetDevice(), srv->GetTextureHeap());
+		//
+		//tex->WriteToTextureBuffer(imageL->GetMetaData(), imageL->GetScratchImage(), pmd->GetTexFlag());
+		model->WriteToTextureBuffer(imageL->GetMetaData(), imageL->GetScratchImage(), pmd->GetTexFlag());
+
+		//
+		//pmd->Draw(command->GetCommandList(), device->GetDevice(), srv->GetTextureHeap());
+		model->Draw(command->GetCommandList(), device->GetDevice(), pmd->GetMaterial());
 
 		command->GetCommandList()->ResourceBarrier(
 			1,

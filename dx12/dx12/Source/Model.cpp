@@ -6,7 +6,7 @@ using namespace DirectX;
 Model::Model() : textureBuffer(nullptr), resource(nullptr), heap(nullptr){
 }
 
-void Model::Initialize(ID3D12Device * _dev, TexMetadata metaData, UINT size, std::vector<PMDMaterial> material) {
+void Model::Initialize(ID3D12Device * _dev, TexMetadata metaData, std::vector<PMDMaterial> material) {
 	/*
 		マテリアル
 	*/
@@ -42,7 +42,7 @@ void Model::Initialize(ID3D12Device * _dev, TexMetadata metaData, UINT size, std
 
 	//ヒープの設定
 	D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
-	heapDesc.NumDescriptors = 1 + size;//マテリアル数＋テクスチャ数?
+	heapDesc.NumDescriptors = 1 + material.size();//マテリアル数＋テクスチャ数?
 	heapDesc.Type			= D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	heapDesc.Flags			= D3D12_DESCRIPTOR_HEAP_FLAGS::D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 
@@ -51,13 +51,12 @@ void Model::Initialize(ID3D12Device * _dev, TexMetadata metaData, UINT size, std
 
 	auto handle		= heap->GetCPUDescriptorHandleForHeapStart();
 	auto address	= resource->GetGPUVirtualAddress();
-
-	//CBVの設定
-	D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
-	cbvDesc.BufferLocation	= address;
-	cbvDesc.SizeInBytes		= ((sizeof(DirectX::XMFLOAT3) + 0xff) &~0xff);
-
 	for (UINT i = 0; i < material.size(); ++i) {
+		//CBVの設定
+		D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
+		cbvDesc.BufferLocation	= address;
+		cbvDesc.SizeInBytes		= ((sizeof(DirectX::XMFLOAT3) + 0xff) &~0xff);
+
 		//CBV生成
 		_dev->CreateConstantBufferView(&cbvDesc, handle);
 
@@ -88,7 +87,7 @@ void Model::Initialize(ID3D12Device * _dev, TexMetadata metaData, UINT size, std
 		mat.texFlag = material[i].textureFilePath[0] != '\0' ? true : false;
 		texFlag.emplace_back(mat.texFlag);
 
-		memcpy(data, &mat, sizeof(Material));
+		memcpy(data, &mat, sizeof(Materials));
 
 		data = (UINT8*)(((sizeof(DirectX::XMFLOAT3) + 0xff) &~0xff) + (CHAR*)(data));
 	}
@@ -117,7 +116,7 @@ void Model::Initialize(ID3D12Device * _dev, TexMetadata metaData, UINT size, std
 	hprop.VisibleNodeMask		= 1;
 
 	//リソース生成
-	auto result = _dev->CreateCommittedResource(
+	result = _dev->CreateCommittedResource(
 		&hprop,
 		D3D12_HEAP_FLAGS::D3D12_HEAP_FLAG_NONE,
 		&texResourceDesc,
@@ -136,9 +135,43 @@ void Model::Initialize(ID3D12Device * _dev, TexMetadata metaData, UINT size, std
 	srvDesc.Texture2D.MipLevels		= 1;
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 
+	handle.ptr += _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
 	//SRV生成
-	//_dev->CreateShaderResourceView(textureBuffer, &srvDesc, handle);
+	_dev->CreateShaderResourceView(textureBuffer, &srvDesc, handle);
+}
+
+void Model::Draw(ID3D12GraphicsCommandList * _list, ID3D12Device * _dev, std::vector<PMDMaterial> material) {
+	UINT offset = 0;
+	for (UINT i = 0; i < material.size(); ++i) {
+		//マテリアル
+		auto handle = heap->GetGPUDescriptorHandleForHeapStart();
+		handle.ptr += i * _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+		_list->SetDescriptorHeaps(1, &heap);
+		_list->SetGraphicsRootDescriptorTable(1, handle);
+
+		//通常テクスチャまでずらす
+		handle.ptr += _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+
+		//通常テクスチャ
+		_list->SetDescriptorHeaps(1, &heap);
+		_list->SetGraphicsRootDescriptorTable(2, handle);
+
+		//次のマテリアルまでずらす
+		handle.ptr += 1 * _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+
+		_list->DrawIndexedInstanced(material[i].indexCount, 1, offset, 0, 0);
+
+		offset += material[i].indexCount;
+	}
+}
+
+void Model::WriteToTextureBuffer(DirectX::TexMetadata metaData, uint8_t * img, std::vector<bool> textureFlag) {
+	for (int i = 0; i < textureFlag.size(); i++) {
+		if (textureFlag[i]) {
+			auto result = textureBuffer->WriteToSubresource(0, nullptr, img, metaData.width * 4, metaData.height * 4);
+		}
+	}
 }
 
 void Model::CreateWhiteTexture() {

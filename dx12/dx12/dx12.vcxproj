@@ -133,6 +133,7 @@
   <ItemGroup>
     <ClCompile Include="Source\Application.cpp" />
     <ClCompile Include="Source\BmpLoader.cpp" />
+    <ClCompile Include="Source\Camera.cpp" />
     <ClCompile Include="Source\Command.cpp" />
     <ClCompile Include="Source\ConstantBuffer.cpp" />
     <ClCompile Include="Source\DepthStencilBuffer.cpp" />
@@ -162,6 +163,7 @@
   <ItemGroup>
     <ClInclude Include="Source\Application.h" />
     <ClInclude Include="Source\BmpLoader.h" />
+    <ClInclude Include="Source\Camera.h" />
     <ClInclude Include="Source\Command.h" />
     <ClInclude Include="Source\ConstantBuffer.h" />
     <ClInclude Include="Source\d3dx12.h" />
