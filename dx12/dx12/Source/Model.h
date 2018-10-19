@@ -18,16 +18,17 @@ struct Materials {
 };
 
 /*
-	マテリアル
-	テクスチャ
-	乗算テクスチャ
-	加算テクスチャ
+	ヒープの中身
+	0.マテリアル
+	1.テクスチャ
+	2.乗算テクスチャ
+	3.加算テクスチャ
 */
 class Model {
 public:
 	Model();
 
-	void Initialize(ID3D12Device * _dev, DirectX::TexMetadata metaData, std::vector<PMDMaterial> material);
+	void Initialize(ID3D12Device * _dev, DirectX::TexMetadata metaData, std::vector<PMDMaterial> material, UINT textureSize);
 	void Draw(ID3D12GraphicsCommandList * _list, ID3D12Device * _dev, std::vector<PMDMaterial> material);
 	void WriteToTextureBuffer(DirectX::TexMetadata metaData, uint8_t* img, std::vector<bool> textureFlag);
 
@@ -37,10 +38,10 @@ public:
 	~Model();
 
 private:
-	//テクスチャバッファ
-	ID3D12Resource* textureBuffer;
 	//CBV
-	ID3D12Resource* resource;
+	std::vector<ID3D12Resource*> materialBuffer;
+	//SRV
+	std::vector<ID3D12Resource*> textureBuffer;
 	//CBV, SRV用ヒープ
 	ID3D12DescriptorHeap* heap;
 	//マテリアル

@@ -104,7 +104,7 @@ void Application::Initialize() {
 	//cb->Initialize(device->GetDevice(), srv->GetTextureHeap());
 
 	camera->Initialize(device->GetDevice());
-	model->Initialize(device->GetDevice(), imageL->GetMetaData(), pmd->GetMaterial());
+	model->Initialize(device->GetDevice(), imageL->GetMetaData(), pmd->GetMaterial(), pmd->GetTextureNum());
 
 	//深度バッファ
 	depth->Initialize(device->GetDevice(), srv->GetDescriptorHeapDesc());

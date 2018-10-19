@@ -1,0 +1,5 @@
+関数名、型名は先頭大文字のCamelCase
+変数名は先頭小文字のcamelCase
+
+定数はsnake_caseを使用
+#define系は大文字のSNAKE_CASEを使用

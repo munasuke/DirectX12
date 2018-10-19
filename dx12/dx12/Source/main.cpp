@@ -4,7 +4,7 @@
 
 int main() {
 
-	std::cout << "Â‚Ô‚½" << std::endl;
+	std::cout << "‚Ô‚½" << std::endl;
 
 	auto& app = Application::Instance();
 	app.Initialize();
