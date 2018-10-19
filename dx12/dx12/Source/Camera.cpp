@@ -64,7 +64,7 @@ void Camera::Initialize(ID3D12Device * _dev) {
 
 void Camera::UpdateWVP() {
 	static FLOAT angle = 0.0f;
-	mt.world = XMMatrixRotationY(angle * 3.14159264f / 180.0f);
+	mt.world = XMMatrixRotationY(angle * DirectX::XM_PI / 180.0f);
 	memcpy(data, &mt, sizeof(mt));
 	++angle;
 }

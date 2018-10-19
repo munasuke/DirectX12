@@ -6,7 +6,7 @@ class DepthStencilBuffer : public Result
 public:
 	DepthStencilBuffer();
 	//èâä˙âª
-	void Initialize(ID3D12Device* _dev, D3D12_DESCRIPTOR_HEAP_DESC _heapDesc);
+	void Initialize(ID3D12Device* _dev);
 	void SetDescriptor(ID3D12GraphicsCommandList* _list);
 	ID3D12DescriptorHeap* GetHeap();
 

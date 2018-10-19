@@ -54,14 +54,14 @@ private:
 	std::shared_ptr<RootSignature>		root;			//ルートシグネチャ
 	std::shared_ptr<Fence>				fence;			//フェンス
 	std::shared_ptr<Vertex>				vertex;			//頂点バッファ
-	std::shared_ptr<TextureResource>	tex;			//テクスチャリソース
-	std::shared_ptr<ShaderResourceView> srv;			//シェーダリソースビュー
+	//std::shared_ptr<TextureResource>	tex;			//テクスチャリソース
+	//std::shared_ptr<ShaderResourceView> srv;			//シェーダリソースビュー
 	std::shared_ptr<BmpLoader>			bmp;			//BMP
 	std::shared_ptr<ImageLoader>		imageL;			//画像ロード
 	std::shared_ptr<ShaderLoader>		shader;			//シェーダ
 	std::shared_ptr<PipelineState>		pipline;		//パイプラインステートオブジェクト
 	std::shared_ptr<ViewPort>			viewPort;		//ビューポート
-	std::shared_ptr<ConstantBuffer>		cb;				//コンスタントバッファ
+	//std::shared_ptr<ConstantBuffer>		cb;				//コンスタントバッファ
 	std::shared_ptr<PMDLoader>			pmd;			//PMD
 	std::shared_ptr<Index>				index;			//インデックス
 	std::shared_ptr<DepthStencilBuffer>	depth;			//深度バッファ

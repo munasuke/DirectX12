@@ -42,14 +42,14 @@ Application::Application() {
 	root			= std::make_shared<RootSignature>();
 	fence			= std::make_shared<Fence>();
 	vertex			= std::make_shared<Vertex>();
-	tex				= std::make_shared<TextureResource>();
-	srv				= std::make_shared<ShaderResourceView>();
+	//tex				= std::make_shared<TextureResource>();
+	//srv				= std::make_shared<ShaderResourceView>();
 	bmp				= std::make_shared<BmpLoader>();
 	imageL			= std::make_shared<ImageLoader>();
 	shader			= std::make_shared<ShaderLoader>();
 	pipline			= std::make_shared<PipelineState>();
 	viewPort		= std::make_shared<ViewPort>();
-	cb				= std::make_shared<ConstantBuffer>();
+	//cb				= std::make_shared<ConstantBuffer>();
 	pmd				= std::make_shared<PMDLoader>(bmp, imageL);
 	index			= std::make_shared<Index>();
 	depth			= std::make_shared<DepthStencilBuffer>();
@@ -107,7 +107,7 @@ void Application::Initialize() {
 	model->Initialize(device->GetDevice(), imageL->GetMetaData(), pmd->GetMaterial(), pmd->GetTextureNum());
 
 	//深度バッファ
-	depth->Initialize(device->GetDevice(), srv->GetDescriptorHeapDesc());
+	depth->Initialize(device->GetDevice());
 
 	//PMD初期化
 	//pmd->Initialize(device->GetDevice());
@@ -184,6 +184,7 @@ void Application::Run() {
 		//
 		//pmd->Draw(command->GetCommandList(), device->GetDevice(), srv->GetTextureHeap());
 		model->Draw(command->GetCommandList(), device->GetDevice(), pmd->GetMaterial());
+		//command->GetCommandList()->DrawIndexedInstanced(pmd->GetIndices().size(), 1, 0, 0, 0);
 
 		command->GetCommandList()->ResourceBarrier(
 			1,
