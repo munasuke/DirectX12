@@ -8,14 +8,14 @@ Camera::Camera() : heap(nullptr) {
 
 void Camera::Initialize(ID3D12Device * _dev) {
 	//視線、注視点、上ベクトル
-	XMFLOAT3 eye(0.0f, 10.0f, -15.0f);
-	XMFLOAT3 focus(0.0f, 10.0f, 0.0f);
-	XMFLOAT3 upper(0.0f, 1.0f, 0.0f);
+	XMFLOAT3 eye	(0.0f, 10.0f, -15.0f);
+	XMFLOAT3 focus	(0.0f, 10.0f,   0.0f);
+	XMFLOAT3 upper	(0.0f,  1.0f,   0.0f);
 
 	//ワールド・ビュー・プロジェクション行列の作成
-	mt.world = XMMatrixIdentity();
-	mt.view = XMMatrixLookAtLH(XMLoadFloat3(&eye), XMLoadFloat3(&focus), XMLoadFloat3(&upper));
-	mt.projection = XMMatrixPerspectiveFovLH(90.0f * 3.14159264f / 180.0f,
+	mt.world		= XMMatrixIdentity();
+	mt.view			= XMMatrixLookAtLH(XMLoadFloat3(&eye), XMLoadFloat3(&focus), XMLoadFloat3(&upper));
+	mt.projection	= XMMatrixPerspectiveFovLH(90.0f * 3.14159264f / 180.0f,
 		static_cast<FLOAT>(WIN_WIDTH) / static_cast<FLOAT>(WIN_HEIGHT), 0.01f, 500.0f);
 
 	//プロパティ設定
@@ -47,8 +47,8 @@ void Camera::Initialize(ID3D12Device * _dev) {
 	);
 	//コンスタントバッファビューの設定
 	D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
-	cbvDesc.BufferLocation = resource->GetGPUVirtualAddress();
-	cbvDesc.SizeInBytes = (sizeof(mt) + 0xff) &~0xff;
+	cbvDesc.BufferLocation	= resource->GetGPUVirtualAddress();
+	cbvDesc.SizeInBytes		= (sizeof(mt) + 0xff) &~0xff;
 
 	D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
 	heapDesc.NumDescriptors = 1;//領域確保

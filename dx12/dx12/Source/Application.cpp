@@ -156,7 +156,7 @@ void Application::Run() {
 			bbIndex, descriptor->GetDescriptorSize());
 		command->GetCommandList()->OMSetRenderTargets(1, &rtvHandle, false, &depth->GetHeap()->GetCPUDescriptorHandleForHeapStart());
 
-		const FLOAT color[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+		const FLOAT color[] = { 0.4f, 0.4f, 0.4f, 1.0f };
 
 		command->GetCommandList()->ClearRenderTargetView(rtvHandle, color, 0, nullptr);
 

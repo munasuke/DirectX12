@@ -8,6 +8,15 @@ Model::Model() : heap(nullptr){
 }
 
 void Model::Initialize(ID3D12Device * _dev, TexMetadata metaData, std::vector<PMDMaterial> material, UINT textureSize) {
+	//ヒープの設定
+	D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
+	heapDesc.NumDescriptors = material.size();
+	heapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	heapDesc.Flags = D3D12_DESCRIPTOR_HEAP_FLAGS::D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+
+	//ヒープ生成
+	auto result = _dev->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&heap));
+
 	//マテリアルバッファの設定
 	D3D12_RESOURCE_DESC resourceDesc = {};
 	resourceDesc.Dimension			= D3D12_RESOURCE_DIMENSION::D3D12_RESOURCE_DIMENSION_BUFFER;
@@ -30,26 +39,53 @@ void Model::Initialize(ID3D12Device * _dev, TexMetadata metaData, std::vector<PM
 	heapProperties.CreationNodeMask		= 1;
 
 	//マテリアル分のバッファを生成
+	//materialBuffer.resize(material.size());
+	//for (auto& mtBuff : materialBuffer) {
+	//	auto result = _dev->CreateCommittedResource(
+	//		&heapProperties,
+	//		D3D12_HEAP_FLAGS::D3D12_HEAP_FLAG_NONE,
+	//		&resourceDesc,
+	//		D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_GENERIC_READ,
+	//		nullptr,
+	//		IID_PPV_ARGS(&mtBuff)
+	//	);
+	//}
+
+	auto size = ((sizeof(DirectX::XMFLOAT3) + 0xff) &~0xff);
 	materialBuffer.resize(material.size());
-	for (auto& mtBuff : materialBuffer) {
+	for (UINT i = 0; i < materialBuffer.size(); ++i) {
 		auto result = _dev->CreateCommittedResource(
-			&heapProperties,
+			&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE::D3D12_HEAP_TYPE_UPLOAD),
 			D3D12_HEAP_FLAGS::D3D12_HEAP_FLAG_NONE,
-			&resourceDesc,
+			&CD3DX12_RESOURCE_DESC::Buffer(size),
 			D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_GENERIC_READ,
 			nullptr,
-			IID_PPV_ARGS(&mtBuff)
+			IID_PPV_ARGS(&materialBuffer[i])
 		);
+
+		result = materialBuffer[i]->Map(0, nullptr, (void**)&data);
+
+		//ディフューズ成分
+		mat.diffuse.x = material[i].diffuse.x;
+		mat.diffuse.y = material[i].diffuse.y;
+		mat.diffuse.z = material[i].diffuse.z;
+		mat.diffuse.w = material[i].alpha;
+
+		//スペキュラ成分
+		mat.specular.x = material[i].specular.x;
+		mat.specular.y = material[i].specular.y;
+		mat.specular.z = material[i].specular.z;
+		mat.specular.w = material[i].specularPower;
+
+		//アンビエント成分
+		mat.ambient.x = material[i].ambient.x;
+		mat.ambient.y = material[i].ambient.y;
+		mat.ambient.z = material[i].ambient.z;
+
+		memcpy(data, &mat, sizeof(Materials));
+
+		materialBuffer[i]->Unmap(0, nullptr);
 	}
-
-	//ヒープの設定
-	D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
-	heapDesc.NumDescriptors = material.size();
-	heapDesc.Type			= D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-	heapDesc.Flags			= D3D12_DESCRIPTOR_HEAP_FLAGS::D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-
-	//ヒープ生成
-	auto result = _dev->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&heap));
 
 	//テクスチャリソースの設定
 	D3D12_RESOURCE_DESC texResourceDesc = {};
@@ -117,48 +153,18 @@ void Model::Initialize(ID3D12Device * _dev, TexMetadata metaData, std::vector<PM
 		////マテリアルまでずらす
 		//handle.ptr += incrementSize;
 	}
-
-	for (UINT i = 0; i < material.size(); ++i) {
-		//ポインタ取得
-		result = materialBuffer[i]->Map(0, nullptr, (void**)&data);
-
-		//ディフューズ成分
-		mat.diffuse.x = material[i].diffuse.x;
-		mat.diffuse.y = material[i].diffuse.y;
-		mat.diffuse.z = material[i].diffuse.z;
-		mat.diffuse.w = material[i].alpha;
-
-		//スペキュラ成分
-		mat.specular.x = material[i].specular.x;
-		mat.specular.y = material[i].specular.y;
-		mat.specular.z = material[i].specular.z;
-		mat.specular.w = material[i].specularPower;
-
-		//アンビエント成分
-		mat.ambient.x = material[i].ambient.x;
-		mat.ambient.y = material[i].ambient.y;
-		mat.ambient.z = material[i].ambient.z;
-
-		//テクスチャありなし判定
-		//mat.texFlag = material[i].textureFilePath[0] != '\0' ? true : false;
-		//texFlag.emplace_back(mat.texFlag);
-
-		//データを書き込む
-		memcpy(data, &mat, sizeof(Materials));
-
-		////data = (UINT8*)(((sizeof(DirectX::XMFLOAT3) + 0xff) &~0xff) + (CHAR*)(data));
-	}
 }
 
 void Model::Draw(ID3D12GraphicsCommandList * _list, ID3D12Device * _dev, std::vector<PMDMaterial> material) {
 	UINT offset = 0;
 	auto handle = heap->GetGPUDescriptorHandleForHeapStart();
-	//_list->SetDescriptorHeaps(1, &heap);
+	ID3D12DescriptorHeap* heaps[] = { heap };
+	_list->SetDescriptorHeaps(1, heaps);
 	for (UINT i = 0; i < material.size(); ++i) {
 		//マテリアル
 		_list->SetGraphicsRootDescriptorTable(1, handle);
 
-		////通常テクスチャまでずらす
+		//通常テクスチャまでずらす
 		handle.ptr += _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
 		_list->DrawIndexedInstanced(material[i].indexCount, 1, offset, 0, 0);
