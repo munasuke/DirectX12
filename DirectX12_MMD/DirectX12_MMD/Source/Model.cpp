@@ -18,27 +18,6 @@ void Model::Initialize(ID3D12Device * _dev, TexMetadata metaData, std::vector<PM
 	//ヒープ生成
 	auto result = _dev->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&heap));
 
-	//マテリアルバッファの設定
-	//D3D12_RESOURCE_DESC resourceDesc = {};
-	//resourceDesc.Dimension			= D3D12_RESOURCE_DIMENSION::D3D12_RESOURCE_DIMENSION_BUFFER;
-	//resourceDesc.Flags				= D3D12_RESOURCE_FLAGS::D3D12_RESOURCE_FLAG_NONE;
-	//resourceDesc.Format				= DXGI_FORMAT::DXGI_FORMAT_UNKNOWN;
-	//resourceDesc.Layout				= D3D12_TEXTURE_LAYOUT::D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-	//resourceDesc.Height				= 1;
-	//resourceDesc.Width				= ((sizeof(DirectX::XMFLOAT3) + 0xff) &~0xff);
-	//resourceDesc.MipLevels			= 1;
-	//resourceDesc.SampleDesc.Count	= 1;
-	//resourceDesc.Alignment			= 0;
-	//resourceDesc.DepthOrArraySize	= 1;
-
-	//プロパティ設定
-	//CD3DX12_HEAP_PROPERTIES heapProperties = {};
-	//heapProperties.Type					= D3D12_HEAP_TYPE::D3D12_HEAP_TYPE_UPLOAD;
-	//heapProperties.MemoryPoolPreference = D3D12_MEMORY_POOL::D3D12_MEMORY_POOL_UNKNOWN;
-	//heapProperties.CPUPageProperty		= D3D12_CPU_PAGE_PROPERTY::D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
-	//heapProperties.VisibleNodeMask		= 1;
-	//heapProperties.CreationNodeMask		= 1;
-
 	//マテリアル分のバッファを生成
 	auto size = ((sizeof(DirectX::XMFLOAT3) + 0xff) &~0xff);
 	materialBuffer.resize(material.size());

@@ -37,6 +37,20 @@ void RootSignature::InitRootSignature(D3D12_STATIC_SAMPLER_DESC _samplerDesc, ID
 	descriptorRange[2].RegisterSpace						= 0;
 	descriptorRange[2].OffsetInDescriptorsFromTableStart	= D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
+	////t1(乗算テクスチャ)
+	//descriptorRange[3].RangeType							= D3D12_DESCRIPTOR_RANGE_TYPE::D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	//descriptorRange[3].NumDescriptors						= 1;
+	//descriptorRange[3].BaseShaderRegister					= 0;
+	//descriptorRange[3].RegisterSpace						= 0;
+	//descriptorRange[3].OffsetInDescriptorsFromTableStart	= D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+	////t2(加算テクスチャ)
+	//descriptorRange[4].RangeType							= D3D12_DESCRIPTOR_RANGE_TYPE::D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	//descriptorRange[4].NumDescriptors						= 1;
+	//descriptorRange[4].BaseShaderRegister					= 0;
+	//descriptorRange[4].RegisterSpace						= 0;
+	//descriptorRange[4].OffsetInDescriptorsFromTableStart	= D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
 	/*
 		パラメータ
 	*/
