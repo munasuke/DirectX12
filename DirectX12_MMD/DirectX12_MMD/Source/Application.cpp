@@ -155,8 +155,8 @@ void Application::Run() {
 		camera->UpdateWVP();
 		camera->SetDescriptor(command->GetCommandList(), device->GetDevice());
 
-		//model->WriteToTextureBuffer(imageL->GetMetaData(), imageL->GetScratchImage(), pmd->GetTexFlag());
-		model->CreateWhiteTexture();
+		model->WriteToTextureBuffer(imageL->GetMetaData(), imageL->GetScratchImage(), pmd->GetTexFlag());
+		//model->CreateWhiteTexture();
 
 		model->Draw(command->GetCommandList(), device->GetDevice(), pmd->GetMaterial());
 

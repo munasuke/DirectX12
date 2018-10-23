@@ -123,6 +123,7 @@ private:
 	std::vector<Bone>				bone;
 	std::vector<DirectX::XMMATRIX>	boneMatrices;
 	std::map<std::string, BoneNode> boneMap;
+	DirectX::XMMATRIX* matrixData;
 
 	MAT mat;
 	std::vector<bool> texFlag;

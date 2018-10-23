@@ -47,6 +47,16 @@ struct PMDMaterial {
 };
 #pragma pack()
 
+//ボーン情報
+struct PMDBone {
+	CHAR				boneName[20];		//ボーン名
+	USHORT				parentBoneIndex;	//親のボーン番号
+	USHORT				tailPosoneIndex;	//tail位置のボーン番号
+	UCHAR				boneType;			//ボーンの種類
+	USHORT				ikParentBoneIndex;	//IKボーン番号
+	DirectX::XMFLOAT3	boneHeadPos;		//ボーンのヘッドの位置
+};
+
 
 struct MAT {
 	DirectX::XMFLOAT4	diffuse;	//減衰色

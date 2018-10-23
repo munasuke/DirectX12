@@ -10,7 +10,8 @@ PMDLoader::PMDLoader(std::shared_ptr<BmpLoader> bmp, std::shared_ptr<ImageLoader
 	textureNum(0),
 	resource(nullptr),
 	descriptorHeap(nullptr),
-	data(nullptr)
+	data(nullptr),
+	matrixData(nullptr)
 {
 	this->bmp = bmp;
 	this->imageL = imageL;
@@ -284,7 +285,7 @@ void PMDLoader::CreateBoneBuffer(ID3D12Device * _dev) {
 	resourceDesc.Format				= DXGI_FORMAT::DXGI_FORMAT_UNKNOWN;
 	resourceDesc.Layout				= D3D12_TEXTURE_LAYOUT::D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 	resourceDesc.Height				= 1;
-	resourceDesc.Width				= ((sizeof(DirectX::XMFLOAT3) + 0xff) &~0xff) * 2;
+	resourceDesc.Width				= ((sizeof(DirectX::XMFLOAT3) + 0xff) &~0xff) * bone.size();
 	resourceDesc.MipLevels			= 1;
 	resourceDesc.SampleDesc.Count	= 1;
 	resourceDesc.Alignment			= 0;
@@ -302,13 +303,12 @@ void PMDLoader::CreateBoneBuffer(ID3D12Device * _dev) {
 	//ƒrƒ…[
 	D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
 	cbvDesc.BufferLocation	= boneBuffer->GetGPUVirtualAddress();
-	cbvDesc.SizeInBytes		= ((sizeof(DirectX::XMMATRIX) + 0xff) &~ 0xff) * 2;
+	cbvDesc.SizeInBytes		= ((sizeof(DirectX::XMMATRIX) + 0xff) &~ 0xff) * bone.size();
 	_dev->CreateConstantBufferView(&cbvDesc, boneHeap->GetCPUDescriptorHandleForHeapStart());
 
-	DirectX::XMMATRIX* matrixData = nullptr;
 	result = boneBuffer->Map(0, nullptr, (void**)&matrixData);
 	//auto node = boneMap["¶‚Ð‚¶"];
 	//boneMatrices[node.boneIndex] = DirectX::XMMatrixRotationZ(DirectX::XM_PIDIV2);
-	memcpy(matrixData, boneMatrices.data(), ((sizeof(DirectX::XMMATRIX) + 0xff) &~ 0xff) * 2);
+	memcpy(matrixData, boneMatrices.data(), ((sizeof(DirectX::XMMATRIX) + 0xff) &~ 0xff) * bone.size());
 	boneBuffer->Unmap(0, nullptr);
 }

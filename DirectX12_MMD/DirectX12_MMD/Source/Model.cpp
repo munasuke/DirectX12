@@ -4,7 +4,14 @@
 
 using namespace DirectX;
 
-Model::Model() : whiteBuffer(nullptr), heap(nullptr){
+Model::Model() : 
+	heap(nullptr), 
+	whiteBuffer(nullptr), 
+	blackBuffer(nullptr),
+	boneHeap(nullptr), 
+	boneBuffer(nullptr),
+	boneMatrixData(nullptr)
+{
 }
 
 void Model::Initialize(ID3D12Device * _dev, TexMetadata metaData, std::vector<PMDMaterial> material, UINT textureSize) {
@@ -154,7 +161,7 @@ void Model::Draw(ID3D12GraphicsCommandList * _list, ID3D12Device * _dev, std::ve
 		_list->SetGraphicsRootDescriptorTable(1, handle);
 
 		//通常テクスチャまでずらす
-		handle.ptr += _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)*2;
+		handle.ptr += 2 * _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
 		//マテリアル別に描画
 		_list->DrawIndexedInstanced(material[i].indexCount, 1, offset, 0, 0);
@@ -166,11 +173,14 @@ void Model::Draw(ID3D12GraphicsCommandList * _list, ID3D12Device * _dev, std::ve
 
 void Model::WriteToTextureBuffer(DirectX::TexMetadata metaData, uint8_t * img, std::vector<bool> textureFlag) {
 	UINT index = 0;
-	//for (const auto& tFlag : texFlag) {
-	//	if (tFlag) {
+	for (const auto& tFlag : texFlag) {
+		if (tFlag) {
 			auto result = textureBuffer[index]->WriteToSubresource(0, nullptr, img, metaData.width * 4, metaData.height * 4);
-	//	}
-	//}
+		}
+		else {
+			CreateWhiteTexture();
+		}
+	}
 }
 
 void Model::CreateWhiteTexture() {

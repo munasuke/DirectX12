@@ -18,18 +18,24 @@ struct Materials {
 };
 
 /*
-	ヒープの中身
+	マテリアルヒープ
 	0.マテリアル
 	1.テクスチャ
 	2.乗算テクスチャ
 	3.加算テクスチャ
+
+	ボーンヒープ
+	0.ボーン行列
 */
 class Model {
 public:
 	Model();
 
+	//初期化
 	void Initialize(ID3D12Device * _dev, DirectX::TexMetadata metaData, std::vector<PMDMaterial> material, UINT textureSize);
+	//描画
 	void Draw(ID3D12GraphicsCommandList * _list, ID3D12Device * _dev, std::vector<PMDMaterial> material);
+	//テクスチャ書き込み
 	void WriteToTextureBuffer(DirectX::TexMetadata metaData, uint8_t* img, std::vector<bool> textureFlag);
 
 	//白テクスチャ生成
@@ -40,13 +46,16 @@ public:
 	~Model();
 
 private:
-	//CBV
-	std::vector<ID3D12Resource*> materialBuffer;
-	//SRV
-	std::vector<ID3D12Resource*> textureBuffer;
-	ID3D12Resource* whiteBuffer;
-	//CBV, SRV用ヒープ
+	//マテリアルヒープ
 	ID3D12DescriptorHeap* heap;
+	//マテリアルバッファ
+	std::vector<ID3D12Resource*> materialBuffer;
+	//テクスチャバッファ
+	std::vector<ID3D12Resource*> textureBuffer;
+	//白テクスチャバッファ
+	ID3D12Resource* whiteBuffer;
+	//黒テクスチャバッファ
+	ID3D12Resource* blackBuffer;
 	//マテリアル
 	Materials mat;
 	//データ
@@ -54,5 +63,11 @@ private:
 	//テクスチャフラグ
 	std::vector<bool> texFlag;
 
+	//ボーンヒープ
+	ID3D12DescriptorHeap* boneHeap;
+	//ボーンバッファ
+	ID3D12Resource* boneBuffer;
+	//ボーン行列のデータ
+	DirectX::XMMATRIX* boneMatrixData;
 };
 
