@@ -3,6 +3,8 @@
 #include <Windows.h>
 #include <DirectXMath.h>
 #include <vector>
+#include <map>
+#include <string>
 #include <memory>
 
 class BmpLoader;
@@ -47,6 +49,22 @@ struct PMDMaterial {
 };
 #pragma pack()
 
+//ボーン情報
+struct Bone {
+	CHAR				boneName[20];		//ボーン名
+	USHORT				parentBoneIndex;	//親ボーン番号
+	USHORT				tailPosBoneIndex;	//tail位置のボーン番号
+	UCHAR				boneType;			//ボーンの種類
+	USHORT				ikParentBoneIndex;	//IKボーン番号
+	DirectX::XMFLOAT3	boneHeadPos;		//ボーンのヘッドの位置
+};
+
+struct BoneNode {
+	INT boneIndex;
+	DirectX::XMFLOAT3 startPos;
+	std::vector<BoneNode*> children;
+};
+
 struct MAT {
 	DirectX::XMFLOAT4	diffuse;	//減衰色
 	DirectX::XMFLOAT4	specular;	//光沢色
@@ -62,6 +80,7 @@ public:
 	int Load(const char* _path);
 
 	void Initialize(ID3D12Device* _dev);
+	void RecursivleMultipy(BoneNode* node, DirectX::XMMATRIX mat);
 	void Draw(ID3D12GraphicsCommandList * _list, ID3D12Device * _dev, ID3D12DescriptorHeap* texHeap);
 
 	void SetMaterialColor(UINT index);
@@ -85,6 +104,9 @@ public:
 
 	~PMDLoader();
 private:
+
+	void CreateBoneBuffer(ID3D12Device* _dev);
+
 	std::weak_ptr<BmpLoader>	bmp;		//BMP
 	std::weak_ptr<ImageLoader>	imageL;
 
@@ -97,11 +119,18 @@ private:
 	UINT						materialNum;//マテリアル総数
 	std::vector<PMDMaterial>	material;	//マテリアル情報
 
+	USHORT							boneCount;
+	std::vector<Bone>				bone;
+	std::vector<DirectX::XMMATRIX>	boneMatrices;
+	std::map<std::string, BoneNode> boneMap;
+
 	MAT mat;
 	std::vector<bool> texFlag;
 
 	ID3D12Resource* resource;
+	ID3D12Resource* boneBuffer;
 	ID3D12DescriptorHeap* descriptorHeap;
+	ID3D12DescriptorHeap* boneHeap;
 	UINT8* data;
 	D3D12_RESOURCE_DESC resourceDesc = {};
 	D3D12_HEAP_PROPERTIES heapProp = {};

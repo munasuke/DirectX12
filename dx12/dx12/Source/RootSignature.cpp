@@ -16,26 +16,33 @@ void RootSignature::InitRootSignature(D3D12_STATIC_SAMPLER_DESC _samplerDesc, ID
 	/*
 		デスクリプタレンジ
 	*/
-	//b0(カメラ)
-	descriptorRange[0].RangeType							= D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+	//t0(通常テクスチャ)
+	descriptorRange[0].RangeType							= D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	descriptorRange[0].NumDescriptors						= 1;
 	descriptorRange[0].BaseShaderRegister					= 0;
 	descriptorRange[0].RegisterSpace						= 0;
 	descriptorRange[0].OffsetInDescriptorsFromTableStart	= D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	//b1(マテリアル情報)
+	//b0(カメラ)
 	descriptorRange[1].RangeType							= D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
 	descriptorRange[1].NumDescriptors						= 1;
-	descriptorRange[1].BaseShaderRegister					= 1;
+	descriptorRange[1].BaseShaderRegister					= 0;
 	descriptorRange[1].RegisterSpace						= 0;
 	descriptorRange[1].OffsetInDescriptorsFromTableStart	= D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	//t0(通常テクスチャ)
-	//descriptorRange[2].RangeType							= D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-	//descriptorRange[2].NumDescriptors						= 1;
-	//descriptorRange[2].BaseShaderRegister					= 0;
-	//descriptorRange[2].RegisterSpace						= 0;
-	//descriptorRange[2].OffsetInDescriptorsFromTableStart	= D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+	//b1(マテリアル情報)
+	descriptorRange[2].RangeType							= D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+	descriptorRange[2].NumDescriptors						= 1;
+	descriptorRange[2].BaseShaderRegister					= 1;
+	descriptorRange[2].RegisterSpace						= 0;
+	descriptorRange[2].OffsetInDescriptorsFromTableStart	= D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+	descriptorRange[3].RangeType							= D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+	descriptorRange[3].NumDescriptors						= 1;
+	descriptorRange[3].BaseShaderRegister					= 2;
+	descriptorRange[3].RegisterSpace						= 0;
+	descriptorRange[3].OffsetInDescriptorsFromTableStart	= D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
 
 	/*
 		パラメータ
@@ -51,6 +58,16 @@ void RootSignature::InitRootSignature(D3D12_STATIC_SAMPLER_DESC _samplerDesc, ID
 	parameter[1].ShaderVisibility						= D3D12_SHADER_VISIBILITY_ALL;
 	parameter[1].DescriptorTable.NumDescriptorRanges	= 1;
 	parameter[1].DescriptorTable.pDescriptorRanges		= &descriptorRange[1];
+
+	parameter[2].ParameterType							= D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	parameter[2].ShaderVisibility						= D3D12_SHADER_VISIBILITY_ALL;
+	parameter[2].DescriptorTable.NumDescriptorRanges	= 1;
+	parameter[2].DescriptorTable.pDescriptorRanges		= &descriptorRange[2];
+
+	parameter[3].ParameterType							= D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	parameter[3].ShaderVisibility						= D3D12_SHADER_VISIBILITY::D3D12_SHADER_VISIBILITY_VERTEX;
+	parameter[3].DescriptorTable.NumDescriptorRanges	= 1;
+	parameter[3].DescriptorTable.pDescriptorRanges		= &descriptorRange[3];
 
 	/*
 		ルートシグネチャ

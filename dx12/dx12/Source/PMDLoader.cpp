@@ -4,7 +4,7 @@
 #include <tchar.h>
 #include <stdio.h>
 #include <iostream>
-#include <string>
+#include <algorithm>
 
 PMDLoader::PMDLoader(std::shared_ptr<BmpLoader> bmp, std::shared_ptr<ImageLoader> imageL) :
 	textureNum(0),
@@ -45,6 +45,19 @@ int PMDLoader::Load(const char * _path) {
 	material.resize(materialNum);
 	fread(&material[0], sizeof(PMDMaterial), materialNum, fp);
 
+	//ボーン総数
+	fread(&boneCount, sizeof(boneCount), 1, fp);
+	//ボーン情報読み込み
+	bone.resize(boneCount);
+	for (auto& b : bone) {
+		fread(&b.boneName, sizeof(b.boneName), 1, fp);
+		fread(&b.parentBoneIndex, sizeof(b.parentBoneIndex), 1, fp);
+		fread(&b.tailPosBoneIndex, sizeof(b.tailPosBoneIndex), 1, fp);
+		fread(&b.boneType, sizeof(b.boneType), 1, fp);
+		fread(&b.ikParentBoneIndex, sizeof(b.ikParentBoneIndex), 1, fp);
+		fread(&b.boneHeadPos, sizeof(b.boneHeadPos), 1, fp);
+	}
+
 	fclose(fp);
 
 	for (INT i = 0; i < material.size(); ++i) {
@@ -55,26 +68,47 @@ int PMDLoader::Load(const char * _path) {
 		}
 	}
 
+	//ボーン初期化
+	boneMatrices.resize(bone.size());
+	std::fill(boneMatrices.begin(), boneMatrices.end(), DirectX::XMMatrixIdentity());
+
+	//ボーンノードマップの形成
+	for (UINT i = 0; i < bone.size(); ++i) {
+		auto& pb = bone[i];
+		auto& boneNode = boneMap[pb.boneName];
+		boneNode.boneIndex = i;
+		boneNode.startPos = pb.boneHeadPos;
+	}
+
+	//ボーンツリー形成
+	for (auto& pb : bone) {
+		if (pb.parentBoneIndex >= bone.size()) {
+			continue;
+		}
+		auto pName = bone[pb.parentBoneIndex].boneName;
+		boneMap[pName].children.emplace_back(&boneMap[pb.boneName]);
+	}
+
 	return 0;
 }
 
 void PMDLoader::Initialize(ID3D12Device * _dev) {
-	heapProp.Type = D3D12_HEAP_TYPE::D3D12_HEAP_TYPE_UPLOAD;
-	heapProp.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY::D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
-	heapProp.MemoryPoolPreference = D3D12_MEMORY_POOL::D3D12_MEMORY_POOL_UNKNOWN;
-	heapProp.CreationNodeMask = 1;
-	heapProp.VisibleNodeMask = 1;
+	heapProp.Type					= D3D12_HEAP_TYPE::D3D12_HEAP_TYPE_UPLOAD;
+	heapProp.CPUPageProperty		= D3D12_CPU_PAGE_PROPERTY::D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+	heapProp.MemoryPoolPreference	= D3D12_MEMORY_POOL::D3D12_MEMORY_POOL_UNKNOWN;
+	heapProp.CreationNodeMask		= 1;
+	heapProp.VisibleNodeMask		= 1;
 
-	resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION::D3D12_RESOURCE_DIMENSION_BUFFER;
-	resourceDesc.Flags = D3D12_RESOURCE_FLAGS::D3D12_RESOURCE_FLAG_NONE;
-	resourceDesc.Format = DXGI_FORMAT::DXGI_FORMAT_UNKNOWN;
-	resourceDesc.Layout = D3D12_TEXTURE_LAYOUT::D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-	resourceDesc.Height = 1;
-	resourceDesc.Width = ((sizeof(DirectX::XMFLOAT3) + 0xff) &~0xff) * material.size();
-	resourceDesc.MipLevels = 1;
-	resourceDesc.SampleDesc.Count = 1;
-	resourceDesc.Alignment = 0;
-	resourceDesc.DepthOrArraySize = 1;
+	resourceDesc.Dimension			= D3D12_RESOURCE_DIMENSION::D3D12_RESOURCE_DIMENSION_BUFFER;
+	resourceDesc.Flags				= D3D12_RESOURCE_FLAGS::D3D12_RESOURCE_FLAG_NONE;
+	resourceDesc.Format				= DXGI_FORMAT::DXGI_FORMAT_UNKNOWN;
+	resourceDesc.Layout				= D3D12_TEXTURE_LAYOUT::D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+	resourceDesc.Height				= 1;
+	resourceDesc.Width				= ((sizeof(DirectX::XMFLOAT3) + 0xff) &~0xff) * material.size();
+	resourceDesc.MipLevels			= 1;
+	resourceDesc.SampleDesc.Count	= 1;
+	resourceDesc.Alignment			= 0;
+	resourceDesc.DepthOrArraySize	= 1;
 
 	auto result = _dev->CreateCommittedResource(
 		&heapProp,
@@ -92,6 +126,11 @@ void PMDLoader::Initialize(ID3D12Device * _dev) {
 	cbvHeapDesc.NodeMask = 0;
 	cbvHeapDesc.Type = D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	_dev->CreateDescriptorHeap(&cbvHeapDesc, IID_PPV_ARGS(&descriptorHeap));
+
+	//ボーン
+	CreateBoneBuffer(_dev);
+
+
 
 	auto handle = descriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	auto address = resource->GetGPUVirtualAddress();
@@ -132,8 +171,20 @@ void PMDLoader::Initialize(ID3D12Device * _dev) {
 	}
 }
 
+//再帰
+void PMDLoader::RecursivleMultipy(BoneNode* node, DirectX::XMMATRIX mat) {
+	boneMatrices[node->boneIndex] = mat;
+	for (auto& cnode : node->children) {
+		RecursivleMultipy(cnode, boneMatrices[cnode->boneIndex] * mat);
+	}
+}
+
 void PMDLoader::Draw(ID3D12GraphicsCommandList * _list, ID3D12Device * _dev, ID3D12DescriptorHeap* texHeap) {
 	UINT offset = 0;
+
+	_list->SetDescriptorHeaps(1, &boneHeap);
+	_list->SetGraphicsRootDescriptorTable(3, boneHeap->GetGPUDescriptorHandleForHeapStart());
+
 	for (UINT i = 0; i < material.size(); ++i) {
 		_list->SetDescriptorHeaps(1, &texHeap);
 		auto texHandle = texHeap->GetGPUDescriptorHandleForHeapStart();
@@ -210,4 +261,54 @@ void PMDLoader::UpdateData() {
 }
 
 PMDLoader::~PMDLoader() {
+}
+
+void PMDLoader::CreateBoneBuffer(ID3D12Device * _dev) {
+	//ボーンヒープ
+	D3D12_DESCRIPTOR_HEAP_DESC cbvHeapDesc = {};
+	cbvHeapDesc.NumDescriptors	= 1;
+	cbvHeapDesc.Flags			= D3D12_DESCRIPTOR_HEAP_FLAGS::D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	cbvHeapDesc.NodeMask		= 0;
+	cbvHeapDesc.Type			= D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	auto result = _dev->CreateDescriptorHeap(&cbvHeapDesc, IID_PPV_ARGS(&boneHeap));
+
+	//バッファ生成
+	heapProp.Type					= D3D12_HEAP_TYPE::D3D12_HEAP_TYPE_UPLOAD;
+	heapProp.CPUPageProperty		= D3D12_CPU_PAGE_PROPERTY::D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+	heapProp.MemoryPoolPreference	= D3D12_MEMORY_POOL::D3D12_MEMORY_POOL_UNKNOWN;
+	heapProp.CreationNodeMask		= 1;
+	heapProp.VisibleNodeMask		= 1;
+
+	resourceDesc.Dimension			= D3D12_RESOURCE_DIMENSION::D3D12_RESOURCE_DIMENSION_BUFFER;
+	resourceDesc.Flags				= D3D12_RESOURCE_FLAGS::D3D12_RESOURCE_FLAG_NONE;
+	resourceDesc.Format				= DXGI_FORMAT::DXGI_FORMAT_UNKNOWN;
+	resourceDesc.Layout				= D3D12_TEXTURE_LAYOUT::D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+	resourceDesc.Height				= 1;
+	resourceDesc.Width				= ((sizeof(DirectX::XMFLOAT3) + 0xff) &~0xff) * 2;
+	resourceDesc.MipLevels			= 1;
+	resourceDesc.SampleDesc.Count	= 1;
+	resourceDesc.Alignment			= 0;
+	resourceDesc.DepthOrArraySize	= 1;
+
+	result = _dev->CreateCommittedResource(
+		&heapProp,
+		D3D12_HEAP_FLAGS::D3D12_HEAP_FLAG_NONE,
+		&resourceDesc,
+		D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(&boneBuffer)
+	);
+
+	//ビュー
+	D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
+	cbvDesc.BufferLocation	= boneBuffer->GetGPUVirtualAddress();
+	cbvDesc.SizeInBytes		= ((sizeof(DirectX::XMMATRIX) + 0xff) &~ 0xff) * 2;
+	_dev->CreateConstantBufferView(&cbvDesc, boneHeap->GetCPUDescriptorHandleForHeapStart());
+
+	DirectX::XMMATRIX* matrixData = nullptr;
+	result = boneBuffer->Map(0, nullptr, (void**)&matrixData);
+	//auto node = boneMap["左ひじ"];
+	//boneMatrices[node.boneIndex] = DirectX::XMMatrixRotationZ(DirectX::XM_PIDIV2);
+	memcpy(matrixData, boneMatrices.data(), ((sizeof(DirectX::XMMATRIX) + 0xff) &~ 0xff) * 2);
+	boneBuffer->Unmap(0, nullptr);
 }

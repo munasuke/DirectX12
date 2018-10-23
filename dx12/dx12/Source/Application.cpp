@@ -42,14 +42,14 @@ Application::Application() {
 	root			= std::make_shared<RootSignature>();
 	fence			= std::make_shared<Fence>();
 	vertex			= std::make_shared<Vertex>();
-	//tex				= std::make_shared<TextureResource>();
-	//srv				= std::make_shared<ShaderResourceView>();
+	tex				= std::make_shared<TextureResource>();
+	srv				= std::make_shared<ShaderResourceView>();
 	bmp				= std::make_shared<BmpLoader>();
 	imageL			= std::make_shared<ImageLoader>();
 	shader			= std::make_shared<ShaderLoader>();
 	pipline			= std::make_shared<PipelineState>();
 	viewPort		= std::make_shared<ViewPort>();
-	//cb				= std::make_shared<ConstantBuffer>();
+	cb				= std::make_shared<ConstantBuffer>();
 	pmd				= std::make_shared<PMDLoader>(bmp, imageL);
 	index			= std::make_shared<Index>();
 	depth			= std::make_shared<DepthStencilBuffer>();
@@ -86,6 +86,7 @@ void Application::Initialize() {
 	fence->InitFence(device->GetDevice());
 
 	//PMD
+	//pmd->Load("PMD/miku/初音ミク.pmd");
 	pmd->Load("PMD/neru/亞北ネル.pmd");
 
 	//頂点バッファ
@@ -95,22 +96,22 @@ void Application::Initialize() {
 	index->Initialize(device->GetDevice(), pmd->GetIndices());
 
 	//テクスチャバッファ
-	//tex->Initialize(device->GetDevice(), imageL->GetMetaData());
+	tex->Initialize(device->GetDevice(), imageL->GetMetaData());
 
 	//シェーダリソースビュー
-	//srv->Initialize(device->GetDevice(), tex->GetTextureBuffer(), pmd->GetMaterial().size());
+	srv->Initialize(device->GetDevice(), tex->GetTextureBuffer(), pmd->GetMaterial().size());
 
 	//定数バッファ
-	//cb->Initialize(device->GetDevice(), srv->GetTextureHeap());
+	cb->Initialize(device->GetDevice(), srv->GetTextureHeap());
 
-	camera->Initialize(device->GetDevice());
-	model->Initialize(device->GetDevice(), imageL->GetMetaData(), pmd->GetMaterial(), pmd->GetTextureNum());
+	//camera->Initialize(device->GetDevice());
+	//model->Initialize(device->GetDevice(), imageL->GetMetaData(), pmd->GetMaterial(), pmd->GetTextureNum());
 
 	//深度バッファ
 	depth->Initialize(device->GetDevice());
 
 	//PMD初期化
-	//pmd->Initialize(device->GetDevice());
+	pmd->Initialize(device->GetDevice());
 
 	//シェーダ
 	shader->Load(root->GetError());
@@ -168,22 +169,22 @@ void Application::Run() {
 
 		depth->SetDescriptor(command->GetCommandList());
 
-		//
-		//cb->UpDataWVP();
-		//for (UINT i = 0; i < 2; i++) {
-		//	cb->SetDescriptor(command->GetCommandList(), i, srv->GetTextureHeap(), device->GetDevice());
-		//}
+		
+		cb->UpDataWVP();
+		for (UINT i = 0; i < 2; i++) {
+			cb->SetDescriptor(command->GetCommandList(), i, srv->GetTextureHeap(), device->GetDevice());
+		}
 
-		camera->UpdateWVP();
-		camera->SetDescriptor(command->GetCommandList(), device->GetDevice());
-
-		//
-		//tex->WriteToTextureBuffer(imageL->GetMetaData(), imageL->GetScratchImage(), pmd->GetTexFlag());
-		model->WriteToTextureBuffer(imageL->GetMetaData(), imageL->GetScratchImage(), pmd->GetTexFlag());
+		//camera->UpdateWVP();
+		//camera->SetDescriptor(command->GetCommandList(), device->GetDevice());
 
 		//
-		//pmd->Draw(command->GetCommandList(), device->GetDevice(), srv->GetTextureHeap());
-		model->Draw(command->GetCommandList(), device->GetDevice(), pmd->GetMaterial());
+		tex->WriteToTextureBuffer(imageL->GetMetaData(), imageL->GetScratchImage(), pmd->GetTexFlag());
+		//model->WriteToTextureBuffer(imageL->GetMetaData(), imageL->GetScratchImage(), pmd->GetTexFlag());
+
+		//
+		pmd->Draw(command->GetCommandList(), device->GetDevice(), srv->GetTextureHeap());
+		//model->Draw(command->GetCommandList(), device->GetDevice(), pmd->GetMaterial());
 		//command->GetCommandList()->DrawIndexedInstanced(pmd->GetIndices().size(), 1, 0, 0, 0);
 
 		command->GetCommandList()->ResourceBarrier(

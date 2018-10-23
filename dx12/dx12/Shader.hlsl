@@ -1,8 +1,8 @@
 //テクスチャ
 Texture2D<float4> tex   : register(t0); //通常テクスチャ
-Texture2D<float4> sph   : register(t1); //乗算テクスチャ
-Texture2D<float4> spa   : register(t2); //加算テクスチャ
-Texture2D<float4> toon  : register(t3); //トゥーンテクスチャ
+//Texture2D<float4> sph   : register(t1); //乗算テクスチャ
+//Texture2D<float4> spa   : register(t2); //加算テクスチャ
+//Texture2D<float4> toon  : register(t3); //トゥーンテクスチャ
 
 SamplerState smp : register(s0);
 
@@ -23,32 +23,45 @@ cbuffer material : register(b1)
     bool    texFlag;    //テクスチャありなしフラグ
 };
 
+//ボーン
+cbuffer bones : register(b2)
+{
+    matrix boneMatrix[512];
+};
+
 struct Out
 {
-    float4 svpos    : SV_POSITION;
-    float4 pos      : POSITION;
-    float3 normal   : NORMAL;
-    float2 uv       : TEXCOORD;
+    float4      svpos   : SV_POSITION;
+    float4      pos     : POSITION;
+    float3      normal  : NORMAL;
+    float2      uv      : TEXCOORD;
+    float2      bone    : BONENO;
+    float2      weight  : WEIGHT;
 };
 
 //VertexShader
-Out BasicVS(float4 pos : POSITION, float4 normal : NORMAL, float2 uv : TEXCOORD)
+Out BasicVS(float4 pos : POSITION, float4 normal : NORMAL, float2 uv : TEXCOORD, min16uint2 boneno : BONENO, min16uint weight : WEIGHT)
 {
+    float w = weight / 100.0f;
     Out o;
 	//ワールドビュープロジェクション
     float4x4 vp = mul(projection, view);
+    matrix m = boneMatrix[boneno.x] * w + boneMatrix[boneno.y] * (1 - w);
+    pos = mul(m, pos);
     pos = mul(mul(vp, world), pos);
 
     o.svpos = pos;
     o.pos = pos;
     o.normal = mul(world, normal);
     o.uv = uv;
+    o.weight = float2(weight / 100.0f, 1 - weight / 100.0f);
     return o;
 }
 
 //PixelShader
 float4 BasicPS(Out o) : SV_TARGET
 {
+    return float4(o.weight, 0, 1);
 	//視点
     float3 eye = (0.0f, 10.0f, -15.0f);
     //視線
@@ -64,9 +77,9 @@ float4 BasicPS(Out o) : SV_TARGET
 
     float brightness = saturate(dot(light, o.normal.xyz)) * rcp(3.14f); //rcp : 正規化ランバート
 
-    float3 color = /*texFlag ? tex.Sample(smp, o.uv).rgb : */saturate(diffuse.rgb * brightness + specular.rgb * spec + ambient.rgb);
+    float3 color = texFlag ? tex.Sample(smp, o.uv).rgb : saturate(diffuse.rgb * brightness + specular.rgb * spec + ambient.rgb);
 
-    //return float4(color, ambient.a);
+    return float4(color, ambient.a);
     return float4(1, 1, 1, 1);
     return float4(diffuse);
 }

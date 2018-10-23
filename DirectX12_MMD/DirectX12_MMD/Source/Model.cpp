@@ -154,7 +154,7 @@ void Model::Draw(ID3D12GraphicsCommandList * _list, ID3D12Device * _dev, std::ve
 		_list->SetGraphicsRootDescriptorTable(1, handle);
 
 		//通常テクスチャまでずらす
-		handle.ptr += _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+		handle.ptr += _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)*2;
 
 		//マテリアル別に描画
 		_list->DrawIndexedInstanced(material[i].indexCount, 1, offset, 0, 0);
