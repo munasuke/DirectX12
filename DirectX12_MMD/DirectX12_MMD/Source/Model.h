@@ -9,6 +9,7 @@
 
 class PMDLoader;
 struct PMDMaterial;
+class ImageLoader;
 
 struct Materials {
 	DirectX::XMFLOAT4	diffuse;	//減衰色
@@ -29,14 +30,14 @@ struct Materials {
 */
 class Model {
 public:
-	Model();
+	Model(std::shared_ptr<PMDLoader> pmd, std::shared_ptr<ImageLoader> img);
 
 	//初期化
-	void Initialize(ID3D12Device * _dev, DirectX::TexMetadata metaData, std::vector<PMDMaterial> material, UINT textureSize);
+	void Initialize(ID3D12Device * _dev);
 	//描画
-	void Draw(ID3D12GraphicsCommandList * _list, ID3D12Device * _dev, std::vector<PMDMaterial> material);
+	void Draw(ID3D12GraphicsCommandList * _list, ID3D12Device * _dev);
 	//テクスチャ書き込み
-	void WriteToTextureBuffer(DirectX::TexMetadata metaData, uint8_t* img, std::vector<bool> textureFlag);
+	void WriteToTextureBuffer(std::vector<bool> textureFlag);
 
 	//白テクスチャ生成
 	void CreateWhiteTexture();
@@ -46,6 +47,9 @@ public:
 	~Model();
 
 private:
+	std::weak_ptr<PMDLoader>	pmd;
+	std::weak_ptr<ImageLoader>	img;
+
 	//マテリアルヒープ
 	ID3D12DescriptorHeap* heap;
 	//マテリアルバッファ

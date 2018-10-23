@@ -1,10 +1,13 @@
 #include "Model.h"
 #include "PMDLoader.h"
+#include "ImageLoader.h"
 #include <iostream>
 
 using namespace DirectX;
 
-Model::Model() : 
+Model::Model(std::shared_ptr<PMDLoader> pmd, std::shared_ptr<ImageLoader> img) :
+	pmd(pmd),
+	img(img),
 	heap(nullptr), 
 	whiteBuffer(nullptr), 
 	blackBuffer(nullptr),
@@ -14,7 +17,8 @@ Model::Model() :
 {
 }
 
-void Model::Initialize(ID3D12Device * _dev, TexMetadata metaData, std::vector<PMDMaterial> material, UINT textureSize) {
+void Model::Initialize(ID3D12Device * _dev) {
+	auto material = pmd.lock()->GetMaterial();
 	//ヒープの設定
 	D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
 	heapDesc.NumDescriptors = material.size() * 2;
@@ -69,8 +73,6 @@ void Model::Initialize(ID3D12Device * _dev, TexMetadata metaData, std::vector<PM
 	D3D12_RESOURCE_DESC texResourceDesc = {};
 	CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
 	texResourceDesc.Dimension			= D3D12_RESOURCE_DIMENSION::D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-	texResourceDesc.Width				= metaData.width;
-	texResourceDesc.Height				= metaData.height;
 	texResourceDesc.Format				= DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM;
 	texResourceDesc.Flags				= D3D12_RESOURCE_FLAGS::D3D12_RESOURCE_FLAG_NONE;
 	texResourceDesc.Layout				= D3D12_TEXTURE_LAYOUT::D3D12_TEXTURE_LAYOUT_UNKNOWN;
@@ -86,15 +88,18 @@ void Model::Initialize(ID3D12Device * _dev, TexMetadata metaData, std::vector<PM
 	hprop.VisibleNodeMask		= 1;
 
 	//テクスチャ分のバッファを生成
-	textureBuffer.resize(textureSize);
-	for(auto& texBuff : textureBuffer) {
+	textureBuffer.resize(pmd.lock()->GetTextureNum());
+	for (UINT i = 0; i < textureBuffer.size(); ++i) {
+		texResourceDesc.Width	= img.lock()->GetImageRect()[i].x;
+		texResourceDesc.Height	= img.lock()->GetImageRect()[i].y;
+
 		result = _dev->CreateCommittedResource(
 			&hprop,
 			D3D12_HEAP_FLAGS::D3D12_HEAP_FLAG_NONE,
 			&texResourceDesc,
 			D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_GENERIC_READ,
 			nullptr,
-			IID_PPV_ARGS(&texBuff));
+			IID_PPV_ARGS(&textureBuffer[i]));
 	}
 
 	//白テクスチャバッファの生成
@@ -145,7 +150,8 @@ void Model::Initialize(ID3D12Device * _dev, TexMetadata metaData, std::vector<PM
 	}
 }
 
-void Model::Draw(ID3D12GraphicsCommandList * _list, ID3D12Device * _dev, std::vector<PMDMaterial> material) {
+void Model::Draw(ID3D12GraphicsCommandList * _list, ID3D12Device * _dev) {
+	auto material = pmd.lock()->GetMaterial();
 	//次のマテリアルまでのオフセット
 	UINT offset = 0;
 
@@ -171,11 +177,12 @@ void Model::Draw(ID3D12GraphicsCommandList * _list, ID3D12Device * _dev, std::ve
 	}
 }
 
-void Model::WriteToTextureBuffer(DirectX::TexMetadata metaData, uint8_t * img, std::vector<bool> textureFlag) {
+void Model::WriteToTextureBuffer(std::vector<bool> textureFlag) {
 	UINT index = 0;
 	for (const auto& tFlag : texFlag) {
 		if (tFlag) {
-			auto result = textureBuffer[index]->WriteToSubresource(0, nullptr, img, metaData.width * 4, metaData.height * 4);
+			auto result = textureBuffer[index]->WriteToSubresource(0, nullptr, img.lock()->GetImageData()[index].GetPixels(), img.lock()->GetImageRect()[index].x * 4, img.lock()->GetImageRect()[index].y * 4);
+			++index;
 		}
 		else {
 			CreateWhiteTexture();

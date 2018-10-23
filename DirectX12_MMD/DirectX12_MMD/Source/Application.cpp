@@ -47,7 +47,7 @@ Application::Application() {
 	pmd				= std::make_shared<PMDLoader>(bmp, imageL);
 	index			= std::make_shared<Index>();
 	depth			= std::make_shared<DepthStencilBuffer>();
-	model			= std::make_shared<Model>();
+	model			= std::make_shared<Model>(pmd, imageL);
 	camera			= std::make_shared<Camera>();
 }
 
@@ -91,7 +91,7 @@ void Application::Initialize() {
 
 
 	camera->Initialize(device->GetDevice());
-	model->Initialize(device->GetDevice(), imageL->GetMetaData(), pmd->GetMaterial(), pmd->GetTextureNum());
+	model->Initialize(device->GetDevice());
 
 	//深度バッファ
 	depth->Initialize(device->GetDevice());
@@ -155,10 +155,10 @@ void Application::Run() {
 		camera->UpdateWVP();
 		camera->SetDescriptor(command->GetCommandList(), device->GetDevice());
 
-		model->WriteToTextureBuffer(imageL->GetMetaData(), imageL->GetScratchImage(), pmd->GetTexFlag());
+		model->WriteToTextureBuffer(pmd->GetTexFlag());
 		//model->CreateWhiteTexture();
 
-		model->Draw(command->GetCommandList(), device->GetDevice(), pmd->GetMaterial());
+		model->Draw(command->GetCommandList(), device->GetDevice());
 
 		command->GetCommandList()->ResourceBarrier(
 			1,

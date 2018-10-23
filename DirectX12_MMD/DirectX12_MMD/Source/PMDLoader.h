@@ -57,7 +57,7 @@ struct PMDBone {
 	DirectX::XMFLOAT3	boneHeadPos;		//ボーンのヘッドの位置
 };
 
-
+//GPUにおくるマテリアル情報
 struct MAT {
 	DirectX::XMFLOAT4	diffuse;	//減衰色
 	DirectX::XMFLOAT4	specular;	//光沢色

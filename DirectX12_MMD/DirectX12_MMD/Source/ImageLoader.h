@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <functional>
+#include <DirectXMath.h>
 #include <DirectXTex/DirectXTex.h>
 #pragma comment(lib, "DirectXTex.lib")
 
@@ -13,6 +14,9 @@ public:
 	int Load(const std::string path);
 	DirectX::TexMetadata GetMetaData();
 	uint8_t* GetScratchImage();
+	std::vector<DirectX::XMINT2> GetImageRect();
+	std::vector<DirectX::ScratchImage> GetImageData();
+
 	~ImageLoader();
 private:
 	std::wstring ConvertStringToWString(std::string str);
@@ -26,4 +30,7 @@ private:
 		std::function<HRESULT(const std::wstring& path,
 			DirectX::TexMetadata* meta,
 			DirectX::ScratchImage& img)>> loadFuncTbl;
+
+	std::vector<DirectX::XMINT2> imageRect;
+	std::vector<DirectX::ScratchImage> imageData;
 };
