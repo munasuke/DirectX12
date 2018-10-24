@@ -1,4 +1,3 @@
-#include "Result.h"
 #include "Device.h"
 #include <d3d12.h>
 #include <dxgi1_6.h>
@@ -22,11 +21,11 @@ Device::Device() : dev(nullptr)/*, adapter(nullptr)*/
 	//エラーを出力に表示させる
 #ifdef _DEBUG
 	ID3D12Debug *debug = nullptr;
-	result = D3D12GetDebugInterface(IID_PPV_ARGS(&debug));
+	auto result = D3D12GetDebugInterface(IID_PPV_ARGS(&debug));
 	if (FAILED(result))
 		int i = 0;
 	debug->EnableDebugLayer();
-	ReleaseP(debug);
+	debug->Release();
 	debug = nullptr;
 #endif
 	////グラボを選ぶ
@@ -48,5 +47,5 @@ ID3D12Device * Device::GetDevice() {
 
 
 Device::~Device() {
-	ReleaseP(dev);
+	dev->Release();
 }

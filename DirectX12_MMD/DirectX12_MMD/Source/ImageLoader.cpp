@@ -1,11 +1,10 @@
 #include "ImageLoader.h"
-#include "Device.h"
 #include <locale>
 #include <codecvt>
 
 using namespace DirectX;
 
-ImageLoader::ImageLoader(std::shared_ptr<Device> dev) : dev(dev){
+ImageLoader::ImageLoader(ID3D12Device* dev) : dev(dev){
 	//拡張子でロード関数を変更
 	//bmp, png, jpg
 	loadFuncTbl[L"bmp"] = loadFuncTbl[L"png"] = loadFuncTbl[L"jpg"] =
@@ -56,7 +55,7 @@ int ImageLoader::Load(const std::string path) {
 
 	//バッファ生成
 	ID3D12Resource* buffer = nullptr;
-	result = dev.lock()->GetDevice()->CreateCommittedResource(
+	result = dev->CreateCommittedResource(
 		&hprop,
 		D3D12_HEAP_FLAGS::D3D12_HEAP_FLAG_NONE,
 		&texResourceDesc,
@@ -64,9 +63,9 @@ int ImageLoader::Load(const std::string path) {
 		nullptr,
 		IID_PPV_ARGS(&buffer));
 
-	textureBuffer.emplace_back(buffer);
+	result = buffer->WriteToSubresource(0, nullptr, image.GetPixels(), metaData.width * 4, metaData.height * 4);
 
-	imageRect.emplace_back(XMINT2(metaData.width, metaData.height));
+	textureBuffer.emplace_back(buffer);
 
 	return 0;
 }
@@ -74,16 +73,6 @@ int ImageLoader::Load(const std::string path) {
 DirectX::TexMetadata ImageLoader::GetMetaData()
 {
 	return metaData;
-}
-
-uint8_t * ImageLoader::GetScratchImage() {
-	auto imgPixels = image.GetPixels();
-	return imgPixels;
-}
-
-std::vector<DirectX::XMINT2> ImageLoader::GetImageRect()
-{
-	return imageRect;
 }
 
 std::vector<ID3D12Resource*> ImageLoader::GetTextureBuffer()

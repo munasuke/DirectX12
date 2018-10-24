@@ -40,7 +40,7 @@ Application::Application() {
 	fence			= std::make_shared<Fence>();
 	vertex			= std::make_shared<Vertex>();
 	bmp				= std::make_shared<BmpLoader>();
-	imageL			= std::make_shared<ImageLoader>();
+	imageL			= std::make_shared<ImageLoader>(device->GetDevice());
 	shader			= std::make_shared<ShaderLoader>();
 	pipline			= std::make_shared<PipelineState>();
 	viewPort		= std::make_shared<ViewPort>();

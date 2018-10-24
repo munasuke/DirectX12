@@ -9,23 +9,19 @@
 #include <DirectXTex/DirectXTex.h>
 #pragma comment(lib, "DirectXTex.lib")
 
-class Device;
-
 class ImageLoader {
 public:
-	ImageLoader(std::shared_ptr<Device> dev);
+	ImageLoader(ID3D12Device* dev);
 
 	int Load(const std::string path);
 	DirectX::TexMetadata GetMetaData();
-	uint8_t* GetScratchImage();
-	std::vector<DirectX::XMINT2> GetImageRect();
 	std::vector<ID3D12Resource*> GetTextureBuffer();
 
 	~ImageLoader();
 private:
 	std::wstring ConvertStringToWString(std::string str);
 
-	std::weak_ptr<Device> dev;
+	ID3D12Device* dev;
 
 	DirectX::TexMetadata	metaData;
 	DirectX::ScratchImage	image;
@@ -36,9 +32,6 @@ private:
 		std::function<HRESULT(const std::wstring& path,
 			DirectX::TexMetadata* meta,
 			DirectX::ScratchImage& img)>> loadFuncTbl;
-
-	std::vector<DirectX::XMINT2> imageRect;
-	std::vector<uint8_t*> imageData;
 
 	std::vector<ID3D12Resource*> textureBuffer;
 };

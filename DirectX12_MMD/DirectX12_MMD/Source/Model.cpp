@@ -88,19 +88,19 @@ void Model::Initialize(ID3D12Device * _dev) {
 	hprop.VisibleNodeMask		= 1;
 
 	//テクスチャ分のバッファを生成
-	textureBuffer.resize(pmd.lock()->GetTextureNum());
-	for (UINT i = 0; i < textureBuffer.size(); ++i) {
-		texResourceDesc.Width	= img.lock()->GetImageRect()[i].x;
-		texResourceDesc.Height	= img.lock()->GetImageRect()[i].y;
+	//textureBuffer.resize(pmd.lock()->GetTextureNum());
+	//for (UINT i = 0; i < textureBuffer.size(); ++i) {
+	//	texResourceDesc.Width	= img.lock()->GetImageRect()[i].x;
+	//	texResourceDesc.Height	= img.lock()->GetImageRect()[i].y;
 
-		result = _dev->CreateCommittedResource(
-			&hprop,
-			D3D12_HEAP_FLAGS::D3D12_HEAP_FLAG_NONE,
-			&texResourceDesc,
-			D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_GENERIC_READ,
-			nullptr,
-			IID_PPV_ARGS(&textureBuffer[i]));
-	}
+	//	result = _dev->CreateCommittedResource(
+	//		&hprop,
+	//		D3D12_HEAP_FLAGS::D3D12_HEAP_FLAG_NONE,
+	//		&texResourceDesc,
+	//		D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_GENERIC_READ,
+	//		nullptr,
+	//		IID_PPV_ARGS(&textureBuffer[i]));
+	//}
 
 	//白テクスチャバッファの生成
 	texResourceDesc.Width	= 4;
@@ -145,7 +145,7 @@ void Model::Initialize(ID3D12Device * _dev) {
 		//SRV生成
 		//マテリアルにテクスチャがあるならテクスチャを、ないなら白テクスチャを生成
 		if (material[i].textureFilePath != '\0') {
-			_dev->CreateShaderResourceView(textureBuffer[tBuffIndex], &srvDesc, handle);
+			_dev->CreateShaderResourceView(img.lock()->GetTextureBuffer()[tBuffIndex], &srvDesc, handle);
 			++tBuffIndex;
 		}
 		else {
@@ -185,16 +185,16 @@ void Model::Draw(ID3D12GraphicsCommandList * _list, ID3D12Device * _dev) {
 }
 
 void Model::WriteToTextureBuffer(std::vector<bool> textureFlag) {
-	UINT index = 0;
-	for (const auto& tFlag : texFlag) {
-		if (tFlag) {
-			auto result = textureBuffer[index]->WriteToSubresource(0, nullptr, img.lock()->GetImageData()[index], img.lock()->GetImageRect()[index].x * 4, img.lock()->GetImageRect()[index].y * 4);
-			++index;
-		}
-		else {
-			CreateWhiteTexture();
-		}
-	}
+	//UINT index = 0;
+	//for (const auto& tFlag : texFlag) {
+	//	if (tFlag) {
+	//		auto result = textureBuffer[index]->WriteToSubresource(0, nullptr, img.lock()->GetImageData()[index], img.lock()->GetImageRect()[index].x * 4, img.lock()->GetImageRect()[index].y * 4);
+	//		++index;
+	//	}
+	//	else {
+	//		CreateWhiteTexture();
+	//	}
+	//}
 }
 
 void Model::CreateWhiteTexture() {
