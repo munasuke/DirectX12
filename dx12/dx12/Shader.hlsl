@@ -54,7 +54,7 @@ Out BasicVS(float4 pos : POSITION, float4 normal : NORMAL, float2 uv : TEXCOORD,
     o.pos = pos;
     o.normal = mul(world, normal);
     o.uv = uv;
-    o.weight = float2(weight / 100.0f, 1 - weight / 100.0f);
+    o.weight = float2(w, 1 - w);
     return o;
 }
 

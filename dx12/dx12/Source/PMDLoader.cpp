@@ -178,7 +178,7 @@ void PMDLoader::Initialize(ID3D12Device * _dev) {
 void PMDLoader::RecursivleMultipy(BoneNode* node, DirectX::XMMATRIX& mat) {
 	boneMatrices[node->boneIndex] *= mat;
 	for (auto& cnode : node->children) {
-		RecursivleMultipy(cnode, boneMatrices[cnode->boneIndex]);
+		RecursivleMultipy(cnode, boneMatrices[node->boneIndex]);
 	}
 }
 
@@ -314,13 +314,18 @@ void PMDLoader::CreateBoneBuffer(ID3D12Device * _dev) {
 	auto vec = XMLoadFloat3(&node.startPos);
 	boneMatrices[node.boneIndex] = XMMatrixTranslationFromVector(
 		XMVectorScale(vec, -1.0f))
-		* XMMatrixRotationZ(DirectX::XM_PIDIV2)
+		* XMMatrixRotationZ(XM_PIDIV4)
 		* XMMatrixTranslationFromVector(vec);
-	//RecursivleMultipy(&node, boneMatrices[node.boneIndex]);
+	RecursivleMultipy(&node, boneMatrices[node.boneIndex]);
 
-	//auto rootMatrix = XMMatrixIdentity();
-	//RecursivleMultipy(&boneMap["センター"], rootMatrix);
+	node = boneMap["右ひじ"];
+	vec = XMLoadFloat3(&node.startPos);
+	boneMatrices[node.boneIndex] = XMMatrixTranslationFromVector(
+		XMVectorScale(vec, -1.0f))
+		* XMMatrixRotationZ(-XM_PIDIV4)
+		* XMMatrixTranslationFromVector(vec);
+	RecursivleMultipy(&node, boneMatrices[node.boneIndex]);
 
-	memcpy(matrixData, boneMatrices.data(), ((sizeof(DirectX::XMMATRIX) + 0xff) &~ 0xff) * bone.size());
+	memcpy(matrixData, boneMatrices.data(), ((sizeof(XMMATRIX) + 0xff) &~ 0xff) * bone.size());
 	boneBuffer->Unmap(0, nullptr);
 }

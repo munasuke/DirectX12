@@ -4,22 +4,28 @@
 #include <vector>
 #include <string>
 #include <functional>
+#include <memory>
 #include <DirectXMath.h>
 #include <DirectXTex/DirectXTex.h>
 #pragma comment(lib, "DirectXTex.lib")
 
+class Device;
+
 class ImageLoader {
 public:
-	ImageLoader();
+	ImageLoader(std::shared_ptr<Device> dev);
 
 	int Load(const std::string path);
 	DirectX::TexMetadata GetMetaData();
 	uint8_t* GetScratchImage();
 	std::vector<DirectX::XMINT2> GetImageRect();
+	std::vector<ID3D12Resource*> GetTextureBuffer();
 
 	~ImageLoader();
 private:
 	std::wstring ConvertStringToWString(std::string str);
+
+	std::weak_ptr<Device> dev;
 
 	DirectX::TexMetadata	metaData;
 	DirectX::ScratchImage	image;
