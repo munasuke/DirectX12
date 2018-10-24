@@ -6,6 +6,8 @@
 #include <iostream>
 #include <algorithm>
 
+using namespace DirectX;
+
 PMDLoader::PMDLoader(std::shared_ptr<BmpLoader> bmp, std::shared_ptr<ImageLoader> imageL) :
 	textureNum(0),
 	resource(nullptr),
@@ -173,10 +175,10 @@ void PMDLoader::Initialize(ID3D12Device * _dev) {
 }
 
 //再帰
-void PMDLoader::RecursivleMultipy(BoneNode* node, DirectX::XMMATRIX mat) {
-	boneMatrices[node->boneIndex] = mat;
+void PMDLoader::RecursivleMultipy(BoneNode* node, DirectX::XMMATRIX& mat) {
+	boneMatrices[node->boneIndex] *= mat;
 	for (auto& cnode : node->children) {
-		RecursivleMultipy(cnode, boneMatrices[cnode->boneIndex] * mat);
+		RecursivleMultipy(cnode, boneMatrices[cnode->boneIndex]);
 	}
 }
 
@@ -307,8 +309,18 @@ void PMDLoader::CreateBoneBuffer(ID3D12Device * _dev) {
 	_dev->CreateConstantBufferView(&cbvDesc, boneHeap->GetCPUDescriptorHandleForHeapStart());
 
 	result = boneBuffer->Map(0, nullptr, (void**)&matrixData);
-	//auto node = boneMap["左ひじ"];
-	//boneMatrices[node.boneIndex] = DirectX::XMMatrixRotationZ(DirectX::XM_PIDIV2);
+
+	auto node = boneMap["左ひじ"];
+	auto vec = XMLoadFloat3(&node.startPos);
+	boneMatrices[node.boneIndex] = XMMatrixTranslationFromVector(
+		XMVectorScale(vec, -1.0f))
+		* XMMatrixRotationZ(DirectX::XM_PIDIV2)
+		* XMMatrixTranslationFromVector(vec);
+	//RecursivleMultipy(&node, boneMatrices[node.boneIndex]);
+
+	//auto rootMatrix = XMMatrixIdentity();
+	//RecursivleMultipy(&boneMap["センター"], rootMatrix);
+
 	memcpy(matrixData, boneMatrices.data(), ((sizeof(DirectX::XMMATRIX) + 0xff) &~ 0xff) * bone.size());
 	boneBuffer->Unmap(0, nullptr);
 }

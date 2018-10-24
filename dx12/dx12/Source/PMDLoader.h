@@ -80,7 +80,7 @@ public:
 	int Load(const char* _path);
 
 	void Initialize(ID3D12Device* _dev);
-	void RecursivleMultipy(BoneNode* node, DirectX::XMMATRIX mat);
+	void RecursivleMultipy(BoneNode* node, DirectX::XMMATRIX& mat);
 	void Draw(ID3D12GraphicsCommandList * _list, ID3D12Device * _dev, ID3D12DescriptorHeap* texHeap);
 
 	void SetMaterialColor(UINT index);

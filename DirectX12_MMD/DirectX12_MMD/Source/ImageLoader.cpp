@@ -33,8 +33,10 @@ int ImageLoader::Load(const std::string path) {
 	//画像読み込み
 	auto result = loadFuncTbl[filePath](wstr, &metaData, image);
 
+	//バッファ生成
+
+
 	imageRect.emplace_back(XMINT2(metaData.width, metaData.height));
-	imageData.emplace_back(image.GetPixels());
 
 	return 0;
 }
@@ -52,11 +54,6 @@ uint8_t * ImageLoader::GetScratchImage() {
 std::vector<DirectX::XMINT2> ImageLoader::GetImageRect()
 {
 	return imageRect;
-}
-
-std::vector<uint8_t> ImageLoader::GetImageData()
-{
-	return imageData;
 }
 
 ImageLoader::~ImageLoader() {

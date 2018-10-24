@@ -1,4 +1,5 @@
 #pragma once
+#include "d3dx12.h"
 #include <map>
 #include <vector>
 #include <string>
@@ -15,7 +16,6 @@ public:
 	DirectX::TexMetadata GetMetaData();
 	uint8_t* GetScratchImage();
 	std::vector<DirectX::XMINT2> GetImageRect();
-	std::vector<uint8_t*> GetImageData();
 
 	~ImageLoader();
 private:
@@ -33,4 +33,6 @@ private:
 
 	std::vector<DirectX::XMINT2> imageRect;
 	std::vector<uint8_t*> imageData;
+
+	std::vector<ID3D12Resource*> textureBuffer;
 };

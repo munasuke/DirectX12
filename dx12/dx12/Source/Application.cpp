@@ -86,8 +86,8 @@ void Application::Initialize() {
 	fence->InitFence(device->GetDevice());
 
 	//PMD
-	//pmd->Load("PMD/miku/初音ミク.pmd");
-	pmd->Load("PMD/neru/亞北ネル.pmd");
+	pmd->Load("PMD/miku/初音ミク.pmd");
+	//pmd->Load("PMD/neru/亞北ネル.pmd");
 
 	//頂点バッファ
 	vertex->Initialize(device->GetDevice(), pmd->GetPMDVertex());
