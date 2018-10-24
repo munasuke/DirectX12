@@ -143,7 +143,14 @@ void Model::Initialize(ID3D12Device * _dev) {
 		handle.ptr += incrementSize;
 
 		//SRV生成
-		_dev->CreateShaderResourceView(textureBuffer[tBuffIndex], &srvDesc, handle);
+		//マテリアルにテクスチャがあるならテクスチャを、ないなら白テクスチャを生成
+		if (material[i].textureFilePath != '\0') {
+			_dev->CreateShaderResourceView(textureBuffer[tBuffIndex], &srvDesc, handle);
+			++tBuffIndex;
+		}
+		else {
+			_dev->CreateShaderResourceView(whiteBuffer, &srvDesc, handle);
+		}
 
 		//マテリアルまでずらす
 		handle.ptr += incrementSize;
@@ -181,7 +188,7 @@ void Model::WriteToTextureBuffer(std::vector<bool> textureFlag) {
 	UINT index = 0;
 	for (const auto& tFlag : texFlag) {
 		if (tFlag) {
-			auto result = textureBuffer[index]->WriteToSubresource(0, nullptr, img.lock()->GetImageData()[index].GetPixels(), img.lock()->GetImageRect()[index].x * 4, img.lock()->GetImageRect()[index].y * 4);
+			auto result = textureBuffer[index]->WriteToSubresource(0, nullptr, img.lock()->GetImageData()[index], img.lock()->GetImageRect()[index].x * 4, img.lock()->GetImageRect()[index].y * 4);
 			++index;
 		}
 		else {

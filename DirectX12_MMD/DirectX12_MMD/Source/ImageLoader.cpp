@@ -34,7 +34,7 @@ int ImageLoader::Load(const std::string path) {
 	auto result = loadFuncTbl[filePath](wstr, &metaData, image);
 
 	imageRect.emplace_back(XMINT2(metaData.width, metaData.height));
-	imageData.emplace_back(image);
+	imageData.emplace_back(image.GetPixels());
 
 	return 0;
 }
@@ -54,7 +54,7 @@ std::vector<DirectX::XMINT2> ImageLoader::GetImageRect()
 	return imageRect;
 }
 
-std::vector<DirectX::ScratchImage> ImageLoader::GetImageData()
+std::vector<uint8_t> ImageLoader::GetImageData()
 {
 	return imageData;
 }

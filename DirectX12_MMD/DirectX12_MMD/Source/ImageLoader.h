@@ -15,7 +15,7 @@ public:
 	DirectX::TexMetadata GetMetaData();
 	uint8_t* GetScratchImage();
 	std::vector<DirectX::XMINT2> GetImageRect();
-	std::vector<DirectX::ScratchImage> GetImageData();
+	std::vector<uint8_t*> GetImageData();
 
 	~ImageLoader();
 private:
@@ -32,5 +32,5 @@ private:
 			DirectX::ScratchImage& img)>> loadFuncTbl;
 
 	std::vector<DirectX::XMINT2> imageRect;
-	std::vector<DirectX::ScratchImage> imageData;
+	std::vector<uint8_t*> imageData;
 };
