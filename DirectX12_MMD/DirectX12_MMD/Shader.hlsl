@@ -62,9 +62,9 @@ float4 BasicPS(Out o) : SV_TARGET
 
     spec = pow(spec, specular.a);
 
-    float brightness = saturate(dot(light, o.normal.xyz)) * rcp(3.14f); //rcp : 正規化ランバート
+    float brightness = saturate(dot(light, o.normal.xyz)); //rcp : 正規化ランバート
 
-    float3 color = tex.Sample(smp, o.uv).rgb * saturate(diffuse.rgb * brightness + specular.rgb * spec + ambient.rgb);
+    float3 color = texFlag ? tex.Sample(smp, o.uv).rgb : saturate(diffuse.rgb * brightness + specular.rgb * spec + ambient.rgb);
 
     return float4(color, ambient.a);
 }

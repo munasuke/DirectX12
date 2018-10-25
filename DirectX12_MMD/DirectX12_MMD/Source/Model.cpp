@@ -87,21 +87,6 @@ void Model::Initialize(ID3D12Device * _dev) {
 	hprop.CreationNodeMask		= 1;
 	hprop.VisibleNodeMask		= 1;
 
-	//テクスチャ分のバッファを生成
-	//textureBuffer.resize(pmd.lock()->GetTextureNum());
-	//for (UINT i = 0; i < textureBuffer.size(); ++i) {
-	//	texResourceDesc.Width	= img.lock()->GetImageRect()[i].x;
-	//	texResourceDesc.Height	= img.lock()->GetImageRect()[i].y;
-
-	//	result = _dev->CreateCommittedResource(
-	//		&hprop,
-	//		D3D12_HEAP_FLAGS::D3D12_HEAP_FLAG_NONE,
-	//		&texResourceDesc,
-	//		D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_GENERIC_READ,
-	//		nullptr,
-	//		IID_PPV_ARGS(&textureBuffer[i]));
-	//}
-
 	//白テクスチャバッファの生成
 	texResourceDesc.Width	= 4;
 	texResourceDesc.Height	= 4 * 4;

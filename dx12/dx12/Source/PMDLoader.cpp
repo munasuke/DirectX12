@@ -323,22 +323,6 @@ void PMDLoader::CreateBoneBuffer(ID3D12Device * _dev) {
 	RotationBone("¶‚Ð‚¶", XM_PIDIV4);
 	RotationBone("‰E‚Ð‚¶", -XM_PIDIV4);
 
-	//auto node = boneMap["¶‚Ð‚¶"];
-	//auto vec = XMLoadFloat3(&node.startPos);
-	//boneMatrices[node.boneIndex] = XMMatrixTranslationFromVector(
-	//	XMVectorScale(vec, -1.0f))
-	//	* XMMatrixRotationZ(XM_PIDIV4)
-	//	* XMMatrixTranslationFromVector(vec);
-	//RecursivleMultipy(&node, boneMatrices[node.boneIndex]);
-
-	//node = boneMap["‰E‚Ð‚¶"];
-	//vec = XMLoadFloat3(&node.startPos);
-	//boneMatrices[node.boneIndex] = XMMatrixTranslationFromVector(
-	//	XMVectorScale(vec, -1.0f))
-	//	* XMMatrixRotationZ(-XM_PIDIV4)
-	//	* XMMatrixTranslationFromVector(vec);
-	//RecursivleMultipy(&node, boneMatrices[node.boneIndex]);
-
 	memcpy(matrixData, boneMatrices.data(), ((sizeof(XMMATRIX) + 0xff) &~ 0xff) * bone.size());
 	boneBuffer->Unmap(0, nullptr);
 }

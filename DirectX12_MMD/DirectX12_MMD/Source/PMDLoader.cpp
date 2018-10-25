@@ -45,6 +45,19 @@ int PMDLoader::Load(const char * _path) {
 	material.resize(materialNum);
 	fread(&material[0], sizeof(PMDMaterial), materialNum, fp);
 
+	//ボーン総数
+	fread(&boneCount, sizeof(boneCount), 1, fp);
+	//ボーン情報読み込み
+	bone.resize(boneCount);
+	for (auto& b : bone) {
+		fread(&b.boneName, sizeof(b.boneName), 1, fp);
+		fread(&b.parentBoneIndex, sizeof(b.parentBoneIndex), 1, fp);
+		fread(&b.tailPosBoneIndex, sizeof(b.tailPosBoneIndex), 1, fp);
+		fread(&b.boneType, sizeof(b.boneType), 1, fp);
+		fread(&b.ikParentBoneIndex, sizeof(b.ikParentBoneIndex), 1, fp);
+		fread(&b.boneHeadPos, sizeof(b.boneHeadPos), 1, fp);
+	}
+
 	fclose(fp);
 
 	for (INT i = 0; i < material.size(); ++i) {
@@ -53,6 +66,27 @@ int PMDLoader::Load(const char * _path) {
 			auto texPath = GetRelativeTexturePathFromPmdPath(_path, material[i].textureFilePath);
 			imageL.lock()->Load(texPath.c_str());
 		}
+	}
+
+	//ボーン初期化
+	boneMatrices.resize(bone.size());
+	std::fill(boneMatrices.begin(), boneMatrices.end(), DirectX::XMMatrixIdentity());
+
+	//ボーンノードマップの形成
+	for (UINT i = 0; i < bone.size(); ++i) {
+		auto& pb = bone[i];
+		auto& boneNode = boneMap[pb.boneName];
+		boneNode.boneIndex = i;
+		boneNode.startPos = pb.boneHeadPos;
+	}
+
+	//ボーンツリー形成
+	for (auto& pb : bone) {
+		if (pb.parentBoneIndex >= bone.size()) {
+			continue;
+		}
+		auto pName = bone[pb.parentBoneIndex].boneName;
+		boneMap[pName].children.emplace_back(&boneMap[pb.boneName]);
 	}
 
 	return 0;

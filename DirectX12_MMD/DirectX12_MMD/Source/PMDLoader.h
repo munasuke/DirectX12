@@ -48,13 +48,19 @@ struct PMDMaterial {
 #pragma pack()
 
 //ボーン情報
-struct PMDBone {
+struct Bone {
 	CHAR				boneName[20];		//ボーン名
-	USHORT				parentBoneIndex;	//親のボーン番号
-	USHORT				tailPosoneIndex;	//tail位置のボーン番号
+	USHORT				parentBoneIndex;	//親ボーン番号
+	USHORT				tailPosBoneIndex;	//tail位置のボーン番号
 	UCHAR				boneType;			//ボーンの種類
 	USHORT				ikParentBoneIndex;	//IKボーン番号
 	DirectX::XMFLOAT3	boneHeadPos;		//ボーンのヘッドの位置
+};
+
+struct BoneNode {
+	INT boneIndex;
+	DirectX::XMFLOAT3 startPos;
+	std::vector<BoneNode*> children;
 };
 
 //GPUにおくるマテリアル情報
@@ -103,6 +109,11 @@ private:
 	std::vector<USHORT>			indices;	//インデックス情報
 	UINT						materialNum;//マテリアル総数
 	std::vector<PMDMaterial>	material;	//マテリアル情報
+
+	USHORT							boneCount;		//ボーン総数
+	std::vector<Bone>				bone;			//ボーン情報
+	std::vector<DirectX::XMMATRIX>	boneMatrices;	//ボーン行列
+	std::map<std::string, BoneNode> boneMap;		//ボーンマップ
 
 	MAT mat;
 	std::vector<bool> texFlag;
