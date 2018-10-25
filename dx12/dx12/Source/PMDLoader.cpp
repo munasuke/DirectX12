@@ -182,6 +182,16 @@ void PMDLoader::RecursivleMultipy(BoneNode* node, DirectX::XMMATRIX& mat) {
 	}
 }
 
+void PMDLoader::RotationBone(std::string str, FLOAT angle) {
+	auto node = boneMap[str];
+	auto vec = XMLoadFloat3(&node.startPos);
+	boneMatrices[node.boneIndex] = XMMatrixTranslationFromVector(
+		XMVectorScale(vec, -1.0f))
+		* XMMatrixRotationZ(angle)
+		* XMMatrixTranslationFromVector(vec);
+	RecursivleMultipy(&node, boneMatrices[node.boneIndex]);
+}
+
 void PMDLoader::Draw(ID3D12GraphicsCommandList * _list, ID3D12Device * _dev, ID3D12DescriptorHeap* texHeap) {
 	UINT offset = 0;
 
@@ -310,21 +320,24 @@ void PMDLoader::CreateBoneBuffer(ID3D12Device * _dev) {
 
 	result = boneBuffer->Map(0, nullptr, (void**)&matrixData);
 
-	auto node = boneMap["¶‚Ð‚¶"];
-	auto vec = XMLoadFloat3(&node.startPos);
-	boneMatrices[node.boneIndex] = XMMatrixTranslationFromVector(
-		XMVectorScale(vec, -1.0f))
-		* XMMatrixRotationZ(XM_PIDIV4)
-		* XMMatrixTranslationFromVector(vec);
-	RecursivleMultipy(&node, boneMatrices[node.boneIndex]);
+	RotationBone("¶‚Ð‚¶", XM_PIDIV4);
+	RotationBone("‰E‚Ð‚¶", -XM_PIDIV4);
 
-	node = boneMap["‰E‚Ð‚¶"];
-	vec = XMLoadFloat3(&node.startPos);
-	boneMatrices[node.boneIndex] = XMMatrixTranslationFromVector(
-		XMVectorScale(vec, -1.0f))
-		* XMMatrixRotationZ(-XM_PIDIV4)
-		* XMMatrixTranslationFromVector(vec);
-	RecursivleMultipy(&node, boneMatrices[node.boneIndex]);
+	//auto node = boneMap["¶‚Ð‚¶"];
+	//auto vec = XMLoadFloat3(&node.startPos);
+	//boneMatrices[node.boneIndex] = XMMatrixTranslationFromVector(
+	//	XMVectorScale(vec, -1.0f))
+	//	* XMMatrixRotationZ(XM_PIDIV4)
+	//	* XMMatrixTranslationFromVector(vec);
+	//RecursivleMultipy(&node, boneMatrices[node.boneIndex]);
+
+	//node = boneMap["‰E‚Ð‚¶"];
+	//vec = XMLoadFloat3(&node.startPos);
+	//boneMatrices[node.boneIndex] = XMMatrixTranslationFromVector(
+	//	XMVectorScale(vec, -1.0f))
+	//	* XMMatrixRotationZ(-XM_PIDIV4)
+	//	* XMMatrixTranslationFromVector(vec);
+	//RecursivleMultipy(&node, boneMatrices[node.boneIndex]);
 
 	memcpy(matrixData, boneMatrices.data(), ((sizeof(XMMATRIX) + 0xff) &~ 0xff) * bone.size());
 	boneBuffer->Unmap(0, nullptr);

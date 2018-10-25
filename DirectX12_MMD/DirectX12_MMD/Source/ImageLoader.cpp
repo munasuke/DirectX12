@@ -55,6 +55,8 @@ int ImageLoader::Load(const std::string path) {
 
 	//バッファ生成
 	ID3D12Resource* buffer = nullptr;
+	//static UINT texIndex = 0;
+	//textureBuffer.resize(texIndex + 1);
 	result = dev->CreateCommittedResource(
 		&hprop,
 		D3D12_HEAP_FLAGS::D3D12_HEAP_FLAG_NONE,
@@ -64,7 +66,7 @@ int ImageLoader::Load(const std::string path) {
 		IID_PPV_ARGS(&buffer));
 
 	result = buffer->WriteToSubresource(0, nullptr, image.GetPixels(), metaData.width * 4, metaData.height * 4);
-
+	//++texIndex;
 	textureBuffer.emplace_back(buffer);
 
 	return 0;

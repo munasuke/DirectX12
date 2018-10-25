@@ -72,10 +72,6 @@ public:
 
 	int Load(const char* _path);
 
-	void Initialize(ID3D12Device* _dev);
-	void Draw(ID3D12GraphicsCommandList * _list, ID3D12Device * _dev, ID3D12DescriptorHeap* texHeap);
-
-	void SetMaterialColor(UINT index);
 	void SetData(UINT8* data);
 
 	PMDHeader					GetPMDHeader();	//ƒwƒbƒ_[î•ñ‚ğ•Ô‚·

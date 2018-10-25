@@ -112,6 +112,16 @@ void Model::Initialize(ID3D12Device * _dev) {
 		D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_GENERIC_READ,
 		nullptr,
 		IID_PPV_ARGS(&whiteBuffer));
+	result = _dev->CreateCommittedResource(
+		&hprop,
+		D3D12_HEAP_FLAGS::D3D12_HEAP_FLAG_NONE,
+		&texResourceDesc,
+		D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(&blackBuffer));
+
+	CreateWhiteTexture();
+	CreateBlackTexture();
 
 	//SRVの設定
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
@@ -144,7 +154,7 @@ void Model::Initialize(ID3D12Device * _dev) {
 
 		//SRV生成
 		//マテリアルにテクスチャがあるならテクスチャを、ないなら白テクスチャを生成
-		if (material[i].textureFilePath != '\0') {
+		if (texFlag[i]) {
 			_dev->CreateShaderResourceView(img.lock()->GetTextureBuffer()[tBuffIndex], &srvDesc, handle);
 			++tBuffIndex;
 		}
@@ -208,6 +218,13 @@ void Model::CreateWhiteTexture() {
 }
 
 void Model::CreateBlackTexture() {
+	//黒テクスチャデータ
+	std::vector<UCHAR> data(4 * 4 * 4);
+	//真っ黒に染めちゃう
+	std::fill(data.begin(), data.end(), 0x00);
+
+	//書き込む
+	auto result = blackBuffer->WriteToSubresource(0, nullptr, data.data(), 4 * 4, 4 * 4 * 4);
 }
 
 

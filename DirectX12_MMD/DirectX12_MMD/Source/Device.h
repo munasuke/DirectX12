@@ -1,6 +1,8 @@
 #pragma once
 #include <vector>
 
+struct ID3D12Device;
+
 class Device {
 public:
 	Device();
