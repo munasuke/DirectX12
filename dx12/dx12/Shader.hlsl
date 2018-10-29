@@ -61,7 +61,7 @@ Out BasicVS(float4 pos : POSITION, float4 normal : NORMAL, float2 uv : TEXCOORD,
 //PixelShader
 float4 BasicPS(Out o) : SV_TARGET
 {
-    return float4(o.weight, 0, 1);
+    //return float4(o.weight, 0, 1);
 	//‹“_
     float3 eye = (0.0f, 10.0f, -15.0f);
     //‹ü

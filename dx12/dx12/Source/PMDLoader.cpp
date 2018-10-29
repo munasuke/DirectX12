@@ -1,6 +1,7 @@
 #include "PMDLoader.h"
 #include "BmpLoader.h"
 #include "ImageLoader.h"
+#include "VMDMotion.h"
 #include <tchar.h>
 #include <stdio.h>
 #include <iostream>
@@ -8,7 +9,7 @@
 
 using namespace DirectX;
 
-PMDLoader::PMDLoader(std::shared_ptr<BmpLoader> bmp, std::shared_ptr<ImageLoader> imageL) :
+PMDLoader::PMDLoader(std::shared_ptr<BmpLoader> bmp, std::shared_ptr<ImageLoader> imageL, std::shared_ptr<VMDMotion> vmd) :
 	textureNum(0),
 	resource(nullptr),
 	descriptorHeap(nullptr),
@@ -17,6 +18,7 @@ PMDLoader::PMDLoader(std::shared_ptr<BmpLoader> bmp, std::shared_ptr<ImageLoader
 {
 	this->bmp = bmp;
 	this->imageL = imageL;
+	this->vmd = vmd;
 	mat = {};
 }
 
@@ -175,21 +177,27 @@ void PMDLoader::Initialize(ID3D12Device * _dev) {
 }
 
 //再帰
-void PMDLoader::RecursivleMultipy(BoneNode* node, DirectX::XMMATRIX& mat) {
+void PMDLoader::RecursiveMatrixMultiply(BoneNode* node, DirectX::XMMATRIX& mat) {
 	boneMatrices[node->boneIndex] *= mat;
 	for (auto& cnode : node->children) {
-		RecursivleMultipy(cnode, boneMatrices[node->boneIndex]);
+		RecursiveMatrixMultiply(cnode, boneMatrices[node->boneIndex]);
 	}
 }
 
-void PMDLoader::RotationBone(std::string str, FLOAT angle) {
+void PMDLoader::RotationBone(std::string str, XMFLOAT4& angle) {
 	auto node = boneMap[str];
 	auto vec = XMLoadFloat3(&node.startPos);
+	auto quaternion = XMLoadFloat4(&angle);
 	boneMatrices[node.boneIndex] = XMMatrixTranslationFromVector(
 		XMVectorScale(vec, -1.0f))
-		* XMMatrixRotationZ(angle)
+		* XMMatrixRotationQuaternion(quaternion)
 		* XMMatrixTranslationFromVector(vec);
-	RecursivleMultipy(&node, boneMatrices[node.boneIndex]);
+}
+
+void PMDLoader::Update() {
+	static int frameNo = 0;
+	MotionUpdate(frameNo / 2);
+	++frameNo;
 }
 
 void PMDLoader::Draw(ID3D12GraphicsCommandList * _list, ID3D12Device * _dev, ID3D12DescriptorHeap* texHeap) {
@@ -212,6 +220,26 @@ void PMDLoader::Draw(ID3D12GraphicsCommandList * _list, ID3D12Device * _dev, ID3
 
 		offset += material[i].indexCount;
 	}
+}
+
+void PMDLoader::MotionUpdate(int framNo) {
+	std::fill(boneMatrices.begin(), boneMatrices.end(), XMMatrixIdentity());
+
+	//データからポージング適用
+	for (auto& anim : vmd.lock()->GetAnimationData()) {
+		auto keyFlame = anim.second;
+		auto frameIt = std::find_if(keyFlame.rbegin(), keyFlame.rend(),
+				[framNo](const MotionData& m) { return m.frameNo <= framNo; });
+		if (frameIt == keyFlame.rend()) {
+			continue;
+		}
+		RotationBone(anim.first.c_str(), frameIt->quaternion);
+	}
+	//ツリーをトラバース
+	XMMATRIX root = XMMatrixIdentity();
+	RecursiveMatrixMultiply(&boneMap["センター"], root);
+
+	memcpy(matrixData, boneMatrices.data(), ((sizeof(XMMATRIX) + 0xff) &~ 0xff) * bone.size());
 }
 
 void PMDLoader::SetMaterialColor(UINT index) {
@@ -320,9 +348,5 @@ void PMDLoader::CreateBoneBuffer(ID3D12Device * _dev) {
 
 	result = boneBuffer->Map(0, nullptr, (void**)&matrixData);
 
-	RotationBone("左ひじ", XM_PIDIV4);
-	RotationBone("右ひじ", -XM_PIDIV4);
-
-	memcpy(matrixData, boneMatrices.data(), ((sizeof(XMMATRIX) + 0xff) &~ 0xff) * bone.size());
-	boneBuffer->Unmap(0, nullptr);
+	//boneBuffer->Unmap(0, nullptr);
 }

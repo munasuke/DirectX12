@@ -9,6 +9,8 @@
 
 class BmpLoader;
 class ImageLoader;
+class VMDMotion;
+struct MotionData;
 
 //ヘッダー
 #pragma pack(1)
@@ -75,14 +77,16 @@ struct MAT {
 //PMD読み込みクラス
 class PMDLoader {
 public:
-	PMDLoader(std::shared_ptr<BmpLoader> bmp, std::shared_ptr<ImageLoader> imageL);
+	PMDLoader(std::shared_ptr<BmpLoader> bmp, std::shared_ptr<ImageLoader> imageL, std::shared_ptr<VMDMotion> vmd);
 
 	int Load(const char* _path);
 
 	void Initialize(ID3D12Device* _dev);
-	void RecursivleMultipy(BoneNode* node, DirectX::XMMATRIX& mat);
-	void RotationBone(std::string str, FLOAT angle);
+	void RecursiveMatrixMultiply(BoneNode* node, DirectX::XMMATRIX& mat);
+	void RotationBone(std::string str, DirectX::XMFLOAT4& angle);
+	void Update();
 	void Draw(ID3D12GraphicsCommandList * _list, ID3D12Device * _dev, ID3D12DescriptorHeap* texHeap);
+	void MotionUpdate(int framNo);
 
 	void SetMaterialColor(UINT index);
 	void SetData(UINT8* data);
@@ -110,6 +114,7 @@ private:
 
 	std::weak_ptr<BmpLoader>	bmp;		//BMP
 	std::weak_ptr<ImageLoader>	imageL;
+	std::weak_ptr<VMDMotion>	vmd;
 
 	UINT textureNum;
 
