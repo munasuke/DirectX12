@@ -143,6 +143,11 @@ UINT PMDLoader::GetTextureNum() {
 	return textureNum;
 }
 
+std::vector<Bone> PMDLoader::GetBoneData()
+{
+	return bone;
+}
+
 void PMDLoader::UpdateData() {
 	data = (UINT8*)(((sizeof(DirectX::XMFLOAT3) + 0xff) &~0xff) + (CHAR*)(data));
 }

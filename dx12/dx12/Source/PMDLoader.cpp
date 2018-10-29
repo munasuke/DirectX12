@@ -198,12 +198,13 @@ void PMDLoader::RotationBone(const std::string str, const XMFLOAT4& angle, const
 void PMDLoader::Update() {
 	static int frameNo = 0;
 	MotionUpdate(frameNo / 2);
-	if (frameNo < 60) {
-		++frameNo;
-	}
-	else {
-		frameNo = 0;
-	}
+	++frameNo;
+	//if (frameNo < 60) {
+	//	++frameNo;
+	//}
+	//else {
+	//	frameNo = 0;
+	//}
 }
 
 void PMDLoader::Draw(ID3D12GraphicsCommandList * _list, ID3D12Device * _dev, ID3D12DescriptorHeap* texHeap) {

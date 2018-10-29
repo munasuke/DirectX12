@@ -213,5 +213,52 @@ void Model::CreateBlackTexture() {
 }
 
 
+void Model::CreateBoneBuffer(ID3D12Device * dev) {
+	//ボーンヒープ生成
+	D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
+	heapDesc.Type			= D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	heapDesc.Flags			= D3D12_DESCRIPTOR_HEAP_FLAGS::D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	heapDesc.NumDescriptors = 1;
+	heapDesc.NodeMask		= 0;
+
+	auto result = dev->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&boneHeap));
+
+	//ボーンバッファ生成
+	CD3DX12_HEAP_PROPERTIES bHeapProp = {};
+	bHeapProp.Type					= D3D12_HEAP_TYPE::D3D12_HEAP_TYPE_UPLOAD;
+	bHeapProp.MemoryPoolPreference	= D3D12_MEMORY_POOL::D3D12_MEMORY_POOL_UNKNOWN;
+	bHeapProp.CPUPageProperty		= D3D12_CPU_PAGE_PROPERTY::D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+	bHeapProp.CreationNodeMask		= 1;
+	bHeapProp.VisibleNodeMask		= 1;
+
+	D3D12_RESOURCE_DESC bResDesc = {};
+	bResDesc.Flags				= D3D12_RESOURCE_FLAGS::D3D12_RESOURCE_FLAG_NONE;
+	bResDesc.Format				= DXGI_FORMAT::DXGI_FORMAT_UNKNOWN;
+	bResDesc.Layout				= D3D12_TEXTURE_LAYOUT::D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+	bResDesc.Dimension			= D3D12_RESOURCE_DIMENSION::D3D12_RESOURCE_DIMENSION_BUFFER;
+	bResDesc.Height				= 1;
+	bResDesc.Width				= ((sizeof(XMFLOAT3) + 0xff) &~0xff) * pmd.lock()->GetBoneData().size();
+	bResDesc.DepthOrArraySize	= 1;
+	bResDesc.Alignment			= 0;
+	bResDesc.MipLevels			= 1;
+	bResDesc.SampleDesc.Count	= 1;
+
+	result = dev->CreateCommittedResource(
+		&bHeapProp,
+		D3D12_HEAP_FLAGS::D3D12_HEAP_FLAG_NONE,
+		&bResDesc,
+		D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(&boneBuffer)
+	);
+
+	D3D12_CONSTANT_BUFFER_VIEW_DESC bCbvDesc = {};
+	bCbvDesc.BufferLocation = boneBuffer->GetGPUVirtualAddress();
+	bCbvDesc.SizeInBytes	= ((sizeof(XMMATRIX) + 0xff) &~0xff) * pmd.lock()->GetBoneData().size();
+	dev->CreateConstantBufferView(&bCbvDesc, boneHeap->GetCPUDescriptorHandleForHeapStart());
+
+	result = boneBuffer->Map(0, nullptr, (void**)&boneMatrixData);
+}
+
 Model::~Model() {
 }

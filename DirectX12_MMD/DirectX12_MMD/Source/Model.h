@@ -44,6 +44,9 @@ public:
 	//黒テクスチャ生成
 	void CreateBlackTexture();
 
+	//ボーンバッファ生成
+	void CreateBoneBuffer(ID3D12Device* dev);
+
 	~Model();
 
 private:

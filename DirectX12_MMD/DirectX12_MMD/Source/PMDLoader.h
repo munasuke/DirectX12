@@ -94,6 +94,9 @@ public:
 	UINT8*						GetData();		//データを返す
 	UINT						GetTextureNum();
 
+	//ボーン
+	std::vector<Bone> GetBoneData();
+
 	void UpdateData();
 
 	~PMDLoader();
