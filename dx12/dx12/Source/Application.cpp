@@ -92,7 +92,7 @@ void Application::Initialize() {
 	//pmd->Load("PMD/neru/亞北ネル.pmd");
 
 	//VMD
-	motion->Load("Motion/pose.vmd");
+	motion->Load("Motion/first.vmd");
 
 	//頂点バッファ
 	vertex->Initialize(device->GetDevice(), pmd->GetPMDVertex());

@@ -184,20 +184,26 @@ void PMDLoader::RecursiveMatrixMultiply(BoneNode* node, DirectX::XMMATRIX& mat) 
 	}
 }
 
-void PMDLoader::RotationBone(std::string str, XMFLOAT4& angle) {
+void PMDLoader::RotationBone(const std::string str, const XMFLOAT4& angle, const XMFLOAT4& q2, float t) {
 	auto node = boneMap[str];
 	auto vec = XMLoadFloat3(&node.startPos);
 	auto quaternion = XMLoadFloat4(&angle);
+	auto quaternion2 = XMLoadFloat4(&q2);
 	boneMatrices[node.boneIndex] = XMMatrixTranslationFromVector(
 		XMVectorScale(vec, -1.0f))
-		* XMMatrixRotationQuaternion(quaternion)
+		* XMMatrixRotationQuaternion(XMQuaternionSlerp(quaternion, quaternion2, t))
 		* XMMatrixTranslationFromVector(vec);
 }
 
 void PMDLoader::Update() {
 	static int frameNo = 0;
 	MotionUpdate(frameNo / 2);
-	++frameNo;
+	if (frameNo < 60) {
+		++frameNo;
+	}
+	else {
+		frameNo = 0;
+	}
 }
 
 void PMDLoader::Draw(ID3D12GraphicsCommandList * _list, ID3D12Device * _dev, ID3D12DescriptorHeap* texHeap) {
@@ -233,7 +239,16 @@ void PMDLoader::MotionUpdate(int framNo) {
 		if (frameIt == keyFlame.rend()) {
 			continue;
 		}
-		RotationBone(anim.first.c_str(), frameIt->quaternion);
+		auto nextIt = frameIt.base();
+		if (nextIt == keyFlame.end()) {
+			RotationBone(anim.first.c_str(), frameIt->quaternion);
+		}
+		else {
+			float a = frameIt->frameNo;
+			float b = nextIt->frameNo;
+			float t = static_cast<float>(framNo - a) / (b - a);
+			RotationBone(anim.first.c_str(), frameIt->quaternion, nextIt->quaternion, t);
+		}
 	}
 	//ツリーをトラバース
 	XMMATRIX root = XMMatrixIdentity();

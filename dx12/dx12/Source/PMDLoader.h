@@ -83,7 +83,7 @@ public:
 
 	void Initialize(ID3D12Device* _dev);
 	void RecursiveMatrixMultiply(BoneNode* node, DirectX::XMMATRIX& mat);
-	void RotationBone(std::string str, DirectX::XMFLOAT4& angle);
+	void RotationBone(const std::string str, const DirectX::XMFLOAT4& angle, const DirectX::XMFLOAT4& q2 = DirectX::XMFLOAT4(), float t = 0.0f);
 	void Update();
 	void Draw(ID3D12GraphicsCommandList * _list, ID3D12Device * _dev, ID3D12DescriptorHeap* texHeap);
 	void MotionUpdate(int framNo);
