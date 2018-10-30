@@ -199,12 +199,6 @@ void PMDLoader::Update() {
 	static int frameNo = 0;
 	MotionUpdate(frameNo / 2);
 	++frameNo;
-	//if (frameNo < 60) {
-	//	++frameNo;
-	//}
-	//else {
-	//	frameNo = 0;
-	//}
 }
 
 void PMDLoader::Draw(ID3D12GraphicsCommandList * _list, ID3D12Device * _dev, ID3D12DescriptorHeap* texHeap) {
@@ -365,4 +359,51 @@ void PMDLoader::CreateBoneBuffer(ID3D12Device * _dev) {
 	result = boneBuffer->Map(0, nullptr, (void**)&matrixData);
 
 	//boneBuffer->Unmap(0, nullptr);
+}
+
+float PMDLoader::GetVezierYValueFromXWithNewton(float x, DirectX::XMFLOAT2 a, DirectX::XMFLOAT2 b, unsigned int n) {
+	//’¼ü‚¾‚Á‚½ê‡‚ÍŒvZ‚¹‚¸‚É”²‚¯‚é
+	if (a.x == a.y && b.x == b.y) {
+		return x;
+	}
+
+	//ÅI“I‚É‹‚ß‚½‚¢”}‰î•Ï”
+	float t = x;				//‰Šú’l‚Íx‚Æ“¯‚¶
+
+	//ŒW”
+	float k[] = {
+		1 + 3 * a.x - 3 * b.x,	//t^3‚ÌŒW”
+		3 * b.x - 6 * a.x,		//t^2‚ÌŒW”
+		3 * a.x					//t‚ÌŒW”
+	};
+
+	//Œë·‚Ì”ÍˆÍ“à‚©‚Ç‚¤‚©‚Ég—p‚·‚é’è”
+	const float epsilon = 0.0005f;
+
+	//ƒjƒ…[ƒgƒ“–@
+	for (int i = 0; i < n; ++i) {
+		//f(t)‚ğ‹‚ß‚é
+		float ft = (t * t * t) * k[0] + (t * t) * k[1] + t * k[2] - x;
+
+		//Œë·‚Ì”ÍˆÍ“à‚È‚ç‚ÎŒvZI—¹
+		if (ft <= epsilon && ft >= -epsilon) {
+			break;
+		}
+
+		//f'(t)‚ğ‹‚ß‚é(f(t)‚Ì”÷•ªŒ‹‰Ê)
+		float fdt = 3 * (t * t) * k[0] + 2 * t * k[1] + k[2];
+
+		//0œZ‚ğ–h~‚·‚é
+		if (fdt == 0) {
+			break;
+		}
+
+		//“š‚É‹ß‚Ã‚¯‚é
+		t = t - ft / fdt;
+	}
+
+	//”½“]
+	float r = 1 - t;
+
+	return 3 * r * r * t * a.y + 3 * r * t * t * b.y + t * t * t;
 }

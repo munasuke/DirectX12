@@ -105,7 +105,10 @@ void Model::Initialize(ID3D12Device * _dev) {
 		nullptr,
 		IID_PPV_ARGS(&blackBuffer));
 
+	//白テクスチャ生成
 	CreateWhiteTexture();
+
+	//黒テクスチャ生成
 	CreateBlackTexture();
 
 	//SRVの設定
@@ -152,6 +155,12 @@ void Model::Initialize(ID3D12Device * _dev) {
 	}
 }
 
+void Model::Update() {
+	static int frameNo = 0;
+	MotionUpdate(frameNo / 2);
+	++frameNo;
+}
+
 void Model::Draw(ID3D12GraphicsCommandList * _list, ID3D12Device * _dev) {
 	auto material = pmd.lock()->GetMaterial();
 	//次のマテリアルまでのオフセット
@@ -177,19 +186,6 @@ void Model::Draw(ID3D12GraphicsCommandList * _list, ID3D12Device * _dev) {
 		//次のマテリアルまでオフセットする
 		offset += material[i].indexCount;
 	}
-}
-
-void Model::WriteToTextureBuffer(std::vector<bool> textureFlag) {
-	//UINT index = 0;
-	//for (const auto& tFlag : texFlag) {
-	//	if (tFlag) {
-	//		auto result = textureBuffer[index]->WriteToSubresource(0, nullptr, img.lock()->GetImageData()[index], img.lock()->GetImageRect()[index].x * 4, img.lock()->GetImageRect()[index].y * 4);
-	//		++index;
-	//	}
-	//	else {
-	//		CreateWhiteTexture();
-	//	}
-	//}
 }
 
 void Model::CreateWhiteTexture() {
@@ -258,6 +254,19 @@ void Model::CreateBoneBuffer(ID3D12Device * dev) {
 	dev->CreateConstantBufferView(&bCbvDesc, boneHeap->GetCPUDescriptorHandleForHeapStart());
 
 	result = boneBuffer->Map(0, nullptr, (void**)&boneMatrixData);
+}
+
+void Model::RecursiveMatrixMultiply(BoneNode * node, DirectX::XMMATRIX & mat) {
+	boneMatrices[node->boneIndex] *= mat;
+	for (auto& cnode : node->children) {
+		RecursiveMatrixMultiply(cnode, boneMatrices[node->boneIndex]);
+	}
+}
+
+void Model::RotationBone(const std::string str, const DirectX::XMFLOAT4 & angle, const DirectX::XMFLOAT4 & q2, float t) {
+}
+
+void Model::MotionUpdate(int framNo) {
 }
 
 Model::~Model() {

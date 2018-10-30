@@ -42,10 +42,10 @@ struct Out
 //VertexShader
 Out BasicVS(float4 pos : POSITION, float4 normal : NORMAL, float2 uv : TEXCOORD, min16uint2 boneno : BONENO, min16uint weight : WEIGHT)
 {
-    float w = weight / 100.0f;
     Out o;
 	//ワールドビュープロジェクション
     float4x4 vp = mul(projection, view);
+    float w = weight / 100.0f;
     matrix m = boneMatrix[boneno.x] * w + boneMatrix[boneno.y] * (1 - w);
     pos = mul(m, pos);
     pos = mul(mul(vp, world), pos);

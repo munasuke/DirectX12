@@ -91,13 +91,10 @@ public:
 	//テクスチャの相対パス（相対パスオンリー）
 	*/
 	std::string					GetRelativeTexturePathFromPmdPath(const char* modelPath, const char* texturePath);
-	UINT8*						GetData();		//データを返す
 	UINT						GetTextureNum();
 
 	//ボーン
 	std::vector<Bone> GetBoneData();
-
-	void UpdateData();
 
 	~PMDLoader();
 private:
@@ -121,10 +118,5 @@ private:
 	MAT mat;
 	std::vector<bool> texFlag;
 
-	ID3D12Resource* resource;
-	ID3D12DescriptorHeap* descriptorHeap;
-	UINT8* data;
-	D3D12_RESOURCE_DESC resourceDesc = {};
-	D3D12_HEAP_PROPERTIES heapProp = {};
 };
 

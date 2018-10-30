@@ -23,26 +23,38 @@ cbuffer material : register(b1)
     bool    texFlag;    //テクスチャありなしフラグ
 };
 
+//ボーン
+cbuffer bones : register(b2)
+{
+    matrix boneMatrix[512];
+};
+
 struct Out
 {
     float4 svpos    : SV_POSITION;
     float4 pos      : POSITION;
     float3 normal   : NORMAL;
     float2 uv       : TEXCOORD;
+    float2 bone     : BONENO;
+    float2 weight   : WEIGHT;
 };
 
 //VertexShader
-Out BasicVS(float4 pos : POSITION, float4 normal : NORMAL, float2 uv : TEXCOORD)
+Out BasicVS(float4 pos : POSITION, float4 normal : NORMAL, float2 uv : TEXCOORD, min16uint2 boneno : BONENO, min16uint weight : WEIGHT)
 {
     Out o;
 	//ワールドビュープロジェクション
     float4x4 vp = mul(projection, view);
+    float w = weight / 100.0f;
+    matrix m = boneMatrix[boneno.x] * w + boneMatrix[boneno.y] * (1 - w);
+    pos = mul(m, pos);
     pos = mul(mul(vp, world), pos);
 
     o.svpos = pos;
     o.pos = pos;
     o.normal = mul(world, normal);
     o.uv = uv;
+    o.weight = float2(w, 1 - w);
     return o;
 }
 

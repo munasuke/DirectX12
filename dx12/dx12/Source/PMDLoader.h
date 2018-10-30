@@ -111,6 +111,7 @@ public:
 private:
 
 	void CreateBoneBuffer(ID3D12Device* _dev);
+	float GetVezierYValueFromXWithNewton(float x, DirectX::XMFLOAT2 a, DirectX::XMFLOAT2 b, unsigned int n = 16);
 
 	std::weak_ptr<BmpLoader>	bmp;		//BMP
 	std::weak_ptr<ImageLoader>	imageL;

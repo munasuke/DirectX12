@@ -7,10 +7,7 @@
 #include <string>
 
 PMDLoader::PMDLoader(std::shared_ptr<BmpLoader> bmp, std::shared_ptr<ImageLoader> imageL) :
-	textureNum(0),
-	resource(nullptr),
-	descriptorHeap(nullptr),
-	data(nullptr)
+	textureNum(0)
 {
 	this->bmp = bmp;
 	this->imageL = imageL;
@@ -92,9 +89,6 @@ int PMDLoader::Load(const char * _path) {
 	return 0;
 }
 
-void PMDLoader::SetData(UINT8 * data) {
-	this->data = data;
-}
 
 PMDHeader PMDLoader::GetPMDHeader() {
 	return header;
@@ -135,10 +129,6 @@ std::string PMDLoader::GetRelativeTexturePathFromPmdPath(const char * modelPath,
 	return textureFilePath;
 }
 
-UINT8 * PMDLoader::GetData(void) {
-	return data;
-}
-
 UINT PMDLoader::GetTextureNum() {
 	return textureNum;
 }
@@ -148,9 +138,6 @@ std::vector<Bone> PMDLoader::GetBoneData()
 	return bone;
 }
 
-void PMDLoader::UpdateData() {
-	data = (UINT8*)(((sizeof(DirectX::XMFLOAT3) + 0xff) &~0xff) + (CHAR*)(data));
-}
 
 PMDLoader::~PMDLoader() {
 }

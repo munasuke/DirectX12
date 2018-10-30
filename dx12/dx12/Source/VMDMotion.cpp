@@ -1,6 +1,7 @@
 #include "VMDMotion.h"
 #include <iostream>
 #include <Windows.h>
+#include <algorithm>
 
 
 VMDMotion::VMDMotion() {
@@ -36,7 +37,14 @@ int VMDMotion::Load(const char * path) {
 		fread(&inter[0], sizeof(char) * 64, 1, fp);
 
 
-		animation[name].emplace_back(MotionData(m.frameNo, m.quaternion ));
+		animation[name].emplace_back(MotionData(m.frameNo, m.quaternion));
+	}
+
+	//キーフレームのソート
+	for (auto& m : animation) {
+		std::sort(m.second.begin(), m.second.end(), [](const MotionData& a, const MotionData& b) {
+			return a.frameNo < b.frameNo; 
+		});
 	}
 
 	fclose(fp);

@@ -34,10 +34,10 @@ public:
 
 	//初期化
 	void Initialize(ID3D12Device * _dev);
+	//更新
+	void Update();
 	//描画
 	void Draw(ID3D12GraphicsCommandList * _list, ID3D12Device * _dev);
-	//テクスチャ書き込み
-	void WriteToTextureBuffer(std::vector<bool> textureFlag);
 
 	//白テクスチャ生成
 	void CreateWhiteTexture();
@@ -46,6 +46,15 @@ public:
 
 	//ボーンバッファ生成
 	void CreateBoneBuffer(ID3D12Device* dev);
+
+	//ボーンの再帰関数
+	void RecursiveMatrixMultiply(BoneNode* node, DirectX::XMMATRIX& mat);
+
+	//ボーンの回転行列
+	void RotationBone(const std::string str, const DirectX::XMFLOAT4& angle, const DirectX::XMFLOAT4& q2 = DirectX::XMFLOAT4(), float t = 0.0f);
+	
+	//モーション更新
+	void MotionUpdate(int framNo);
 
 	~Model();
 
