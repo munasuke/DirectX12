@@ -23,6 +23,7 @@
 #include "DepthStencilBuffer.h"
 #include "Model.h"
 #include "Camera.h"
+#include "VMDMotion.h"
 
 namespace {
 	MSG msg = {};
@@ -45,9 +46,10 @@ Application::Application() {
 	pipline			= std::make_shared<PipelineState>();
 	viewPort		= std::make_shared<ViewPort>();
 	pmd				= std::make_shared<PMDLoader>(bmp, imageL);
+	vmd				= std::make_shared<VMDMotion>();
 	index			= std::make_shared<Index>();
 	depth			= std::make_shared<DepthStencilBuffer>();
-	model			= std::make_shared<Model>(pmd, imageL);
+	model			= std::make_shared<Model>(pmd, imageL, vmd);
 	camera			= std::make_shared<Camera>();
 }
 
@@ -80,8 +82,11 @@ void Application::Initialize() {
 	fence->InitFence(device->GetDevice());
 
 	//PMD
-	//pmd->Load("PMD/miku/初音ミク.pmd");
-	pmd->Load("PMD/neru/亞北ネル.pmd");
+	pmd->Load("PMD/miku/初音ミク.pmd");
+	//pmd->Load("PMD/neru/亞北ネル.pmd");
+
+	//VMD
+	vmd->Load("Motion/swing2.vmd");
 
 	//頂点バッファ
 	vertex->Initialize(device->GetDevice(), pmd->GetPMDVertex());
@@ -154,9 +159,6 @@ void Application::Run() {
 
 		camera->UpdateWVP();
 		camera->SetDescriptor(command->GetCommandList(), device->GetDevice());
-
-		model->WriteToTextureBuffer(pmd->GetTexFlag());
-		//model->CreateWhiteTexture();
 
 		model->Draw(command->GetCommandList(), device->GetDevice());
 

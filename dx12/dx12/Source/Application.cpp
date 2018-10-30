@@ -92,7 +92,9 @@ void Application::Initialize() {
 	pmd->Load("PMD/neru/亞北ネル.pmd");
 
 	//VMD
-	motion->Load("Motion/charge.vmd");
+	motion->Load("Motion/swing2.vmd");
+	//motion->Load("Motion/モリヤステップA.vmd");
+	//motion->Load("Motion/モリヤステップB.vmd");
 
 	//頂点バッファ
 	vertex->Initialize(device->GetDevice(), pmd->GetPMDVertex());
@@ -174,25 +176,17 @@ void Application::Run() {
 
 		depth->SetDescriptor(command->GetCommandList());
 
-		
-		cb->UpDataWVP();
+		//カメラの回転
+		//cb->UpDataWVP();
 		for (UINT i = 0; i < 2; i++) {
 			cb->SetDescriptor(command->GetCommandList(), i, srv->GetTextureHeap(), device->GetDevice());
 		}
 
-		//camera->UpdateWVP();
-		//camera->SetDescriptor(command->GetCommandList(), device->GetDevice());
-
-		//
 		tex->WriteToTextureBuffer(imageL->GetMetaData(), imageL->GetScratchImage(), pmd->GetTexFlag());
-		//model->WriteToTextureBuffer(imageL->GetMetaData(), imageL->GetScratchImage(), pmd->GetTexFlag());
 
 		pmd->Update();
 
-		//
 		pmd->Draw(command->GetCommandList(), device->GetDevice(), srv->GetTextureHeap());
-		//model->Draw(command->GetCommandList(), device->GetDevice(), pmd->GetMaterial());
-		//command->GetCommandList()->DrawIndexedInstanced(pmd->GetIndices().size(), 1, 0, 0, 0);
 
 		command->GetCommandList()->ResourceBarrier(
 			1,

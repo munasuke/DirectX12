@@ -1,13 +1,15 @@
 #include "Model.h"
 #include "PMDLoader.h"
 #include "ImageLoader.h"
+#include "VMDMotion.h"
 #include <iostream>
 
 using namespace DirectX;
 
-Model::Model(std::shared_ptr<PMDLoader> pmd, std::shared_ptr<ImageLoader> img) :
+Model::Model(std::shared_ptr<PMDLoader> pmd, std::shared_ptr<ImageLoader> img, std::shared_ptr<VMDMotion> vmd) :
 	pmd(pmd),
 	img(img),
+	vmd(vmd),
 	heap(nullptr), 
 	whiteBuffer(nullptr), 
 	blackBuffer(nullptr),
@@ -257,16 +259,55 @@ void Model::CreateBoneBuffer(ID3D12Device * dev) {
 }
 
 void Model::RecursiveMatrixMultiply(BoneNode * node, DirectX::XMMATRIX & mat) {
-	boneMatrices[node->boneIndex] *= mat;
+	auto& boneMatrix = pmd.lock()->boneMatrices[node->boneIndex];
+	boneMatrix *= mat;
 	for (auto& cnode : node->children) {
-		RecursiveMatrixMultiply(cnode, boneMatrices[node->boneIndex]);
+		RecursiveMatrixMultiply(cnode, boneMatrix);
 	}
 }
 
 void Model::RotationBone(const std::string str, const DirectX::XMFLOAT4 & angle, const DirectX::XMFLOAT4 & q2, float t) {
+	auto node = pmd.lock()->boneMap[str];
+	auto vec = XMLoadFloat3(&node.startPos);
+	auto quaternion = XMLoadFloat4(&angle);
+	auto quaternion2 = XMLoadFloat4(&q2);
+	pmd.lock()->boneMatrices[node.boneIndex] = XMMatrixTranslationFromVector(
+		XMVectorScale(vec, -1.0f))
+		* XMMatrixRotationQuaternion(XMQuaternionSlerp(quaternion, quaternion2, t))
+		* XMMatrixTranslationFromVector(vec);
 }
 
 void Model::MotionUpdate(int framNo) {
+	auto& boneMatrix = pmd.lock()->boneMatrices;
+
+	//ボーン行列の初期化
+	std::fill(boneMatrix.begin(), boneMatrix.end(), XMMatrixIdentity());
+
+	//データからポージング適用
+	for (auto& anim : vmd.lock()->GetAnimationData()) {
+		auto keyFlame = anim.second;
+		auto frameIt = std::find_if(keyFlame.rbegin(), keyFlame.rend(),
+			[framNo](const MotionData& m) { return m.frameNo <= framNo; });
+		if (frameIt == keyFlame.rend()) {
+			continue;
+		}
+		auto nextIt = frameIt.base();
+		if (nextIt == keyFlame.end()) {
+			RotationBone(anim.first.c_str(), frameIt->quaternion);
+		}
+		else {
+			float a = frameIt->frameNo;
+			float b = nextIt->frameNo;
+			float t = static_cast<float>(framNo - a) / (b - a);
+			//t = GetVezierYValueFromXWithNewton(t, frameIt->bz[0], frameIt->bz[1]);
+			RotationBone(anim.first.c_str(), frameIt->quaternion, nextIt->quaternion, t);
+		}
+	}
+	//ツリーをトラバース
+	XMMATRIX root = XMMatrixIdentity();
+	RecursiveMatrixMultiply(&pmd.lock()->boneMap["センター"], root);
+
+	memcpy(boneMatrixData, boneMatrix.data(), ((sizeof(XMMATRIX) + 0xff) &~ 0xff) * pmd.lock()->GetBoneData().size());
 }
 
 Model::~Model() {

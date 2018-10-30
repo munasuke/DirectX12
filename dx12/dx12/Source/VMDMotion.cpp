@@ -37,14 +37,21 @@ int VMDMotion::Load(const char * path) {
 		fread(&inter[0], sizeof(char) * 64, 1, fp);
 
 
-		animation[name].emplace_back(MotionData(m.frameNo, m.quaternion));
+		animation[name].emplace_back(
+			MotionData(m.frameNo, m.quaternion,  inter[48], inter[52], inter[56], inter[60])
+		);
 	}
 
 	//キーフレームのソート
+	unsigned int d = 0;
+	duration = 0;
 	for (auto& m : animation) {
 		std::sort(m.second.begin(), m.second.end(), [](const MotionData& a, const MotionData& b) {
 			return a.frameNo < b.frameNo; 
 		});
+		
+		//総時間を取得
+		duration += max(m.second.back().frameNo, d);
 	}
 
 	fclose(fp);
@@ -54,6 +61,10 @@ int VMDMotion::Load(const char * path) {
 
 const std::map<std::string, std::vector<MotionData>>& VMDMotion::GetAnimationData() const{
 	return animation;
+}
+
+unsigned int VMDMotion::GetDuration() const {
+	return duration;
 }
 
 

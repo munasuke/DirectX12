@@ -4,6 +4,7 @@
 #include <DirectXMath.h>
 #include <vector>
 #include <memory>
+#include <map>
 
 class BmpLoader;
 class ImageLoader;
@@ -97,6 +98,10 @@ public:
 	std::vector<Bone> GetBoneData();
 
 	~PMDLoader();
+
+	std::vector<DirectX::XMMATRIX>	boneMatrices;	//ボーン行列
+	std::map<std::string, BoneNode> boneMap;		//ボーンマップ
+
 private:
 	std::weak_ptr<BmpLoader>	bmp;		//BMP
 	std::weak_ptr<ImageLoader>	imageL;
@@ -112,8 +117,6 @@ private:
 
 	USHORT							boneCount;		//ボーン総数
 	std::vector<Bone>				bone;			//ボーン情報
-	std::vector<DirectX::XMMATRIX>	boneMatrices;	//ボーン行列
-	std::map<std::string, BoneNode> boneMap;		//ボーンマップ
 
 	MAT mat;
 	std::vector<bool> texFlag;

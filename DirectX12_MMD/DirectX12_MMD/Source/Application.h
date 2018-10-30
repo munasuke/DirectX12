@@ -23,6 +23,7 @@ class Index;
 class DepthStencilBuffer;
 class Model;
 class Camera;
+class VMDMotion;
 
 class Application {
 public:
@@ -61,5 +62,6 @@ private:
 	std::shared_ptr<DepthStencilBuffer>	depth;			//深度バッファ
 	std::shared_ptr<Model>				model;			//モデル
 	std::shared_ptr<Camera>				camera;			//カメラ
+	std::shared_ptr<VMDMotion>			vmd;
 };
 

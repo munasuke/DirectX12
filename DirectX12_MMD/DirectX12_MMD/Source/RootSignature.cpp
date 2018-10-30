@@ -54,7 +54,7 @@ void RootSignature::InitRootSignature(D3D12_STATIC_SAMPLER_DESC _samplerDesc, ID
 	//b2(É{Å[Éì)
 	descriptorRange[3].RangeType							= D3D12_DESCRIPTOR_RANGE_TYPE::D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
 	descriptorRange[3].NumDescriptors						= 1;
-	descriptorRange[3].BaseShaderRegister					= 0;
+	descriptorRange[3].BaseShaderRegister					= 2;
 	descriptorRange[3].RegisterSpace						= 0;
 	descriptorRange[3].OffsetInDescriptorsFromTableStart	= D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 

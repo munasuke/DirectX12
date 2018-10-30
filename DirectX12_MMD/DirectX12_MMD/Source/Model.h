@@ -7,9 +7,17 @@
 
 #pragma comment(lib, "DirectXTex.lib")
 
+//PMD
 class PMDLoader;
 struct PMDMaterial;
+struct BoneNode;
+
+//Texture
 class ImageLoader;
+
+//VMD
+class VMDMotion;
+struct MotionData;
 
 struct Materials {
 	DirectX::XMFLOAT4	diffuse;	//減衰色
@@ -30,7 +38,7 @@ struct Materials {
 */
 class Model {
 public:
-	Model(std::shared_ptr<PMDLoader> pmd, std::shared_ptr<ImageLoader> img);
+	Model(std::shared_ptr<PMDLoader> pmd, std::shared_ptr<ImageLoader> img, std::shared_ptr<VMDMotion> vmd);
 
 	//初期化
 	void Initialize(ID3D12Device * _dev);
@@ -61,6 +69,7 @@ public:
 private:
 	std::weak_ptr<PMDLoader>	pmd;
 	std::weak_ptr<ImageLoader>	img;
+	std::weak_ptr<VMDMotion>	vmd;
 
 	//マテリアルヒープ
 	ID3D12DescriptorHeap* heap;

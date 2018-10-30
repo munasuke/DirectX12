@@ -198,7 +198,12 @@ void PMDLoader::RotationBone(const std::string str, const XMFLOAT4& angle, const
 void PMDLoader::Update() {
 	static int frameNo = 0;
 	MotionUpdate(frameNo / 2);
-	++frameNo;
+	if (frameNo < vmd.lock()->GetDuration()) {
+		++frameNo;
+	}
+	else {
+		frameNo = 0;
+	}
 }
 
 void PMDLoader::Draw(ID3D12GraphicsCommandList * _list, ID3D12Device * _dev, ID3D12DescriptorHeap* texHeap) {
@@ -242,6 +247,7 @@ void PMDLoader::MotionUpdate(int framNo) {
 			float a = frameIt->frameNo;
 			float b = nextIt->frameNo;
 			float t = static_cast<float>(framNo - a) / (b - a);
+			t = GetVezierYValueFromXWithNewton(t, frameIt->bz[0], frameIt->bz[1]);
 			RotationBone(anim.first.c_str(), frameIt->quaternion, nextIt->quaternion, t);
 		}
 	}
@@ -405,5 +411,5 @@ float PMDLoader::GetVezierYValueFromXWithNewton(float x, DirectX::XMFLOAT2 a, Di
 	//”½“]
 	float r = 1 - t;
 
-	return 3 * r * r * t * a.y + 3 * r * t * t * b.y + t * t * t;
+	return 3 * (r * r * t * a.y) + 3 * (r * t * t * b.y) + (t * t * t);
 }
