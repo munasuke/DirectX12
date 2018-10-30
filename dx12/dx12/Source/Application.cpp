@@ -92,8 +92,9 @@ void Application::Initialize() {
 	pmd->Load("PMD/neru/亞北ネル.pmd");
 
 	//VMD
-	motion->Load("Motion/swing2.vmd");
-	//motion->Load("Motion/モリヤステップA.vmd");
+	//motion->Load("Motion/teto.vmd");
+	//motion->Load("Motion/girl_peace.vmd");
+	motion->Load("Motion/モリヤステップA.vmd");
 	//motion->Load("Motion/モリヤステップB.vmd");
 
 	//頂点バッファ

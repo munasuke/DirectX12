@@ -27,16 +27,13 @@ int VMDMotion::Load(const char * path) {
 	XMFLOAT3 location;
 	std::vector<char>inter(64);
 	for (auto& m : motion) {
-		fread(&name[0], sizeof(char) * 15, 1, fp);	//ボーン名
-		fread(&m.frameNo, sizeof(m.frameNo)				//フレーム番号
-			/*+ sizeof(m.location)*/						//位置（IKの時に使用）
-			/*+ sizeof(m.quaternion)*/						//クォータニオン
-			/*+ sizeof(m.interpolation)*/, 1, fp);			//補間ベジェデータ
-		fread(&location, sizeof(XMFLOAT3), 1, fp);
-		fread(&m.quaternion, sizeof(m.quaternion), 1, fp);
-		fread(&inter[0], sizeof(char) * 64, 1, fp);
+		fread(&name[0], sizeof(char) * 15, 1, fp);			//ボーン名
+		fread(&m.frameNo, sizeof(m.frameNo), 1, fp);		//フレーム番号
+		fread(&location, sizeof(location), 1, fp);			//位置（IKの時に使用）
+		fread(&m.quaternion, sizeof(m.quaternion), 1, fp);	//クォータニオン
+		fread(&inter[0], sizeof(char) * 64, 1, fp);			//補間ベジェデータ
 
-
+		//マップで管理
 		animation[name].emplace_back(
 			MotionData(m.frameNo, m.quaternion,  inter[48], inter[52], inter[56], inter[60])
 		);

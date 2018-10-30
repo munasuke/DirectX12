@@ -135,8 +135,6 @@ void PMDLoader::Initialize(ID3D12Device * _dev) {
 	//ƒ{[ƒ“
 	CreateBoneBuffer(_dev);
 
-
-
 	auto handle = descriptorHeap->GetCPUDescriptorHandleForHeapStart();
 	auto address = resource->GetGPUVirtualAddress();
 	for (UINT i = 0; i < material.size(); ++i) {
