@@ -64,6 +64,8 @@ public:
 	//モーション更新
 	void MotionUpdate(int framNo);
 
+	float GetVezierYValueFromXWithNewton(float x, DirectX::XMFLOAT2 a, DirectX::XMFLOAT2 b, unsigned int n = 16);
+
 	~Model();
 
 private:
@@ -88,8 +90,6 @@ private:
 	//テクスチャフラグ
 	std::vector<bool> texFlag;
 
-	//ボーンヒープ
-	ID3D12DescriptorHeap* boneHeap;
 	//ボーンバッファ
 	ID3D12Resource* boneBuffer;
 	//ボーン行列のデータ

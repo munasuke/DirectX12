@@ -51,13 +51,6 @@ void RootSignature::InitRootSignature(D3D12_STATIC_SAMPLER_DESC _samplerDesc, ID
 	//descriptorRange[4].RegisterSpace						= 0;
 	//descriptorRange[4].OffsetInDescriptorsFromTableStart	= D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	//b2(ボーン)
-	descriptorRange[3].RangeType							= D3D12_DESCRIPTOR_RANGE_TYPE::D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
-	descriptorRange[3].NumDescriptors						= 1;
-	descriptorRange[3].BaseShaderRegister					= 2;
-	descriptorRange[3].RegisterSpace						= 0;
-	descriptorRange[3].OffsetInDescriptorsFromTableStart	= D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-
 	/*
 		パラメータ
 	*/
@@ -74,10 +67,10 @@ void RootSignature::InitRootSignature(D3D12_STATIC_SAMPLER_DESC _samplerDesc, ID
 	parameter[1].DescriptorTable.pDescriptorRanges		= &descriptorRange[1];
 
 	//b2(ボーン)
-	parameter[2].ParameterType							= D3D12_ROOT_PARAMETER_TYPE::D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	parameter[2].ParameterType							= D3D12_ROOT_PARAMETER_TYPE::D3D12_ROOT_PARAMETER_TYPE_CBV;
 	parameter[2].ShaderVisibility						= D3D12_SHADER_VISIBILITY::D3D12_SHADER_VISIBILITY_VERTEX;
-	parameter[2].DescriptorTable.NumDescriptorRanges	= 1;
-	parameter[2].DescriptorTable.pDescriptorRanges		= &descriptorRange[3];
+	parameter[2].Descriptor.RegisterSpace				= 0;
+	parameter[2].Descriptor.ShaderRegister				= 2;
 
 	/*
 		ルートシグネチャ

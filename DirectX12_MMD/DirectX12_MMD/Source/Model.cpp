@@ -13,7 +13,6 @@ Model::Model(std::shared_ptr<PMDLoader> pmd, std::shared_ptr<ImageLoader> img, s
 	heap(nullptr), 
 	whiteBuffer(nullptr), 
 	blackBuffer(nullptr),
-	boneHeap(nullptr), 
 	boneBuffer(nullptr),
 	boneMatrixData(nullptr)
 {
@@ -155,6 +154,9 @@ void Model::Initialize(ID3D12Device * _dev) {
 		//マテリアルまでずらす
 		handle.ptr += incrementSize;
 	}
+
+	//ボーンバッファ生成
+	CreateBoneBuffer(_dev);
 }
 
 void Model::Update() {
@@ -174,6 +176,9 @@ void Model::Draw(ID3D12GraphicsCommandList * _list, ID3D12Device * _dev) {
 	//ヒープのセット
 	ID3D12DescriptorHeap* heaps[] = { heap };
 	_list->SetDescriptorHeaps(1, heaps);
+
+	//ボーンのセット
+	_list->SetGraphicsRootConstantBufferView(2, boneBuffer->GetGPUVirtualAddress());
 
 	for (UINT i = 0; i < material.size(); ++i) {
 		//マテリアルのセット
@@ -212,15 +217,6 @@ void Model::CreateBlackTexture() {
 
 
 void Model::CreateBoneBuffer(ID3D12Device * dev) {
-	//ボーンヒープ生成
-	D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
-	heapDesc.Type			= D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-	heapDesc.Flags			= D3D12_DESCRIPTOR_HEAP_FLAGS::D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-	heapDesc.NumDescriptors = 1;
-	heapDesc.NodeMask		= 0;
-
-	auto result = dev->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&boneHeap));
-
 	//ボーンバッファ生成
 	CD3DX12_HEAP_PROPERTIES bHeapProp = {};
 	bHeapProp.Type					= D3D12_HEAP_TYPE::D3D12_HEAP_TYPE_UPLOAD;
@@ -241,7 +237,7 @@ void Model::CreateBoneBuffer(ID3D12Device * dev) {
 	bResDesc.MipLevels			= 1;
 	bResDesc.SampleDesc.Count	= 1;
 
-	result = dev->CreateCommittedResource(
+	auto result = dev->CreateCommittedResource(
 		&bHeapProp,
 		D3D12_HEAP_FLAGS::D3D12_HEAP_FLAG_NONE,
 		&bResDesc,
@@ -249,11 +245,6 @@ void Model::CreateBoneBuffer(ID3D12Device * dev) {
 		nullptr,
 		IID_PPV_ARGS(&boneBuffer)
 	);
-
-	D3D12_CONSTANT_BUFFER_VIEW_DESC bCbvDesc = {};
-	bCbvDesc.BufferLocation = boneBuffer->GetGPUVirtualAddress();
-	bCbvDesc.SizeInBytes	= ((sizeof(XMMATRIX) + 0xff) &~0xff) * pmd.lock()->GetBoneData().size();
-	dev->CreateConstantBufferView(&bCbvDesc, boneHeap->GetCPUDescriptorHandleForHeapStart());
 
 	result = boneBuffer->Map(0, nullptr, (void**)&boneMatrixData);
 }
@@ -299,7 +290,7 @@ void Model::MotionUpdate(int framNo) {
 			float a = frameIt->frameNo;
 			float b = nextIt->frameNo;
 			float t = static_cast<float>(framNo - a) / (b - a);
-			//t = GetVezierYValueFromXWithNewton(t, frameIt->bz[0], frameIt->bz[1]);
+			t = GetVezierYValueFromXWithNewton(t, frameIt->bz[0], frameIt->bz[1]);
 			RotationBone(anim.first.c_str(), frameIt->quaternion, nextIt->quaternion, t);
 		}
 	}
@@ -308,6 +299,53 @@ void Model::MotionUpdate(int framNo) {
 	RecursiveMatrixMultiply(&pmd.lock()->boneMap["センター"], root);
 
 	memcpy(boneMatrixData, boneMatrix.data(), ((sizeof(XMMATRIX) + 0xff) &~ 0xff) * pmd.lock()->GetBoneData().size());
+}
+
+float Model::GetVezierYValueFromXWithNewton(float x, DirectX::XMFLOAT2 a, DirectX::XMFLOAT2 b, unsigned int n) {
+	//直線だった場合は計算せずに抜ける
+	if (a.x == a.y && b.x == b.y) {
+		return x;
+	}
+
+	//最終的に求めたい媒介変数
+	float t = x;				//初期値はxと同じ
+
+								//係数
+	float k[] = {
+		1 + 3 * a.x - 3 * b.x,	//t^3の係数
+		3 * b.x - 6 * a.x,		//t^2の係数
+		3 * a.x					//tの係数
+	};
+
+	//誤差の範囲内かどうかに使用する定数
+	const float epsilon = 0.0005f;
+
+	//ニュートン法
+	for (int i = 0; i < n; ++i) {
+		//f(t)を求める
+		float ft = (t * t * t) * k[0] + (t * t) * k[1] + t * k[2] - x;
+
+		//誤差の範囲内ならば計算終了
+		if (ft <= epsilon && ft >= -epsilon) {
+			break;
+		}
+
+		//f'(t)を求める(f(t)の微分結果)
+		float fdt = 3 * (t * t) * k[0] + 2 * t * k[1] + k[2];
+
+		//0除算を防止する
+		if (fdt == 0) {
+			break;
+		}
+
+		//答に近づける
+		t = t - ft / fdt;
+	}
+
+	//反転
+	float r = 1 - t;
+
+	return 3 * (r * r * t * a.y) + 3 * (r * t * t * b.y) + (t * t * t);
 }
 
 Model::~Model() {

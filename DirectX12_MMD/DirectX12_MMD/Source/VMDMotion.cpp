@@ -4,7 +4,7 @@
 #include <algorithm>
 
 
-VMDMotion::VMDMotion() {
+VMDMotion::VMDMotion() : duration(0){
 }
 
 int VMDMotion::Load(const char * path) {
@@ -32,19 +32,22 @@ int VMDMotion::Load(const char * path) {
 			/*+ sizeof(m.location)*/						//位置（IKの時に使用）
 			/*+ sizeof(m.quaternion)*/						//クォータニオン
 			/*+ sizeof(m.interpolation)*/, 1, fp);			//補間ベジェデータ
-		fread(&location, sizeof(XMFLOAT3), 1, fp);
+		fread(&m.location, sizeof(m.location), 1, fp);
 		fread(&m.quaternion, sizeof(m.quaternion), 1, fp);
 		fread(&inter[0], sizeof(char) * 64, 1, fp);
 
 
-		animation[name].emplace_back(MotionData(m.frameNo, m.quaternion));
+		animation[name].emplace_back(MotionData(m.frameNo, m.location, m.quaternion, inter[48], inter[52], inter[56], inter[60]));
 	}
 
 	//キーフレームのソート
+	unsigned int d = 0;
 	for (auto& m : animation) {
 		std::sort(m.second.begin(), m.second.end(), [](const MotionData& a, const MotionData& b) {
 			return a.frameNo < b.frameNo; 
 		});
+
+		duration += max(m.second.back().frameNo, d);
 	}
 
 	fclose(fp);

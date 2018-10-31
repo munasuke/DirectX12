@@ -46,8 +46,8 @@ Out BasicVS(float4 pos : POSITION, float4 normal : NORMAL, float2 uv : TEXCOORD,
 	//ワールドビュープロジェクション
     float4x4 vp = mul(projection, view);
     float w = weight / 100.0f;
-    matrix m = boneMatrix[boneno.x] * w + boneMatrix[boneno.y] * (1 - w);
-    pos = mul(m, pos);
+    //matrix m = boneMatrix[boneno.x] * w + boneMatrix[boneno.y] * (1 - w);
+    //pos = mul(m, pos);
     pos = mul(mul(vp, world), pos);
 
     o.svpos = pos;
@@ -76,7 +76,7 @@ float4 BasicPS(Out o) : SV_TARGET
 
     float brightness = saturate(dot(light, o.normal.xyz)); //rcp : 正規化ランバート
 
-    float3 color = texFlag ? tex.Sample(smp, o.uv).rgb : saturate(diffuse.rgb * brightness + specular.rgb * spec + ambient.rgb);
+    float3 color = /*texFlag ? */tex.Sample(smp, o.uv).rgb * saturate(diffuse.rgb * brightness + specular.rgb * spec + ambient.rgb);
 
     return float4(color, ambient.a);
 }
