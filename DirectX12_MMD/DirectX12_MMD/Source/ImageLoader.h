@@ -13,9 +13,12 @@ class ImageLoader {
 public:
 	ImageLoader(ID3D12Device* dev);
 
-	int Load(const std::string path);
+	int Load(const std::string path, int materialsize, int materialIndex);
 	DirectX::TexMetadata GetMetaData();
 	std::vector<ID3D12Resource*> GetTextureBuffer();
+	std::vector<ID3D12Resource*> GetSphBuffer();
+	std::vector<ID3D12Resource*> GetSpaBuffer();
+	std::map<int, ID3D12Resource*> GetBufferMap();
 
 	~ImageLoader();
 private:
@@ -33,5 +36,12 @@ private:
 			DirectX::TexMetadata* meta,
 			DirectX::ScratchImage& img)>> loadFuncTbl;
 
+	//通常テクスチャ
 	std::vector<ID3D12Resource*> textureBuffer;
+	//乗算テクスチャ
+	std::vector<ID3D12Resource*> sphBuffer;
+	//加算テクスチャ
+	std::vector<ID3D12Resource*> spaBuffer;
+
+	std::map<int, ID3D12Resource*> bufferMap;
 };

@@ -82,8 +82,11 @@ void Application::Initialize() {
 	fence->InitFence(device->GetDevice());
 
 	//PMD
-	pmd->Load("PMD/miku/初音ミク.pmd");
+	//pmd->Load("PMD/miku/初音ミク.pmd");
 	//pmd->Load("PMD/neru/亞北ネル.pmd");
+	//pmd->Load("PMD/reimu/reimu_F01.pmd");
+	pmd->Load("PMD/luka/巡音ルカ.pmd");
+	//pmd->Load("PMD/hibiki/我那覇響v1_グラビアミズギ.pmd");
 
 	//VMD
 	vmd->Load("Motion/swing2.vmd");

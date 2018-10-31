@@ -43,7 +43,7 @@ int VMDMotion::Load(const char * path) {
 	duration = 0;
 	for (auto& m : animation) {
 		std::sort(m.second.begin(), m.second.end(), [](const MotionData& a, const MotionData& b) {
-			return a.frameNo < b.frameNo; 
+			return a.frameNo < b.frameNo;
 		});
 		
 		//‘ŽžŠÔ‚ðŽæ“¾

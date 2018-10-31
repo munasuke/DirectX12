@@ -22,7 +22,7 @@ void Model::Initialize(ID3D12Device * _dev) {
 	auto material = pmd.lock()->GetMaterial();
 	//ヒープの設定
 	D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
-	heapDesc.NumDescriptors = material.size() * 2;
+	heapDesc.NumDescriptors = material.size() * 4;
 	heapDesc.Type			= D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	heapDesc.Flags			= D3D12_DESCRIPTOR_HEAP_FLAGS::D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	heapDesc.NodeMask		= 0;
@@ -88,30 +88,6 @@ void Model::Initialize(ID3D12Device * _dev) {
 	hprop.CreationNodeMask		= 1;
 	hprop.VisibleNodeMask		= 1;
 
-	//白テクスチャバッファの生成
-	texResourceDesc.Width	= 4;
-	texResourceDesc.Height	= 4 * 4;
-	result = _dev->CreateCommittedResource(
-		&hprop,
-		D3D12_HEAP_FLAGS::D3D12_HEAP_FLAG_NONE,
-		&texResourceDesc,
-		D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_GENERIC_READ,
-		nullptr,
-		IID_PPV_ARGS(&whiteBuffer));
-	result = _dev->CreateCommittedResource(
-		&hprop,
-		D3D12_HEAP_FLAGS::D3D12_HEAP_FLAG_NONE,
-		&texResourceDesc,
-		D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_GENERIC_READ,
-		nullptr,
-		IID_PPV_ARGS(&blackBuffer));
-
-	//白テクスチャ生成
-	CreateWhiteTexture();
-
-	//黒テクスチャ生成
-	CreateBlackTexture();
-
 	//SRVの設定
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 	srvDesc.Format					= DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -143,13 +119,15 @@ void Model::Initialize(ID3D12Device * _dev) {
 
 		//SRV生成
 		//マテリアルにテクスチャがあるならテクスチャを、ないなら白テクスチャを生成
-		if (texFlag[i]) {
-			_dev->CreateShaderResourceView(img.lock()->GetTextureBuffer()[tBuffIndex], &srvDesc, handle);
-			++tBuffIndex;
-		}
-		else {
-			_dev->CreateShaderResourceView(whiteBuffer, &srvDesc, handle);
-		}
+		_dev->CreateShaderResourceView(img.lock()->GetTextureBuffer()[i], &srvDesc, handle);
+
+		handle.ptr += incrementSize;
+
+		_dev->CreateShaderResourceView(img.lock()->GetSphBuffer()[i], &srvDesc, handle);
+
+		handle.ptr += incrementSize;
+
+		_dev->CreateShaderResourceView(img.lock()->GetSpaBuffer()[i], &srvDesc, handle);
 
 		//マテリアルまでずらす
 		handle.ptr += incrementSize;
@@ -185,7 +163,7 @@ void Model::Draw(ID3D12GraphicsCommandList * _list, ID3D12Device * _dev) {
 		_list->SetGraphicsRootDescriptorTable(1, handle);
 
 		//通常テクスチャまでずらす
-		handle.ptr += 2 * _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+		handle.ptr += 4 * _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
 		//マテリアル別に描画
 		_list->DrawIndexedInstanced(material[i].indexCount, 1, offset, 0, 0);
@@ -196,23 +174,9 @@ void Model::Draw(ID3D12GraphicsCommandList * _list, ID3D12Device * _dev) {
 }
 
 void Model::CreateWhiteTexture() {
-	//白テクスチャデータ
-	std::vector<UCHAR> data(4 * 4 * 4);
-	//真っ白に染めちゃう
-	std::fill(data.begin(), data.end(), 0xff);
-
-	//書き込む
-	auto result = whiteBuffer->WriteToSubresource(0, nullptr, data.data(), 4 * 4, 4 * 4 * 4);
 }
 
 void Model::CreateBlackTexture() {
-	//黒テクスチャデータ
-	std::vector<UCHAR> data(4 * 4 * 4);
-	//真っ黒に染めちゃう
-	std::fill(data.begin(), data.end(), 0x00);
-
-	//書き込む
-	auto result = blackBuffer->WriteToSubresource(0, nullptr, data.data(), 4 * 4, 4 * 4 * 4);
 }
 
 

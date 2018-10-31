@@ -59,9 +59,8 @@ int PMDLoader::Load(const char * _path) {
 
 	for (INT i = 0; i < material.size(); ++i) {
 		if (strlen(material[i].textureFilePath) > 0) {
-			++textureNum;
 			auto texPath = GetRelativeTexturePathFromPmdPath(_path, material[i].textureFilePath);
-			imageL.lock()->Load(texPath.c_str());
+			imageL.lock()->Load(texPath.c_str(), material.size(), i);
 		}
 	}
 

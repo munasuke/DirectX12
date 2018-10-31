@@ -1,7 +1,7 @@
 //テクスチャ
 Texture2D<float4> tex   : register(t0); //通常テクスチャ
-//Texture2D<float4> sph   : register(t1); //乗算テクスチャ
-//Texture2D<float4> spa   : register(t2); //加算テクスチャ
+Texture2D<float4> sph : register(t1); //乗算テクスチャ
+Texture2D<float4> spa : register(t2); //加算テクスチャ
 //Texture2D<float4> toon  : register(t3); //トゥーンテクスチャ
 
 SamplerState smp : register(s0);//サンプラ
@@ -76,7 +76,7 @@ float4 BasicPS(Out o) : SV_TARGET
 
     float brightness = saturate(dot(light, o.normal.xyz)); //rcp : 正規化ランバート
 
-    float3 color = /*texFlag ? */tex.Sample(smp, o.uv).rgb * saturate(diffuse.rgb * brightness + specular.rgb * spec + ambient.rgb);
+    float3 color = tex.Sample(smp, o.uv).rgb * saturate(diffuse.rgb * brightness + specular.rgb * spec + ambient.rgb);
 
-    return float4(color, ambient.a);
+    return float4(color, diffuse.a);
 }
