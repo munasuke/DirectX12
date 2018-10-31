@@ -37,18 +37,18 @@ void RootSignature::InitRootSignature(D3D12_STATIC_SAMPLER_DESC _samplerDesc, ID
 	descriptorRange[2].RegisterSpace						= 0;
 	descriptorRange[2].OffsetInDescriptorsFromTableStart	= D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	descriptorRange[3].RangeType							= D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
-	descriptorRange[3].NumDescriptors						= 1;
-	descriptorRange[3].BaseShaderRegister					= 2;
-	descriptorRange[3].RegisterSpace						= 0;
-	descriptorRange[3].OffsetInDescriptorsFromTableStart	= D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+	//descriptorRange[3].RangeType							= D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+	//descriptorRange[3].NumDescriptors						= 1;
+	//descriptorRange[3].BaseShaderRegister					= 2;
+	//descriptorRange[3].RegisterSpace						= 0;
+	//descriptorRange[3].OffsetInDescriptorsFromTableStart	= D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 
 	/*
 		パラメータ
 	*/
 	//b0(カメラ)
-	parameter[0].ParameterType							= D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	parameter[0].ParameterType							= D3D12_ROOT_PARAMETER_TYPE::D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	parameter[0].ShaderVisibility						= D3D12_SHADER_VISIBILITY_ALL;
 	parameter[0].DescriptorTable.NumDescriptorRanges	= 1;
 	parameter[0].DescriptorTable.pDescriptorRanges		= &descriptorRange[0];
@@ -64,10 +64,13 @@ void RootSignature::InitRootSignature(D3D12_STATIC_SAMPLER_DESC _samplerDesc, ID
 	parameter[2].DescriptorTable.NumDescriptorRanges	= 1;
 	parameter[2].DescriptorTable.pDescriptorRanges		= &descriptorRange[2];
 
-	parameter[3].ParameterType							= D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	//骨
+	parameter[3].ParameterType							= D3D12_ROOT_PARAMETER_TYPE::D3D12_ROOT_PARAMETER_TYPE_CBV;
 	parameter[3].ShaderVisibility						= D3D12_SHADER_VISIBILITY::D3D12_SHADER_VISIBILITY_VERTEX;
-	parameter[3].DescriptorTable.NumDescriptorRanges	= 1;
-	parameter[3].DescriptorTable.pDescriptorRanges		= &descriptorRange[3];
+	parameter[3].Descriptor.RegisterSpace				= 0;
+	parameter[3].Descriptor.ShaderRegister				= 2;
+//	parameter[3].DescriptorTable.NumDescriptorRanges	= 1;
+//	parameter[3].DescriptorTable.pDescriptorRanges		= &descriptorRange[3];
 
 	/*
 		ルートシグネチャ

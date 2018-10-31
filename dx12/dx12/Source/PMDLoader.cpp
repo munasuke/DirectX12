@@ -6,6 +6,9 @@
 #include <stdio.h>
 #include <iostream>
 #include <algorithm>
+#include <windows.h>
+
+#pragma comment(lib, "winmm.lib")
 
 using namespace DirectX;
 
@@ -194,21 +197,23 @@ void PMDLoader::RotationBone(const std::string str, const XMFLOAT4& angle, const
 }
 
 void PMDLoader::Update() {
-	static int frameNo = 0;
-	MotionUpdate(frameNo / 2);
-	if (frameNo < vmd.lock()->GetDuration()) {
-		++frameNo;
-	}
-	else {
-		frameNo = 0;
-	}
+	//static int frameNo = 0;
+	static auto lastTime = timeGetTime();
+	MotionUpdate((timeGetTime() - lastTime) / 33.33f);
+	//if (frameNo < vmd.lock()->GetDuration()) {
+	//	++frameNo;
+	//}
+	//else {
+	//	frameNo = 0;
+	//}
 }
 
 void PMDLoader::Draw(ID3D12GraphicsCommandList * _list, ID3D12Device * _dev, ID3D12DescriptorHeap* texHeap) {
 	UINT offset = 0;
 
-	_list->SetDescriptorHeaps(1, &boneHeap);
-	_list->SetGraphicsRootDescriptorTable(3, boneHeap->GetGPUDescriptorHandleForHeapStart());
+	//_list->SetDescriptorHeaps(1, &boneHeap);
+	//_list->SetGraphicsRootDescriptorTable(3, boneHeap->GetGPUDescriptorHandleForHeapStart());
+	_list->SetGraphicsRootConstantBufferView(3, boneBuffer->GetGPUVirtualAddress());
 
 	for (UINT i = 0; i < material.size(); ++i) {
 		_list->SetDescriptorHeaps(1, &texHeap);
@@ -250,8 +255,8 @@ void PMDLoader::MotionUpdate(int framNo) {
 		}
 	}
 	//ツリーをトラバース
-	XMMATRIX root = XMMatrixIdentity();
-	RecursiveMatrixMultiply(&boneMap["センター"], root);
+	auto& boneMat = boneMatrices[boneMap["センター"].boneIndex];
+	RecursiveMatrixMultiply(&boneMap["センター"], boneMat);
 
 	memcpy(matrixData, boneMatrices.data(), ((sizeof(XMMATRIX) + 0xff) &~ 0xff) * bone.size());
 }
@@ -320,12 +325,12 @@ PMDLoader::~PMDLoader() {
 
 void PMDLoader::CreateBoneBuffer(ID3D12Device * _dev) {
 	//ボーンヒープ
-	D3D12_DESCRIPTOR_HEAP_DESC cbvHeapDesc = {};
-	cbvHeapDesc.NumDescriptors	= 1;
-	cbvHeapDesc.Flags			= D3D12_DESCRIPTOR_HEAP_FLAGS::D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-	cbvHeapDesc.NodeMask		= 0;
-	cbvHeapDesc.Type			= D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-	auto result = _dev->CreateDescriptorHeap(&cbvHeapDesc, IID_PPV_ARGS(&boneHeap));
+	//D3D12_DESCRIPTOR_HEAP_DESC cbvHeapDesc = {};
+	//cbvHeapDesc.NumDescriptors	= 1;
+	//cbvHeapDesc.Flags			= D3D12_DESCRIPTOR_HEAP_FLAGS::D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	//cbvHeapDesc.NodeMask		= 0;
+	//cbvHeapDesc.Type			= D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	//auto result = _dev->CreateDescriptorHeap(&cbvHeapDesc, IID_PPV_ARGS(&boneHeap));
 
 	//バッファ生成
 	heapProp.Type					= D3D12_HEAP_TYPE::D3D12_HEAP_TYPE_UPLOAD;
@@ -345,7 +350,7 @@ void PMDLoader::CreateBoneBuffer(ID3D12Device * _dev) {
 	resourceDesc.Alignment			= 0;
 	resourceDesc.DepthOrArraySize	= 1;
 
-	result = _dev->CreateCommittedResource(
+	auto result = _dev->CreateCommittedResource(
 		&heapProp,
 		D3D12_HEAP_FLAGS::D3D12_HEAP_FLAG_NONE,
 		&resourceDesc,
@@ -355,10 +360,10 @@ void PMDLoader::CreateBoneBuffer(ID3D12Device * _dev) {
 	);
 
 	//ビュー
-	D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
-	cbvDesc.BufferLocation	= boneBuffer->GetGPUVirtualAddress();
-	cbvDesc.SizeInBytes		= ((sizeof(DirectX::XMMATRIX) + 0xff) &~ 0xff) * bone.size();
-	_dev->CreateConstantBufferView(&cbvDesc, boneHeap->GetCPUDescriptorHandleForHeapStart());
+	//D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
+	//cbvDesc.BufferLocation	= boneBuffer->GetGPUVirtualAddress();
+	//cbvDesc.SizeInBytes		= ((sizeof(DirectX::XMMATRIX) + 0xff) &~ 0xff) * bone.size();
+	//_dev->CreateConstantBufferView(&cbvDesc, boneHeap->GetCPUDescriptorHandleForHeapStart());
 
 	result = boneBuffer->Map(0, nullptr, (void**)&matrixData);
 

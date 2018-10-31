@@ -9,7 +9,7 @@ public:
 	ID3DBlob* GetError();
 	~RootSignature();
 private:
-	D3D12_DESCRIPTOR_RANGE descriptorRange[4];
+	D3D12_DESCRIPTOR_RANGE descriptorRange[3];
 	D3D12_ROOT_PARAMETER parameter[4];
 
 	ID3D12RootSignature* rootSignature;

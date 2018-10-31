@@ -9,12 +9,12 @@ using namespace DirectX;
 
 struct MotionData {
 	unsigned int frameNo;
-	//XMFLOAT3 location;
+	XMFLOAT3 location;
 	XMFLOAT4 quaternion;
 	//unsigned char  interpolation[64];
 	XMFLOAT2 bz[2];
 	MotionData(){}
-	MotionData(unsigned int fram, XMFLOAT4& qua, 
+	MotionData(unsigned int fram, XMFLOAT3& loc, XMFLOAT4& qua, 
 		const unsigned char ax, const unsigned char ay,
 		const unsigned char bx, const unsigned char by) : frameNo(fram), quaternion(qua) {
 		bz[0] = XMFLOAT2(static_cast<float>(ax) / 127.0f, static_cast<float>(ay) / 127.0f);
