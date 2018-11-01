@@ -197,15 +197,12 @@ void PMDLoader::RotationBone(const std::string str, const XMFLOAT4& angle, const
 }
 
 void PMDLoader::Update() {
-	//static int frameNo = 0;
 	static auto lastTime = timeGetTime();
-	MotionUpdate((timeGetTime() - lastTime) / 33.33f);
-	//if (frameNo < vmd.lock()->GetDuration()) {
-	//	++frameNo;
-	//}
-	//else {
-	//	frameNo = 0;
-	//}
+	float fps = 33.33333f;
+	MotionUpdate(static_cast<float>(timeGetTime() - lastTime) / fps);
+	if (static_cast<float>(timeGetTime() - lastTime) > vmd.lock()->GetDuration() * fps) {
+		lastTime = timeGetTime();
+	}
 }
 
 void PMDLoader::Draw(ID3D12GraphicsCommandList * _list, ID3D12Device * _dev, ID3D12DescriptorHeap* texHeap) {

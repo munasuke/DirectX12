@@ -22,30 +22,31 @@ ImageLoader::ImageLoader(ID3D12Device* dev) : dev(dev){
 		return LoadFromDDSFile(path.c_str(), 0, meta, img); };
 }
 
-int ImageLoader::Load(const std::string path, int materialsize, int materialIndex) {
-	textureBuffer.resize(materialsize);
-	sphBuffer.resize(materialsize);
-	spaBuffer.resize(materialsize);
+int ImageLoader::Initialize(int materialSize) {
+	//マテリアル分確保
+	textureBuffer.resize(materialSize);
+	sphBuffer.resize(materialSize);
+	spaBuffer.resize(materialSize);
 
 	//テクスチャリソースの設定
 	D3D12_RESOURCE_DESC texResourceDesc = {};
 	CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
-	texResourceDesc.Width = 4;
-	texResourceDesc.Height = 4;
-	texResourceDesc.Dimension = D3D12_RESOURCE_DIMENSION::D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-	texResourceDesc.Format = DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM;
-	texResourceDesc.Flags = D3D12_RESOURCE_FLAGS::D3D12_RESOURCE_FLAG_NONE;
-	texResourceDesc.Layout = D3D12_TEXTURE_LAYOUT::D3D12_TEXTURE_LAYOUT_UNKNOWN;
-	texResourceDesc.DepthOrArraySize = 1;
-	texResourceDesc.SampleDesc.Count = 1;
+	texResourceDesc.Width				= 4;
+	texResourceDesc.Height				= 4;
+	texResourceDesc.Dimension			= D3D12_RESOURCE_DIMENSION::D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+	texResourceDesc.Format				= DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM;
+	texResourceDesc.Flags				= D3D12_RESOURCE_FLAGS::D3D12_RESOURCE_FLAG_NONE;
+	texResourceDesc.Layout				= D3D12_TEXTURE_LAYOUT::D3D12_TEXTURE_LAYOUT_UNKNOWN;
+	texResourceDesc.DepthOrArraySize	= 1;
+	texResourceDesc.SampleDesc.Count	= 1;
 
 	//プロパティ
 	D3D12_HEAP_PROPERTIES hprop = {};
-	hprop.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY::D3D12_CPU_PAGE_PROPERTY_WRITE_BACK;
-	hprop.MemoryPoolPreference = D3D12_MEMORY_POOL::D3D12_MEMORY_POOL_L0;
-	hprop.Type = D3D12_HEAP_TYPE::D3D12_HEAP_TYPE_CUSTOM;
-	hprop.CreationNodeMask = 1;
-	hprop.VisibleNodeMask = 1;
+	hprop.CPUPageProperty		= D3D12_CPU_PAGE_PROPERTY::D3D12_CPU_PAGE_PROPERTY_WRITE_BACK;
+	hprop.MemoryPoolPreference	= D3D12_MEMORY_POOL::D3D12_MEMORY_POOL_L0;
+	hprop.Type					= D3D12_HEAP_TYPE::D3D12_HEAP_TYPE_CUSTOM;
+	hprop.CreationNodeMask		= 1;
+	hprop.VisibleNodeMask		= 1;
 
 	//白テクスチャデータ
 	std::vector<UCHAR> data(4 * 4 * 4);
@@ -83,6 +84,10 @@ int ImageLoader::Load(const std::string path, int materialsize, int materialInde
 	std::fill(sphBuffer.begin(), sphBuffer.end(), whiteBuffer);
 	std::fill(spaBuffer.begin(), spaBuffer.end(), blackBuffer);
 
+	return 0;
+}
+
+int ImageLoader::Load(const std::string path, int materialsize, int materialIndex) {
 	//StringをWStringに変換
 	std::wstring wstr = ConvertStringToWString(path);
 
@@ -95,12 +100,16 @@ int ImageLoader::Load(const std::string path, int materialsize, int materialInde
 
 	//分離
 	do {
+		//パスの書き換え
 		wstr = tmp;
 
+		//「*」があるか検索
 		auto i = wstr.rfind('*') != std::string::npos ? wstr.rfind('*') + 1 : 0;
 
+		//「*」以降のパスを取得
 		auto path = wstr.substr(i);
 
+		//残ったパスを取得
 		tmp = wstr.substr(0, i - 1);
 
 		//拡張子を判定
@@ -108,11 +117,27 @@ int ImageLoader::Load(const std::string path, int materialsize, int materialInde
 		auto filePath = path.substr(index + 1);
 
 		//画像読み込み
-		result = loadFuncTbl[filePath](folderName + path, &metaData, image);
+		auto result = loadFuncTbl[filePath](folderName + path, &metaData, image);
 
 		//テクスチャリソースの設定
-		texResourceDesc.Width = metaData.width;
-		texResourceDesc.Height = metaData.height;
+		D3D12_RESOURCE_DESC texResourceDesc = {};
+		CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+		texResourceDesc.Width				= metaData.width;
+		texResourceDesc.Height				= metaData.height;
+		texResourceDesc.Dimension			= D3D12_RESOURCE_DIMENSION::D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+		texResourceDesc.Format				= DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM;
+		texResourceDesc.Flags				= D3D12_RESOURCE_FLAGS::D3D12_RESOURCE_FLAG_NONE;
+		texResourceDesc.Layout				= D3D12_TEXTURE_LAYOUT::D3D12_TEXTURE_LAYOUT_UNKNOWN;
+		texResourceDesc.DepthOrArraySize	= 1;
+		texResourceDesc.SampleDesc.Count	= 1;
+
+		//プロパティ
+		D3D12_HEAP_PROPERTIES hprop = {};
+		hprop.CPUPageProperty		= D3D12_CPU_PAGE_PROPERTY::D3D12_CPU_PAGE_PROPERTY_WRITE_BACK;
+		hprop.MemoryPoolPreference	= D3D12_MEMORY_POOL::D3D12_MEMORY_POOL_L0;
+		hprop.Type					= D3D12_HEAP_TYPE::D3D12_HEAP_TYPE_CUSTOM;
+		hprop.CreationNodeMask		= 1;
+		hprop.VisibleNodeMask		= 1;
 
 		//バッファ生成
 		ID3D12Resource* buffer = nullptr;
@@ -127,12 +152,15 @@ int ImageLoader::Load(const std::string path, int materialsize, int materialInde
 		result = buffer->WriteToSubresource(0, nullptr, image.GetPixels(), metaData.width * 4, metaData.height * 4);
 
 		if (filePath == L"sph") {
+			//乗算テクスチャ
 			sphBuffer[materialIndex] = buffer;
 		}
 		else if (filePath == L"spa") {
+			//加算テクスチャ
 			spaBuffer[materialIndex] = buffer;
 		}
 		else {
+			//通常テクスチャ
 			textureBuffer[materialIndex] = buffer;
 		}
 

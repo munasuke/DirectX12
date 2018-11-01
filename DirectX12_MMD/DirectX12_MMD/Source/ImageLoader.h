@@ -13,6 +13,7 @@ class ImageLoader {
 public:
 	ImageLoader(ID3D12Device* dev);
 
+	int Initialize(int materialSize);
 	int Load(const std::string path, int materialsize, int materialIndex);
 	DirectX::TexMetadata GetMetaData();
 	std::vector<ID3D12Resource*> GetTextureBuffer();
