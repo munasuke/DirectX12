@@ -79,8 +79,6 @@ public:
 
 	int Load(const char* _path);
 
-	void SetData(UINT8* data);
-
 	PMDHeader					GetPMDHeader();	//ヘッダー情報を返す
 	std::vector<PMDVertex>		GetPMDVertex();	//頂点情報を返す
 	std::vector<USHORT>			GetIndices();	//インデックス情報を返す

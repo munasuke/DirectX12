@@ -46,8 +46,8 @@ Out BasicVS(float4 pos : POSITION, float4 normal : NORMAL, float2 uv : TEXCOORD,
 	//ワールドビュープロジェクション
     float4x4 vp = mul(projection, view);
     float w = weight / 100.0f;
-    //matrix m = boneMatrix[boneno.x] * w + boneMatrix[boneno.y] * (1 - w);
-    //pos = mul(m, pos);
+    matrix m = boneMatrix[boneno.x] * w + boneMatrix[boneno.y] * (1 - w);
+    pos = mul(m, pos);
     pos = mul(mul(vp, world), pos);
 
     o.svpos = pos;
@@ -63,11 +63,12 @@ float4 BasicPS(Out o) : SV_TARGET
 {
 	//視点
     float3 eye = (0.0f, 10.0f, -15.0f);
-    //視線
+    //視線ベクトル
     float3 ray = normalize(eye - o.pos.xyz);
+
 	//ライト
     float3 light = normalize(float3(-1, 1, -1));
-    //反射ベクトル
+    //ライト反射ベクトル
     float3 mirror = reflect(-light, o.normal);
 
     float spec = saturate(dot(mirror, ray));
@@ -79,6 +80,6 @@ float4 BasicPS(Out o) : SV_TARGET
     
 
     float3 color = tex.Sample(smp, o.uv).rgb * saturate(diffuse.rgb * brightness + specular.rgb * spec + ambient.rgb);
-    return float4(pow(color.r, 2.2f), pow(color.g, 2.2f), pow(color.b, 2.2f), diffuse.a);
+    //return float4(pow(color.r, 2.2f), pow(color.g, 2.2f), pow(color.b, 2.2f), diffuse.a);
     return float4(color, diffuse.a);
 }

@@ -23,63 +23,27 @@ ImageLoader::ImageLoader(ID3D12Device* dev) : dev(dev){
 }
 
 int ImageLoader::Initialize(int materialSize) {
-	//マテリアル分確保
+	//マテリアル分のバッファを確保
 	textureBuffer.resize(materialSize);
 	sphBuffer.resize(materialSize);
 	spaBuffer.resize(materialSize);
 
-	//テクスチャリソースの設定
-	D3D12_RESOURCE_DESC texResourceDesc = {};
-	CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
-	texResourceDesc.Width				= 4;
-	texResourceDesc.Height				= 4;
-	texResourceDesc.Dimension			= D3D12_RESOURCE_DIMENSION::D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-	texResourceDesc.Format				= DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM;
-	texResourceDesc.Flags				= D3D12_RESOURCE_FLAGS::D3D12_RESOURCE_FLAG_NONE;
-	texResourceDesc.Layout				= D3D12_TEXTURE_LAYOUT::D3D12_TEXTURE_LAYOUT_UNKNOWN;
-	texResourceDesc.DepthOrArraySize	= 1;
-	texResourceDesc.SampleDesc.Count	= 1;
-
-	//プロパティ
-	D3D12_HEAP_PROPERTIES hprop = {};
-	hprop.CPUPageProperty		= D3D12_CPU_PAGE_PROPERTY::D3D12_CPU_PAGE_PROPERTY_WRITE_BACK;
-	hprop.MemoryPoolPreference	= D3D12_MEMORY_POOL::D3D12_MEMORY_POOL_L0;
-	hprop.Type					= D3D12_HEAP_TYPE::D3D12_HEAP_TYPE_CUSTOM;
-	hprop.CreationNodeMask		= 1;
-	hprop.VisibleNodeMask		= 1;
-
-	//白テクスチャデータ
+	//テクスチャデータ
 	std::vector<UCHAR> data(4 * 4 * 4);
+
 	//真っ白に染めちゃう
 	std::fill(data.begin(), data.end(), 0xff);
+	//白テクスチャバッファ生成
+	ID3D12Resource* whiteBuffer = CreateBuffer(4, 4);
+	auto result = whiteBuffer->WriteToSubresource(0, nullptr, data.data(), 4 * 4, 4 * 4 * 4);
 
-	ID3D12Resource* whiteBuffer = nullptr;
-
-	auto result = dev->CreateCommittedResource(
-		&hprop,
-		D3D12_HEAP_FLAGS::D3D12_HEAP_FLAG_NONE,
-		&texResourceDesc,
-		D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_GENERIC_READ,
-		nullptr,
-		IID_PPV_ARGS(&whiteBuffer));
-
-	result = whiteBuffer->WriteToSubresource(0, nullptr, data.data(), 4 * 4, 4 * 4 * 4);
-
-	//黒テクスチャ
+	//真っ黒に染めちゃう
 	std::fill(data.begin(), data.end(), 0x00);
-
-	ID3D12Resource* blackBuffer = nullptr;
-
-	result = dev->CreateCommittedResource(
-		&hprop,
-		D3D12_HEAP_FLAGS::D3D12_HEAP_FLAG_NONE,
-		&texResourceDesc,
-		D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_GENERIC_READ,
-		nullptr,
-		IID_PPV_ARGS(&blackBuffer));
-
+	//黒テクスチャバッファ生成
+	ID3D12Resource* blackBuffer = CreateBuffer(4, 4);
 	result = blackBuffer->WriteToSubresource(0, nullptr, data.data(), 4 * 4, 4 * 4 * 4);
 
+	//通常・乗算テクスチャには白、加算テクスチャには黒を入れておく
 	std::fill(textureBuffer.begin(), textureBuffer.end(), whiteBuffer);
 	std::fill(sphBuffer.begin(), sphBuffer.end(), whiteBuffer);
 	std::fill(spaBuffer.begin(), spaBuffer.end(), blackBuffer);
@@ -91,14 +55,14 @@ int ImageLoader::Load(const std::string path, int materialsize, int materialInde
 	//StringをWStringに変換
 	std::wstring wstr = ConvertStringToWString(path);
 
+	//フォルダパスを取得
 	auto folderIndex = wstr.rfind('/');
 	auto folderName = wstr.substr(0, folderIndex + 1);
 
+	//フォルダパス以降を取得
 	wstr = wstr.substr(folderIndex + 1);
-
 	auto tmp = wstr;
 
-	//分離
 	do {
 		//パスの書き換え
 		wstr = tmp;
@@ -119,36 +83,8 @@ int ImageLoader::Load(const std::string path, int materialsize, int materialInde
 		//画像読み込み
 		auto result = loadFuncTbl[filePath](folderName + path, &metaData, image);
 
-		//テクスチャリソースの設定
-		D3D12_RESOURCE_DESC texResourceDesc = {};
-		CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
-		texResourceDesc.Width				= metaData.width;
-		texResourceDesc.Height				= metaData.height;
-		texResourceDesc.Dimension			= D3D12_RESOURCE_DIMENSION::D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-		texResourceDesc.Format				= DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM;
-		texResourceDesc.Flags				= D3D12_RESOURCE_FLAGS::D3D12_RESOURCE_FLAG_NONE;
-		texResourceDesc.Layout				= D3D12_TEXTURE_LAYOUT::D3D12_TEXTURE_LAYOUT_UNKNOWN;
-		texResourceDesc.DepthOrArraySize	= 1;
-		texResourceDesc.SampleDesc.Count	= 1;
-
-		//プロパティ
-		D3D12_HEAP_PROPERTIES hprop = {};
-		hprop.CPUPageProperty		= D3D12_CPU_PAGE_PROPERTY::D3D12_CPU_PAGE_PROPERTY_WRITE_BACK;
-		hprop.MemoryPoolPreference	= D3D12_MEMORY_POOL::D3D12_MEMORY_POOL_L0;
-		hprop.Type					= D3D12_HEAP_TYPE::D3D12_HEAP_TYPE_CUSTOM;
-		hprop.CreationNodeMask		= 1;
-		hprop.VisibleNodeMask		= 1;
-
 		//バッファ生成
-		ID3D12Resource* buffer = nullptr;
-		result = dev->CreateCommittedResource(
-			&hprop,
-			D3D12_HEAP_FLAGS::D3D12_HEAP_FLAG_NONE,
-			&texResourceDesc,
-			D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_GENERIC_READ,
-			nullptr,
-			IID_PPV_ARGS(&buffer));
-
+		ID3D12Resource* buffer = CreateBuffer(metaData.width, metaData.height, metaData.format);
 		result = buffer->WriteToSubresource(0, nullptr, image.GetPixels(), metaData.width * 4, metaData.height * 4);
 
 		if (filePath == L"sph") {
@@ -163,35 +99,25 @@ int ImageLoader::Load(const std::string path, int materialsize, int materialInde
 			//通常テクスチャ
 			textureBuffer[materialIndex] = buffer;
 		}
-
 	} while (wstr.rfind('*') != std::string::npos);
 
 	return 0;
 }
 
-DirectX::TexMetadata ImageLoader::GetMetaData()
-{
-	return metaData;
-}
-
-std::vector<ID3D12Resource*> ImageLoader::GetTextureBuffer()
-{
+std::vector<ID3D12Resource*> ImageLoader::GetTextureBuffer() {
 	return textureBuffer;
 }
 
-std::vector<ID3D12Resource*> ImageLoader::GetSphBuffer()
-{
+std::vector<ID3D12Resource*> ImageLoader::GetSphBuffer() {
 	return sphBuffer;
 }
 
-std::vector<ID3D12Resource*> ImageLoader::GetSpaBuffer()
-{
+std::vector<ID3D12Resource*> ImageLoader::GetSpaBuffer() {
 	return spaBuffer;
 }
 
-std::map<int, ID3D12Resource*> ImageLoader::GetBufferMap()
-{
-	return bufferMap;
+std::vector<ID3D12Resource*> ImageLoader::GetToonBuffer() {
+	return toonBuffer;
 }
 
 ImageLoader::~ImageLoader() {
@@ -200,4 +126,38 @@ ImageLoader::~ImageLoader() {
 std::wstring ImageLoader::ConvertStringToWString(std::string str) {
 	std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> cv;
 	return cv.from_bytes(str);
+}
+
+ID3D12Resource * ImageLoader::CreateBuffer(int width, int height, DXGI_FORMAT format) {
+	//テクスチャリソースの設定
+	D3D12_RESOURCE_DESC texResourceDesc = {};
+	CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+	texResourceDesc.Width				= width;
+	texResourceDesc.Height				= height;
+	texResourceDesc.Dimension			= D3D12_RESOURCE_DIMENSION::D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+	texResourceDesc.Format				= format;
+	texResourceDesc.Flags				= D3D12_RESOURCE_FLAGS::D3D12_RESOURCE_FLAG_NONE;
+	texResourceDesc.Layout				= D3D12_TEXTURE_LAYOUT::D3D12_TEXTURE_LAYOUT_UNKNOWN;
+	texResourceDesc.DepthOrArraySize	= 1;
+	texResourceDesc.SampleDesc.Count	= 1;
+
+	//プロパティ
+	D3D12_HEAP_PROPERTIES hprop = {};
+	hprop.CPUPageProperty		= D3D12_CPU_PAGE_PROPERTY::D3D12_CPU_PAGE_PROPERTY_WRITE_BACK;
+	hprop.MemoryPoolPreference	= D3D12_MEMORY_POOL::D3D12_MEMORY_POOL_L0;
+	hprop.Type					= D3D12_HEAP_TYPE::D3D12_HEAP_TYPE_CUSTOM;
+	hprop.CreationNodeMask		= 1;
+	hprop.VisibleNodeMask		= 1;
+
+	//バッファ生成
+	ID3D12Resource* buffer = nullptr;
+	auto result = dev->CreateCommittedResource(
+		&hprop,
+		D3D12_HEAP_FLAGS::D3D12_HEAP_FLAG_NONE,
+		&texResourceDesc,
+		D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(&buffer));
+
+	return buffer;
 }

@@ -47,7 +47,7 @@ int VMDMotion::Load(const char * path) {
 			return a.frameNo < b.frameNo; 
 		});
 
-		duration += max(m.second.back().frameNo, d);
+		duration = max(m.second.back().frameNo, d);
 	}
 
 	fclose(fp);
@@ -57,6 +57,10 @@ int VMDMotion::Load(const char * path) {
 
 const std::map<std::string, std::vector<MotionData>>& VMDMotion::GetAnimationData() const{
 	return animation;
+}
+
+const unsigned int VMDMotion::GetDuration() const {
+	return duration;
 }
 
 

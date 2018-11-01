@@ -91,9 +91,11 @@ void Application::Initialize() {
 	//pmd->Load("PMD/yagyu/柳生Ver1.12.pmd");
 	//pmd->Load("PMD/katuragi/葛城Ver1.10.pmd");
 	//pmd->Load("PMD/ikaruga/斑鳩Ver1.10.pmd");
+	//pmd->Load("PMD/hibari/雲雀Ver1.10.pmd");
 
 	//VMD
-	vmd->Load("Motion/swing2.vmd");
+	//vmd->Load("Motion/swing2.vmd");
+	vmd->Load("Motion/ヤゴコロダンス.vmd");
 
 	//頂点バッファ
 	vertex->Initialize(device->GetDevice(), pmd->GetPMDVertex());
@@ -167,6 +169,7 @@ void Application::Run() {
 		camera->UpdateWVP();
 		camera->SetDescriptor(command->GetCommandList(), device->GetDevice());
 
+		model->Update();
 		model->Draw(command->GetCommandList(), device->GetDevice());
 
 		command->GetCommandList()->ResourceBarrier(

@@ -3,6 +3,9 @@
 #include "ImageLoader.h"
 #include "VMDMotion.h"
 #include <iostream>
+#include <windows.h>
+
+#pragma comment(lib, "winmm.lib")
 
 using namespace DirectX;
 
@@ -112,24 +115,24 @@ void Model::Initialize(ID3D12Device * _dev) {
 		cbvDesc.BufferLocation	= materialBuffer[i]->GetGPUVirtualAddress();
 
 		//CBV生成
+		//マテリアル
 		_dev->CreateConstantBufferView(&cbvDesc, handle);
-
-		//通常テクスチャまでずらす
 		handle.ptr += incrementSize;
 
 		//SRV生成
-		//マテリアルにテクスチャがあるならテクスチャを、ないなら白テクスチャを生成
+		//通常テクスチャ
+		srvDesc.Format = img.lock()->GetTextureBuffer()[i]->GetDesc().Format;
 		_dev->CreateShaderResourceView(img.lock()->GetTextureBuffer()[i], &srvDesc, handle);
-
 		handle.ptr += incrementSize;
 
+		//乗算テクスチャ
+		srvDesc.Format = img.lock()->GetSphBuffer()[i]->GetDesc().Format;
 		_dev->CreateShaderResourceView(img.lock()->GetSphBuffer()[i], &srvDesc, handle);
-
 		handle.ptr += incrementSize;
 
+		//加算テクスチャ
+		srvDesc.Format = img.lock()->GetSpaBuffer()[i]->GetDesc().Format;
 		_dev->CreateShaderResourceView(img.lock()->GetSpaBuffer()[i], &srvDesc, handle);
-
-		//マテリアルまでずらす
 		handle.ptr += incrementSize;
 	}
 
@@ -138,9 +141,14 @@ void Model::Initialize(ID3D12Device * _dev) {
 }
 
 void Model::Update() {
-	static int frameNo = 0;
-	MotionUpdate(frameNo / 2);
-	++frameNo;
+	static auto lastTime = GetTickCount();
+	auto fps = 33.33333f;
+	auto a = vmd.lock()->GetDuration();
+	//経過フレーム数を渡す
+	MotionUpdate(static_cast<float>(GetTickCount() - lastTime) / fps);
+	if (GetTickCount() - lastTime > vmd.lock()->GetDuration() * fps) {
+		lastTime = GetTickCount();
+	}
 }
 
 void Model::Draw(ID3D12GraphicsCommandList * _list, ID3D12Device * _dev) {

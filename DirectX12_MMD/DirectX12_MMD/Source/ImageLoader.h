@@ -14,16 +14,17 @@ public:
 	ImageLoader(ID3D12Device* dev);
 
 	int Initialize(int materialSize);
-	int Load(const std::string path, int materialsize, int materialIndex);
-	DirectX::TexMetadata GetMetaData();
+	int Load(const std::string path, int materialSize, int materialIndex);
+
 	std::vector<ID3D12Resource*> GetTextureBuffer();
 	std::vector<ID3D12Resource*> GetSphBuffer();
 	std::vector<ID3D12Resource*> GetSpaBuffer();
-	std::map<int, ID3D12Resource*> GetBufferMap();
+	std::vector<ID3D12Resource*> GetToonBuffer();
 
 	~ImageLoader();
 private:
 	std::wstring ConvertStringToWString(std::string str);
+	ID3D12Resource* CreateBuffer(int width, int height, DXGI_FORMAT format = DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM);
 
 	ID3D12Device* dev;
 
@@ -43,6 +44,6 @@ private:
 	std::vector<ID3D12Resource*> sphBuffer;
 	//加算テクスチャ
 	std::vector<ID3D12Resource*> spaBuffer;
-
-	std::map<int, ID3D12Resource*> bufferMap;
+	//トゥーンテクスチャ
+	std::vector<ID3D12Resource*> toonBuffer;
 };

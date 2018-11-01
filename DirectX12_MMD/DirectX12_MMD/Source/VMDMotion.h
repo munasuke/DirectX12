@@ -28,6 +28,7 @@ public:
 
 	int Load(const char* path);
 	const std::map<std::string, std::vector<MotionData>>& GetAnimationData() const;
+	const unsigned int GetDuration() const;
 
 	~VMDMotion();
 
