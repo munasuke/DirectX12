@@ -48,10 +48,9 @@ Out BasicVS(float4 pos : POSITION, float4 normal : NORMAL, float2 uv : TEXCOORD,
     float w = weight / 100.0f;
     matrix m = boneMatrix[boneno.x] * w + boneMatrix[boneno.y] * (1 - w);
     pos = mul(m, pos);
+    o.pos = mul(world, pos);
     pos = mul(mul(vp, world), pos);
-
     o.svpos = pos;
-    o.pos = pos;
     o.normal = mul(world, normal);
     o.uv = uv;
     o.weight = float2(w, 1 - w);
@@ -62,12 +61,27 @@ Out BasicVS(float4 pos : POSITION, float4 normal : NORMAL, float2 uv : TEXCOORD,
 float4 BasicPS(Out o) : SV_TARGET
 {
 	//視点
-    float3 eye = (0.0f, 10.0f, -15.0f);
-    //視線ベクトル
+    float3 eye = (0.0f, 15.0f, -15.0f);
+    //逆視線ベクトル
     float3 ray = normalize(eye - o.pos.xyz);
 
+    //視線ベクトル
+    float3 rray = -ray;
+
+    //上ベクトル
+    float3 upVec = (0.0f, 1.0f, 0.0f);
+
+    //右ベクトルを計算
+    float3 rightVec = cross(upVec, rray);
+
+    //真の上ベクトルを計算
+    float3 upperVec = cross(rightVec, rray);
+
+    float2 uv = float2(dot(o.normal, normalize(rightVec)), dot(o.normal, normalize(upperVec)));
+    float2 spuv = float2(0.5f, -0.5f) * (uv + float2(1.0f, -1.0f));
+
 	//ライト
-    float3 light = normalize(float3(-1, 1, -1));
+    float3 light = normalize(float3(-1.0f, 1.0f, -1.0f));
     //ライト反射ベクトル
     float3 mirror = reflect(-light, o.normal);
 
@@ -78,8 +92,8 @@ float4 BasicPS(Out o) : SV_TARGET
     float brightness = saturate(dot(light, o.normal.xyz)); //rcp : 正規化ランバート
 
     
-
-    float3 color = tex.Sample(smp, o.uv).rgb * saturate(diffuse.rgb * brightness + specular.rgb * spec + ambient.rgb);
+    float3 texColor = tex.Sample(smp, o.uv).rgb * sph.Sample(smp, spuv).rgb + spa.Sample(smp, spuv).rgb;
+    float3 color = texColor * saturate(diffuse.rgb * brightness + specular.rgb * spec + ambient.rgb);
     //return float4(pow(color.r, 2.2f), pow(color.g, 2.2f), pow(color.b, 2.2f), diffuse.a);
     return float4(color, diffuse.a);
 }

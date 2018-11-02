@@ -55,6 +55,61 @@ int PMDLoader::Load(const char * _path) {
 		fread(&b.boneHeadPos, sizeof(b.boneHeadPos), 1, fp);
 	}
 
+	//IK
+	unsigned short ikNum = 0;
+	fread(&ikNum, sizeof(ikNum), 1, fp);
+	//飛ばすで
+	for (int i = 0; i < ikNum; ++i) {
+		fseek(fp, 4, SEEK_CUR);
+		unsigned char ikChainNum;
+		fread(&ikChainNum, sizeof(ikChainNum), 1, fp);
+		fseek(fp, 6, SEEK_CUR);
+		fseek(fp, ikChainNum * sizeof(unsigned short), SEEK_CUR);
+	}
+
+	//表情
+	unsigned short skinNum = 0;
+	fread(&skinNum, sizeof(skinNum), 1, fp);
+	//飛ばすで
+	for (int i = 0; i < skinNum; ++i) {
+		fseek(fp, 20, SEEK_CUR);
+		unsigned int vertNum = 0;
+		fread(&vertNum, sizeof(vertNum), 1, fp);
+		fseek(fp, 1, SEEK_CUR);
+		fseek(fp, 16 * vertNum, SEEK_CUR);
+	}
+
+	//表示用表情
+	unsigned char skinDispNum = 0;
+	fread(&skinDispNum, sizeof(skinDispNum), 1, fp);
+	fseek(fp, skinDispNum * sizeof(unsigned short), SEEK_CUR);
+
+	//表示用ボーン名
+	unsigned char boneDispNum = 0;
+	fread(&boneDispNum, sizeof(boneDispNum), 1, fp);
+	fseek(fp, 50 * boneDispNum, SEEK_CUR);
+
+	//表示ボーンリスト
+	unsigned int dispBoneNum = 0;
+	fread(&dispBoneNum, sizeof(dispBoneNum), 1, fp);
+	fseek(fp, 3 * dispBoneNum, SEEK_CUR);
+
+	//英名対応フラグ
+	unsigned char englishFlg = 0;
+	fread(&englishFlg, sizeof(englishFlg), 1, fp);
+	if (englishFlg) {
+		//モデル名20バイト+256バイトコメント
+		fseek(fp, 20 + 256, SEEK_CUR);
+		//ボーン名20バイト*ボーン数
+		fseek(fp, bone.size() * 20, SEEK_CUR);
+		//(表情数 - 1) * 20バイト。-1なのはベース部分
+		fseek(fp, (skinNum - 1) * 20, SEEK_CUR);
+		//ボーン数*50バイト
+		fseek(fp, boneDispNum * 50, SEEK_CUR);
+	}
+
+	fread(toonTexList.data(), sizeof(char) * 100, toonTexList.size(), fp);
+
 	fclose(fp);
 
 	imageL.lock()->Initialize(material.size());

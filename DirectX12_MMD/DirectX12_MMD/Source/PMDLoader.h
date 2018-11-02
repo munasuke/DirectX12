@@ -5,6 +5,7 @@
 #include <vector>
 #include <memory>
 #include <map>
+#include <array>
 
 class BmpLoader;
 class ImageLoader;
@@ -42,6 +43,7 @@ struct PMDMaterial {
 	DirectX::XMFLOAT3	specular;			//光沢色
 	DirectX::XMFLOAT3	ambient;			//環境色
 	UCHAR				toonIndex;			//トゥーンのインデックス
+
 	UCHAR				edgeFlag;			//輪郭線フラグ
 	UINT				indexCount;			//面頂点数（面頂点リストのデータ数）
 	CHAR				textureFilePath[20];//テクスチャがあるときのテクスチャパス
@@ -115,6 +117,8 @@ private:
 
 	USHORT							boneCount;		//ボーン総数
 	std::vector<Bone>				bone;			//ボーン情報
+
+	std::array<char[100], 10> toonTexList;
 
 	MAT mat;
 	std::vector<bool> texFlag;

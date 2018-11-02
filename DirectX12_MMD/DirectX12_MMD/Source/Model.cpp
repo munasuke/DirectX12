@@ -126,6 +126,7 @@ void Model::Initialize(ID3D12Device * _dev) {
 		//乗算テクスチャ
 		srvDesc.Format = img.lock()->GetSphBuffer()[i]->GetDesc().Format;
 		_dev->CreateShaderResourceView(img.lock()->GetSphBuffer()[i], &srvDesc, handle);
+		auto w = img.lock()->GetSphBuffer();
 		handle.ptr += incrementSize;
 
 		//加算テクスチャ
