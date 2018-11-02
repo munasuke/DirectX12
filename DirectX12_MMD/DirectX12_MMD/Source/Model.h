@@ -47,11 +47,6 @@ public:
 	//描画
 	void Draw(ID3D12GraphicsCommandList * _list, ID3D12Device * _dev);
 
-	//白テクスチャ生成
-	void CreateWhiteTexture();
-	//黒テクスチャ生成
-	void CreateBlackTexture();
-
 	//ボーンバッファ生成
 	void CreateBoneBuffer(ID3D12Device* dev);
 
@@ -64,6 +59,7 @@ public:
 	//モーション更新
 	void MotionUpdate(int framNo);
 
+	//
 	float GetVezierYValueFromXWithNewton(float x, DirectX::XMFLOAT2 a, DirectX::XMFLOAT2 b, unsigned int n = 16);
 
 	~Model();
@@ -79,10 +75,6 @@ private:
 	std::vector<ID3D12Resource*> materialBuffer;
 	//テクスチャバッファ
 	std::vector<ID3D12Resource*> textureBuffer;
-	//白テクスチャバッファ
-	ID3D12Resource* whiteBuffer;
-	//黒テクスチャバッファ
-	ID3D12Resource* blackBuffer;
 	//マテリアル
 	Materials mat;
 	//データ

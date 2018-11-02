@@ -19,7 +19,6 @@ public:
 
 	~Camera();
 private:
-	ID3D12DescriptorHeap* heap;
 	ID3D12Resource* resource;
 
 	Matrix mt;

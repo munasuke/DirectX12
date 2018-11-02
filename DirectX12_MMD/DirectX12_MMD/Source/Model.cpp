@@ -14,8 +14,6 @@ Model::Model(std::shared_ptr<PMDLoader> pmd, std::shared_ptr<ImageLoader> img, s
 	img(img),
 	vmd(vmd),
 	heap(nullptr), 
-	whiteBuffer(nullptr), 
-	blackBuffer(nullptr),
 	boneBuffer(nullptr),
 	boneMatrixData(nullptr)
 {
@@ -141,13 +139,12 @@ void Model::Initialize(ID3D12Device * _dev) {
 }
 
 void Model::Update() {
-	static auto lastTime = GetTickCount();
+	static auto lastTime = timeGetTime();
 	auto fps = 33.33333f;
-	auto a = vmd.lock()->GetDuration();
 	//経過フレーム数を渡す
-	MotionUpdate(static_cast<float>(GetTickCount() - lastTime) / fps);
-	if (GetTickCount() - lastTime > vmd.lock()->GetDuration() * fps) {
-		lastTime = GetTickCount();
+	MotionUpdate(static_cast<float>(timeGetTime() - lastTime) / fps);
+	if (timeGetTime() - lastTime > vmd.lock()->GetDuration() * fps) {
+		lastTime = timeGetTime();
 	}
 }
 
@@ -180,13 +177,6 @@ void Model::Draw(ID3D12GraphicsCommandList * _list, ID3D12Device * _dev) {
 		offset += material[i].indexCount;
 	}
 }
-
-void Model::CreateWhiteTexture() {
-}
-
-void Model::CreateBlackTexture() {
-}
-
 
 void Model::CreateBoneBuffer(ID3D12Device * dev) {
 	//ボーンバッファ生成
@@ -282,7 +272,7 @@ float Model::GetVezierYValueFromXWithNewton(float x, DirectX::XMFLOAT2 a, Direct
 	//最終的に求めたい媒介変数
 	float t = x;				//初期値はxと同じ
 
-								//係数
+	//係数
 	float k[] = {
 		1 + 3 * a.x - 3 * b.x,	//t^3の係数
 		3 * b.x - 6 * a.x,		//t^2の係数
@@ -317,6 +307,7 @@ float Model::GetVezierYValueFromXWithNewton(float x, DirectX::XMFLOAT2 a, Direct
 	//反転
 	float r = 1 - t;
 
+	//ベジェのY値を返す
 	return 3 * (r * r * t * a.y) + 3 * (r * t * t * b.y) + (t * t * t);
 }
 

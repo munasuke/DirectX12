@@ -24,6 +24,17 @@ void RenderTarget:: InitRenderTarget(UINT _bufferCnt, ID3D12Device* _dev, IDXGIS
 	}
 }
 
+void RenderTarget::Init1stPathRTVSRV(ID3D12Device* _dev, ID3D12Resource* buff) {
+	D3D12_DESCRIPTOR_HEAP_DESC descHeap = {};
+	descHeap.Flags = D3D12_DESCRIPTOR_HEAP_FLAGS::D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+	descHeap.NodeMask = 0;
+	descHeap.NumDescriptors = 1;
+	descHeap.Type = D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+	_dev->CreateDescriptorHeap(&descHeap, IID_PPV_ARGS(&heapFor1stPath));
+
+
+}
+
 std::vector<ID3D12Resource*> RenderTarget::GetRenderTarget() {
 	return renderTarget;
 }

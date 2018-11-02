@@ -167,10 +167,15 @@ void Application::Run() {
 		depth->SetDescriptor(command->GetCommandList());
 
 		camera->UpdateWVP();
+		//
 		camera->SetDescriptor(command->GetCommandList(), device->GetDevice());
 
 		model->Update();
+		//
 		model->Draw(command->GetCommandList(), device->GetDevice());
+
+		//モデル描画関連をバンドル
+		//CreateModelDrawBundle();
 
 		command->GetCommandList()->ResourceBarrier(
 			1,
@@ -180,11 +185,13 @@ void Application::Run() {
 				D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_PRESENT)
 		);
 
+		//command->GetCommandList()->ExecuteBundle(command->GetBundleCommandList());
+
 		command->GetCommandList()->Close();
 
 		command->Execute();
 
-		swapChain->GetSwapChain()->Present(1, 0);
+		swapChain->GetSwapChain()->Present(0, 0);
 		command->GetCommandQueue()->Signal(fence->GetFence(), fence->GetFenceValue(true));
 		while (fence->GetFence()->GetCompletedValue() != fence->GetFenceValue()) {
 		}
@@ -194,6 +201,21 @@ void Application::Run() {
 
 void Application::Terminate() {
 	CoUninitialize();
+}
+
+void Application::CreateModelDrawBundle() {
+	command->CreateModelDrawBundle(device->GetDevice(), pipline->GetPiplineState());
+
+	command->GetBundleCommandList()->SetGraphicsRootSignature(root->GetRootSignature());
+
+	command->GetBundleCommandList()->IASetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	command->GetBundleCommandList()->IASetVertexBuffers(0, 1, &vertex->GetVBV());
+	command->GetBundleCommandList()->IASetIndexBuffer(&index->GetIndexBufferView());
+
+	camera->SetDescriptor(command->GetBundleCommandList(), device->GetDevice());
+	model->Draw(command->GetBundleCommandList(), device->GetDevice());
+
+	command->GetBundleCommandList()->Close();
 }
 
 Application::~Application() {

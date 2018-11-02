@@ -17,11 +17,11 @@ void RootSignature::InitRootSignature(D3D12_STATIC_SAMPLER_DESC _samplerDesc, ID
 		デスクリプタレンジ
 	*/
 	//b0(カメラ)
-	descriptorRange[0].RangeType							= D3D12_DESCRIPTOR_RANGE_TYPE::D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
-	descriptorRange[0].NumDescriptors						= 1;
-	descriptorRange[0].BaseShaderRegister					= 0;
-	descriptorRange[0].RegisterSpace						= 0;
-	descriptorRange[0].OffsetInDescriptorsFromTableStart	= D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+	//descriptorRange[0].RangeType							= D3D12_DESCRIPTOR_RANGE_TYPE::D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
+	//descriptorRange[0].NumDescriptors						= 1;
+	//descriptorRange[0].BaseShaderRegister					= 0;
+	//descriptorRange[0].RegisterSpace						= 0;
+	//descriptorRange[0].OffsetInDescriptorsFromTableStart	= D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 	//b1(マテリアル情報)
 	descriptorRange[1].RangeType							= D3D12_DESCRIPTOR_RANGE_TYPE::D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
@@ -41,10 +41,10 @@ void RootSignature::InitRootSignature(D3D12_STATIC_SAMPLER_DESC _samplerDesc, ID
 		パラメータ
 	*/
 	//b0(カメラ)
-	parameter[0].ParameterType							= D3D12_ROOT_PARAMETER_TYPE::D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	parameter[0].ParameterType							= D3D12_ROOT_PARAMETER_TYPE::D3D12_ROOT_PARAMETER_TYPE_CBV;
 	parameter[0].ShaderVisibility						= D3D12_SHADER_VISIBILITY::D3D12_SHADER_VISIBILITY_ALL;
-	parameter[0].DescriptorTable.NumDescriptorRanges	= 1;
-	parameter[0].DescriptorTable.pDescriptorRanges		= &descriptorRange[0];
+	parameter[0].Descriptor.RegisterSpace				= 0;
+	parameter[0].Descriptor.ShaderRegister				= 0;
 
 	//b1(マテリアル情報), t0～t2(テクスチャ)
 	parameter[1].ParameterType							= D3D12_ROOT_PARAMETER_TYPE::D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;

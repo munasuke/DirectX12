@@ -42,6 +42,9 @@ private:
 	Application(const Application&);		//コピー禁止
 	void operator=(const Application&) {};	//代入禁止
 
+	void CreateModelDrawBundle();
+
+
 	std::shared_ptr<Window>				window;			//ウィンドウ
 	std::shared_ptr<Device>				device;			//デバイス
 	std::shared_ptr<Command>			command;		//コマンド

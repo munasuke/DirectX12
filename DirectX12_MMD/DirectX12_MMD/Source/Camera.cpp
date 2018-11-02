@@ -3,7 +3,7 @@
 
 using namespace DirectX;
 
-Camera::Camera() : heap(nullptr) {
+Camera::Camera() {
 }
 
 void Camera::Initialize(ID3D12Device * _dev) {
@@ -45,18 +45,6 @@ void Camera::Initialize(ID3D12Device * _dev) {
 		nullptr,
 		IID_PPV_ARGS(&resource)
 	);
-	//コンスタントバッファビューの設定
-	D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
-	cbvDesc.BufferLocation	= resource->GetGPUVirtualAddress();
-	cbvDesc.SizeInBytes		= (sizeof(mt) + 0xff) &~0xff;
-
-	D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
-	heapDesc.NumDescriptors = 1;//領域確保
-	heapDesc.Type			= D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
-	heapDesc.Flags			= D3D12_DESCRIPTOR_HEAP_FLAGS::D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
-	result = _dev->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&heap));
-
-	_dev->CreateConstantBufferView(&cbvDesc, heap->GetCPUDescriptorHandleForHeapStart());
 
 	result = resource->Map(0, nullptr, (void**)(&data));
 	memcpy(data, &mt, sizeof(mt));
@@ -70,9 +58,7 @@ void Camera::UpdateWVP() {
 }
 
 void Camera::SetDescriptor(ID3D12GraphicsCommandList * _list, ID3D12Device * _dev) {
-	ID3D12DescriptorHeap* heaps[] = { heap };
-	_list->SetDescriptorHeaps(1, heaps);
-	_list->SetGraphicsRootDescriptorTable(0, heap->GetGPUDescriptorHandleForHeapStart());
+	_list->SetGraphicsRootConstantBufferView(0, resource->GetGPUVirtualAddress());
 }
 
 

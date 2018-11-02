@@ -28,6 +28,13 @@ void Command::Execute() {
 	commandQueue->ExecuteCommandLists(_countof(commandLists), commandLists);
 }
 
+void Command::CreateModelDrawBundle(ID3D12Device* _dev, ID3D12PipelineState* pip) {
+	auto result = _dev->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE::D3D12_COMMAND_LIST_TYPE_BUNDLE, IID_PPV_ARGS(&bundleAllocator));
+	result = _dev->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE::D3D12_COMMAND_LIST_TYPE_BUNDLE, bundleAllocator, pip, IID_PPV_ARGS(&bundleCommandList));
+
+	//bundleCommandList->Close();
+}
+
 ID3D12CommandAllocator * Command::GetCommandAllocator() {
 	return commandAllocator;
 }
@@ -38,6 +45,14 @@ ID3D12CommandQueue * Command::GetCommandQueue() {
 
 ID3D12GraphicsCommandList * Command::GetCommandList() {
 	return commandList;
+}
+
+ID3D12CommandAllocator * Command::GetBundleAllocator() {
+	return bundleAllocator;
+}
+
+ID3D12GraphicsCommandList * Command::GetBundleCommandList() {
+	return bundleCommandList;
 }
 
 
