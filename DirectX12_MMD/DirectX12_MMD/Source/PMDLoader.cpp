@@ -114,10 +114,17 @@ int PMDLoader::Load(const char * _path) {
 
 	imageL.lock()->Initialize(material.size());
 
+	//テクスチャ読み込み
+	folderName = GetFolderPath(_path);
 	for (INT i = 0; i < material.size(); ++i) {
 		if (strlen(material[i].textureFilePath) > 0) {
 			auto texPath = GetRelativeTexturePathFromPmdPath(_path, material[i].textureFilePath);
 			imageL.lock()->Load(texPath.c_str(), material.size(), i);
+		}
+		//トゥーンテクスチャの読み込み
+		if (material[i].toonIndex != 0xff) {
+			auto toonFilePath = imageL.lock()->GetToonPathFromIndex(folderName, toonTexList[material[i].toonIndex]);
+			imageL.lock()->Load(toonFilePath.c_str(), material.size(), i);
 		}
 	}
 
@@ -180,9 +187,19 @@ std::string PMDLoader::GetRelativeTexturePathFromPmdPath(const char * modelPath,
 
 	auto separation = max(index1, index2);
 
-	auto textureFilePath = strModelPath.substr(0, separation) + "/" + texturePath;
+	return strModelPath.substr(0, separation) + "/" + texturePath;
+}
 
-	return textureFilePath;
+std::string PMDLoader::GetFolderPath(const char * modelPath) {
+	std::string strModelPath = modelPath;
+
+	auto index1 = strModelPath.rfind('/');
+	auto index2 = strModelPath.rfind('\\');
+	index2 = std::string::npos ? 0 : index2;
+
+	auto separation = max(index1, index2);
+
+	return strModelPath.substr(0, separation) + "/";
 }
 
 UINT PMDLoader::GetTextureNum() {

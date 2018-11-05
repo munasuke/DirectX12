@@ -1,7 +1,10 @@
 #pragma once
 #include <vector>
 #include <dxgi1_4.h>
+#include <map>
+#include <string>
 
+class Window;
 class SwapChain;
 class Descriptor;
 
@@ -23,6 +26,7 @@ private:
 	std::vector<ID3D12Resource*> renderTarget;
 	UINT renderNum;
 
-	ID3D12DescriptorHeap* heapFor1stPath;
+	std::map<std::string, ID3D12DescriptorHeap*> heapFor1stPath;
+	ID3D12Resource* peraBuffer;
 };
 

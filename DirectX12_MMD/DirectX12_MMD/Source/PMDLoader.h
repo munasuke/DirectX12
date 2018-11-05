@@ -92,6 +92,7 @@ public:
 	//テクスチャの相対パス（相対パスオンリー）
 	*/
 	std::string					GetRelativeTexturePathFromPmdPath(const char* modelPath, const char* texturePath);
+	std::string					GetFolderPath(const char* modelPath);
 	UINT						GetTextureNum();
 
 	//ボーン
@@ -118,10 +119,12 @@ private:
 	USHORT							boneCount;		//ボーン総数
 	std::vector<Bone>				bone;			//ボーン情報
 
-	std::array<char[100], 10> toonTexList;
+	std::array<char[100], 10> toonTexList;	//トゥーン名のリスト
 
 	MAT mat;
 	std::vector<bool> texFlag;
+
+	std::string folderName;
 
 };
 

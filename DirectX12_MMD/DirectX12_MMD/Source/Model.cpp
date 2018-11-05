@@ -23,7 +23,7 @@ void Model::Initialize(ID3D12Device * _dev) {
 	auto material = pmd.lock()->GetMaterial();
 	//ヒープの設定
 	D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
-	heapDesc.NumDescriptors = material.size() * 4;
+	heapDesc.NumDescriptors = material.size() * 5;
 	heapDesc.Type			= D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	heapDesc.Flags			= D3D12_DESCRIPTOR_HEAP_FLAGS::D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	heapDesc.NodeMask		= 0;
@@ -133,6 +133,11 @@ void Model::Initialize(ID3D12Device * _dev) {
 		srvDesc.Format = img.lock()->GetSpaBuffer()[i]->GetDesc().Format;
 		_dev->CreateShaderResourceView(img.lock()->GetSpaBuffer()[i], &srvDesc, handle);
 		handle.ptr += incrementSize;
+
+		//トゥーンテクスチャ
+		srvDesc.Format = img.lock()->GetToonBuffer()[i]->GetDesc().Format;
+		_dev->CreateShaderResourceView(img.lock()->GetToonBuffer()[i], &srvDesc, handle);
+		handle.ptr += incrementSize;
 	}
 
 	//ボーンバッファ生成
@@ -169,7 +174,7 @@ void Model::Draw(ID3D12GraphicsCommandList * _list, ID3D12Device * _dev) {
 		_list->SetGraphicsRootDescriptorTable(1, handle);
 
 		//通常テクスチャまでずらす
-		handle.ptr += 4 * _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+		handle.ptr += 5 * _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
 		//マテリアル別に描画
 		_list->DrawIndexedInstanced(material[i].indexCount, 1, offset, 0, 0);

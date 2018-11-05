@@ -1,10 +1,13 @@
 #include "ImageLoader.h"
 #include <locale>
 #include <codecvt>
+#include <Shlwapi.h>
+
+#pragma comment(lib, "shlwapi.lib")
 
 using namespace DirectX;
 
-ImageLoader::ImageLoader(ID3D12Device* dev) : dev(dev){
+ImageLoader::ImageLoader(ID3D12Device* dev) : dev(dev), toonFlag(false){
 	//拡張子でロード関数を変更
 	//bmp, png, jpg
 	loadFuncTbl[L"bmp"] = loadFuncTbl[L"png"] = loadFuncTbl[L"jpg"] = loadFuncTbl[L"sph"] = loadFuncTbl[L"spa"] =
@@ -27,6 +30,7 @@ int ImageLoader::Initialize(int materialSize) {
 	textureBuffer.resize(materialSize);
 	sphBuffer.resize(materialSize);
 	spaBuffer.resize(materialSize);
+	toonBuffer.resize(materialSize);
 
 	//テクスチャデータ
 	std::vector<UCHAR> data(4 * 4 * 4);
@@ -43,10 +47,28 @@ int ImageLoader::Initialize(int materialSize) {
 	ID3D12Resource* blackBuffer = CreateBuffer(4, 4);
 	result = blackBuffer->WriteToSubresource(0, nullptr, data.data(), 4 * 4, 4 * 4 * 4);
 
-	//通常・乗算テクスチャには白、加算テクスチャには黒を入れておく
+	//グラデーション
+	ID3D12Resource* gradBuffer = CreateBuffer(4, 256);
+	struct Color {
+		unsigned char r, g, b, a;
+		Color() : r(0), g(0), b(0), a(0) {}
+		Color(unsigned char r, unsigned char g, unsigned char b, unsigned char a) : r(r), g(g), b(b), a(a) {}
+	};
+	std::vector<Color> gData(4 * 256);
+	//明るさ
+	unsigned char brightness = 255;
+	//1行ごとに明るさを下げていく
+	for (auto it = gData.begin(); it != gData.end(); it += 4) {
+		std::fill_n(it, 4, Color(brightness, brightness, brightness, 0xff));
+		--brightness;
+	}
+	result = gradBuffer->WriteToSubresource(0, nullptr, gData.data(), sizeof(Color) * 4, sizeof(Color) * gData.size());
+
+	//通常・乗算テクスチャには白、加算テクスチャには黒、トゥーンにはグラデーションを入れておく
 	std::fill(textureBuffer.begin(), textureBuffer.end(), whiteBuffer);
 	std::fill(sphBuffer.begin(), sphBuffer.end(), whiteBuffer);
 	std::fill(spaBuffer.begin(), spaBuffer.end(), blackBuffer);
+	std::fill(toonBuffer.begin(), toonBuffer.end(), gradBuffer);
 
 	return 0;
 }
@@ -87,6 +109,12 @@ int ImageLoader::Load(const std::string path, int materialsize, int materialInde
 		ID3D12Resource* buffer = CreateBuffer(metaData.width, metaData.height, metaData.format);
 		result = buffer->WriteToSubresource(0, nullptr, image.GetPixels(), metaData.width * 4, metaData.height * 4);
 
+		if (toonFlag) {
+			//トゥーンテクスチャ
+			toonBuffer[materialIndex] = buffer;
+			toonFlag = false;
+			return 0;
+		}
 		if (filePath == L"sph") {
 			//乗算テクスチャ
 			sphBuffer[materialIndex] = buffer;
@@ -118,6 +146,20 @@ std::vector<ID3D12Resource*> ImageLoader::GetSpaBuffer() {
 
 std::vector<ID3D12Resource*> ImageLoader::GetToonBuffer() {
 	return toonBuffer;
+}
+
+std::string ImageLoader::GetToonPathFromIndex(const std::string folder, const char* toonName) {
+	std::string fileName = toonName;
+	std::string path = "Toon/";
+	path += fileName;
+	toonFlag = true;
+	//トゥーンフォルダを探し、見つからなければモデルフォルダを探す
+	if (PathFileExistsA(path.c_str())) {
+		return path;
+	}
+	else {
+		return folder + path;
+	}
 }
 
 ImageLoader::~ImageLoader() {

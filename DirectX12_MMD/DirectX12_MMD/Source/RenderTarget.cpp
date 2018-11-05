@@ -1,5 +1,6 @@
 #include "Result.h"
 #include "RenderTarget.h"
+#include "Window.h"
 #include "SwapChain.h"
 #include "Descriptor.h"
 
@@ -25,14 +26,35 @@ void RenderTarget:: InitRenderTarget(UINT _bufferCnt, ID3D12Device* _dev, IDXGIS
 }
 
 void RenderTarget::Init1stPathRTVSRV(ID3D12Device* _dev, ID3D12Resource* buff) {
+	//ペラポリ用
+
 	D3D12_DESCRIPTOR_HEAP_DESC descHeap = {};
 	descHeap.Flags = D3D12_DESCRIPTOR_HEAP_FLAGS::D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 	descHeap.NodeMask = 0;
 	descHeap.NumDescriptors = 1;
+
+	//RTV用ヒープ
 	descHeap.Type = D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-	_dev->CreateDescriptorHeap(&descHeap, IID_PPV_ARGS(&heapFor1stPath));
+	_dev->CreateDescriptorHeap(&descHeap, IID_PPV_ARGS(&heapFor1stPath["RTV"]));
 
+	//SRV用ヒープ
+	descHeap.Type = D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	_dev->CreateDescriptorHeap(&descHeap, IID_PPV_ARGS(&heapFor1stPath["SRV"]));
 
+	D3D12_RESOURCE_DESC rDesc = {};
+	rDesc.Height = WIN_HEIGHT;
+	rDesc.Width = WIN_WIDTH;
+	rDesc.Flags = D3D12_RESOURCE_FLAGS::D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+
+	//バッファ生成
+	result = _dev->CreateCommittedResource(
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE::D3D12_HEAP_TYPE_UPLOAD),
+		D3D12_HEAP_FLAGS::D3D12_HEAP_FLAG_NONE,
+		&rDesc,
+		D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(&peraBuffer)
+	);
 }
 
 std::vector<ID3D12Resource*> RenderTarget::GetRenderTarget() {

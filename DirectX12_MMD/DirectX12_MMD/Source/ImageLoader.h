@@ -20,6 +20,7 @@ public:
 	std::vector<ID3D12Resource*> GetSphBuffer();
 	std::vector<ID3D12Resource*> GetSpaBuffer();
 	std::vector<ID3D12Resource*> GetToonBuffer();
+	std::string GetToonPathFromIndex(const std::string folder, const char* toonName);
 
 	~ImageLoader();
 private:
@@ -46,4 +47,5 @@ private:
 	std::vector<ID3D12Resource*> spaBuffer;
 	//トゥーンテクスチャ
 	std::vector<ID3D12Resource*> toonBuffer;
+	bool toonFlag;
 };

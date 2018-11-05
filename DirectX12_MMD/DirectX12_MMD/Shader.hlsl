@@ -2,7 +2,7 @@
 Texture2D<float4> tex   : register(t0); //通常テクスチャ
 Texture2D<float4> sph : register(t1); //乗算テクスチャ
 Texture2D<float4> spa : register(t2); //加算テクスチャ
-//Texture2D<float4> toon  : register(t3); //トゥーンテクスチャ
+Texture2D<float4> toon : register(t3); //トゥーンテクスチャ
 
 SamplerState smp : register(s0);//サンプラ
 
@@ -33,7 +33,8 @@ struct Out
 {
     float4 svpos    : SV_POSITION;
     float4 pos      : POSITION;
-    float3 normal   : NORMAL;
+    float3 normal   : NORMAL0;
+    float3 cnormal  : NORMAL1;
     float2 uv       : TEXCOORD;
     float2 bone     : BONENO;
     float2 weight   : WEIGHT;
@@ -52,6 +53,7 @@ Out BasicVS(float4 pos : POSITION, float4 normal : NORMAL, float2 uv : TEXCOORD,
     pos = mul(mul(vp, world), pos);
     o.svpos = pos;
     o.normal = mul(world, normal);
+    o.cnormal = mul(view, normal);
     o.uv = uv;
     o.weight = float2(w, 1 - w);
     return o;
@@ -62,6 +64,7 @@ float4 BasicPS(Out o) : SV_TARGET
 {
 	//視点
     float3 eye = (0.0f, 15.0f, -15.0f);
+
     //逆視線ベクトル
     float3 ray = normalize(eye - o.pos.xyz);
 
@@ -74,14 +77,18 @@ float4 BasicPS(Out o) : SV_TARGET
     //右ベクトルを計算
     float3 rightVec = cross(upVec, rray);
 
-    //真の上ベクトルを計算
+    //視線ベクトルに対しての上ベクトルを計算
     float3 upperVec = cross(rightVec, rray);
 
+    //スペキュラUV計算
     float2 uv = float2(dot(o.normal, normalize(rightVec)), dot(o.normal, normalize(upperVec)));
+
+    //-1～1を0～1に変換
     float2 spuv = float2(0.5f, -0.5f) * (uv + float2(1.0f, -1.0f));
 
 	//ライト
     float3 light = normalize(float3(-1.0f, 1.0f, -1.0f));
+
     //ライト反射ベクトル
     float3 mirror = reflect(-light, o.normal);
 
@@ -91,7 +98,7 @@ float4 BasicPS(Out o) : SV_TARGET
 
     float brightness = saturate(dot(light, o.normal.xyz)); //rcp : 正規化ランバート
 
-    
+    //通常*乗算+加算
     float3 texColor = tex.Sample(smp, o.uv).rgb * sph.Sample(smp, spuv).rgb + spa.Sample(smp, spuv).rgb;
     float3 color = texColor * saturate(diffuse.rgb * brightness + specular.rgb * spec + ambient.rgb);
     //return float4(pow(color.r, 2.2f), pow(color.g, 2.2f), pow(color.b, 2.2f), diffuse.a);
