@@ -75,13 +75,15 @@ float4 BasicPS(Out o) : SV_TARGET
     float3 upVec = (0.0f, 1.0f, 0.0f);
 
     //右ベクトルを計算
-    float3 rightVec = cross(upVec, rray);
+    float3 rightVec = cross(rray, upVec);
+    rightVec = normalize(rightVec);
 
     //視線ベクトルに対しての上ベクトルを計算
     float3 upperVec = cross(rightVec, rray);
+    upperVec = normalize(upperVec);
 
     //スペキュラUV計算
-    float2 uv = float2(dot(o.normal, normalize(rightVec)), dot(o.normal, normalize(upperVec)));
+    float2 uv = normalize(float2(dot(o.normal, rightVec), dot(o.normal, upperVec)));
 
     //-1～1を0～1に変換
     float2 spuv = float2(0.5f, -0.5f) * (uv + float2(1.0f, -1.0f));
@@ -100,14 +102,14 @@ float4 BasicPS(Out o) : SV_TARGET
     float pi = 3.14159265359;
 
     //明るさ
-    float brightness = dot(light, o.normal.xyz); //rcp : 正規化ランバート
+    float brightness = saturate(dot(light, o.normal.xyz)); //rcp : 正規化ランバート
     brightness = saturate(1 - acos(brightness) / pi);
 
     //トゥーン
     float4 tToon = toon.Sample(smp, float2(0.0f, 1.0f - brightness));
 
     //通常*乗算+加算
-    float3 texColor = tex.Sample(smp, o.uv).rgb * sph.Sample(smp, spuv).rgb + spa.Sample(smp, spuv).rgb;
+    float3 texColor = tex.Sample(smp, o.uv).rgb * sph.Sample(smp, o.normal.xy).rgb + spa.Sample(smp, o.normal.xy).rgb;
     float3 color = texColor * saturate(tToon.rgb * diffuse.rgb * brightness + specular.rgb * spec + ambient.rgb);
     //return float4(pow(color.r, 2.2f), pow(color.g, 2.2f), pow(color.b, 2.2f), diffuse.a);
     return float4(color, diffuse.a);

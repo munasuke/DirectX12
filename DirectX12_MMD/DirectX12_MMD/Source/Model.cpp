@@ -169,10 +169,10 @@ void Model::Draw(ID3D12GraphicsCommandList * _list, ID3D12Device * _dev) {
 	_list->SetGraphicsRootConstantBufferView(2, boneBuffer->GetGPUVirtualAddress());
 
 	for (UINT i = 0; i < material.size(); ++i) {
-		//マテリアルのセット
+		//マテリアル類のセット
 		_list->SetGraphicsRootDescriptorTable(1, handle);
 
-		//通常テクスチャまでずらす
+		//次のマテリアルまでずらす
 		handle.ptr += 5 * _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
 		//マテリアル別に描画

@@ -158,7 +158,7 @@ std::string ImageLoader::GetToonPathFromIndex(const std::string folder, const ch
 		return path;
 	}
 	else {
-		return folder + path;
+		return folder + fileName;
 	}
 }
 
