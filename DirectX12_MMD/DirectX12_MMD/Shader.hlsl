@@ -1,8 +1,8 @@
 //テクスチャ
 Texture2D<float4> tex   : register(t0); //通常テクスチャ
-Texture2D<float4> sph : register(t1); //乗算テクスチャ
-Texture2D<float4> spa : register(t2); //加算テクスチャ
-Texture2D<float4> toon : register(t3); //トゥーンテクスチャ
+Texture2D<float4> sph   : register(t1); //乗算テクスチャ
+Texture2D<float4> spa   : register(t2); //加算テクスチャ
+Texture2D<float4> toon  : register(t3); //トゥーンテクスチャ
 
 SamplerState smp : register(s0);//サンプラ
 
@@ -96,11 +96,19 @@ float4 BasicPS(Out o) : SV_TARGET
 
     spec = pow(spec, specular.a);
 
-    float brightness = saturate(dot(light, o.normal.xyz)); //rcp : 正規化ランバート
+    //円周率
+    float pi = 3.14159265359;
+
+    //明るさ
+    float brightness = dot(light, o.normal.xyz); //rcp : 正規化ランバート
+    brightness = saturate(1 - acos(brightness) / pi);
+
+    //トゥーン
+    float4 tToon = toon.Sample(smp, float2(0.0f, 1.0f - brightness));
 
     //通常*乗算+加算
     float3 texColor = tex.Sample(smp, o.uv).rgb * sph.Sample(smp, spuv).rgb + spa.Sample(smp, spuv).rgb;
-    float3 color = texColor * saturate(diffuse.rgb * brightness + specular.rgb * spec + ambient.rgb);
+    float3 color = texColor * saturate(tToon.rgb * diffuse.rgb * brightness + specular.rgb * spec + ambient.rgb);
     //return float4(pow(color.r, 2.2f), pow(color.g, 2.2f), pow(color.b, 2.2f), diffuse.a);
     return float4(color, diffuse.a);
 }

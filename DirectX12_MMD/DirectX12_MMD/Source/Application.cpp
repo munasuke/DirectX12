@@ -83,7 +83,7 @@ void Application::Initialize() {
 
 	//PMD
 	//pmd->Load("PMD/miku/初音ミク.pmd");
-	//pmd->Load("PMD/miku/初音ミクmetal.pmd");
+	pmd->Load("PMD/miku/初音ミクmetal.pmd");
 	//pmd->Load("PMD/neru/亞北ネル.pmd");
 	//pmd->Load("PMD/reimu/reimu_F01.pmd");
 	//pmd->Load("PMD/luka/巡音ルカ.pmd");
@@ -92,7 +92,7 @@ void Application::Initialize() {
 	//pmd->Load("PMD/yagyu/柳生Ver1.12.pmd");
 	//pmd->Load("PMD/katuragi/葛城Ver1.10.pmd");
 	//pmd->Load("PMD/ikaruga/斑鳩Ver1.10.pmd");
-	pmd->Load("PMD/hibari/雲雀Ver1.10.pmd");
+	//pmd->Load("PMD/hibari/雲雀Ver1.10.pmd");
 
 	//VMD
 	//vmd->Load("Motion/swing2.vmd");
