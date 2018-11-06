@@ -63,27 +63,25 @@ Out BasicVS(float4 pos : POSITION, float4 normal : NORMAL, float2 uv : TEXCOORD,
 float4 BasicPS(Out o) : SV_TARGET
 {
 	//視点
-    float3 eye = (0.0f, 15.0f, -15.0f);
+    float3 eye = (0.0f, 15.0f, -10.0f);
 
     //逆視線ベクトル
-    float3 ray = normalize(eye - o.pos.xyz);
+    float3 rray = normalize(eye - o.pos.xyz);
 
     //視線ベクトル
-    float3 rray = -ray;
+    float3 ray = -rray;
 
     //上ベクトル
     float3 upVec = (0.0f, 1.0f, 0.0f);
 
     //右ベクトルを計算
-    float3 rightVec = cross(rray, upVec);
-    rightVec = normalize(rightVec);
+    float3 rightVec = normalize(cross(ray, upVec));
 
     //視線ベクトルに対しての上ベクトルを計算
-    float3 upperVec = cross(rightVec, rray);
-    upperVec = normalize(upperVec);
+    float3 upperVec = normalize(cross(ray, rightVec));
 
-    //スペキュラUV計算
-    float2 uv = normalize(float2(dot(o.normal, rightVec), dot(o.normal, upperVec)));
+    //スフィアUV計算
+    float2 uv = float2(dot(o.normal, rightVec), dot(o.normal, upperVec));
 
     //-1～1を0～1に変換
     float2 spuv = float2(0.5f, -0.5f) * (uv + float2(1.0f, -1.0f));
@@ -94,8 +92,10 @@ float4 BasicPS(Out o) : SV_TARGET
     //ライト反射ベクトル
     float3 mirror = reflect(-light, o.normal);
 
-    float spec = saturate(dot(mirror, ray));
+    //スペキュラ
+    float spec = saturate(dot(mirror, rray));
 
+    //スペキュラの強さ
     spec = pow(spec, specular.a);
 
     //円周率
@@ -108,9 +108,12 @@ float4 BasicPS(Out o) : SV_TARGET
     //トゥーン
     float4 tToon = toon.Sample(smp, float2(0.0f, 1.0f - brightness));
 
-    //通常*乗算+加算
-    float3 texColor = tex.Sample(smp, o.uv).rgb * sph.Sample(smp, o.normal.xy).rgb + spa.Sample(smp, o.normal.xy).rgb;
-    float3 color = texColor * saturate(tToon.rgb * diffuse.rgb * brightness + specular.rgb * spec + ambient.rgb);
+    //テクスチャカラー（通常*乗算+加算）
+    float3 texColor = tex.Sample(smp, o.uv).rgb * (sph.Sample(smp, o.normal.xy).rgb + spa.Sample(smp, o.normal.xy).rgb);
+
+    //マテリアルカラー
+    float3 color = saturate(tToon.rgb * diffuse.rgb * brightness + specular.rgb * spec + ambient.rgb);
+
     //return float4(pow(color.r, 2.2f), pow(color.g, 2.2f), pow(color.b, 2.2f), diffuse.a);
-    return float4(color, diffuse.a);
+    return float4(texColor * color, diffuse.a);
 }

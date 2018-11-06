@@ -72,7 +72,7 @@ void Application::Initialize() {
 	renderTarget->InitRenderTarget(swapChain->GetSwapChainDesc().BufferCount,
 		device->GetDevice(), swapChain->GetSwapChain(), descriptor->GetDescriptorHandle(), descriptor->GetDescriptorSize());
 	//pera
-	renderTarget->Init1stPathRTVSRV(device->GetDevice());
+	//renderTarget->Init1stPathRTVSRV(device->GetDevice());
 
 	//サンプラ
 	sampler->InitSampler();
@@ -122,8 +122,8 @@ void Application::Initialize() {
 	pipline->Initialize(device->GetDevice(), shader->GetVS(), shader->GetPS(),
 		vertex->GetInputDescNum(), vertex->GetInputDesc(), root->GetRootSignature());
 	//pera
-	pipline->PeraInitialize(device->GetDevice(), shader->GetPeraVS(), shader->GetPeraPS(),
-		vertex->GetPeraInputDescNum(), vertex->GetPeraInputDesc(), root->GetPeraRootSignature());
+	//pipline->PeraInitialize(device->GetDevice(), shader->GetPeraVS(), shader->GetPeraPS(),
+	//	vertex->GetPeraInputDescNum(), vertex->GetPeraInputDesc(), root->GetPeraRootSignature());
 
 	//ビューポート
 	viewPort->Initialize();
@@ -140,15 +140,15 @@ void Application::Run() {
 		command->GetCommandAllocator()->Reset();
 		command->GetCommandList()->Reset(command->GetCommandAllocator(), pipline->GetPiplineState());
 		//pera
-		command->GetCommandList()->Reset(command->GetCommandAllocator(), pipline->GetPeraPiplineState());
+		//command->GetCommandList()->Reset(command->GetCommandAllocator(), pipline->GetPeraPiplineState());
 
 		command->GetCommandList()->SetGraphicsRootSignature(root->GetRootSignature());
 		//pera
-		command->GetCommandList()->SetGraphicsRootSignature(root->GetPeraRootSignature());
+		//command->GetCommandList()->SetGraphicsRootSignature(root->GetPeraRootSignature());
 
 		command->GetCommandList()->SetPipelineState(pipline->GetPiplineState());
 		//pera
-		command->GetCommandList()->SetPipelineState(pipline->GetPeraPiplineState());
+		//command->GetCommandList()->SetPipelineState(pipline->GetPeraPiplineState());
 
 		command->GetCommandList()->RSSetViewports(1, &viewPort->GetViewPort());
 
@@ -179,7 +179,7 @@ void Application::Run() {
 
 		command->GetCommandList()->IASetVertexBuffers(0, 1, &vertex->GetVBV());
 		//pera
-		command->GetCommandList()->IASetVertexBuffers(0, 1, &vertex->GetPeraVBV());
+		//command->GetCommandList()->IASetVertexBuffers(0, 1, &vertex->GetPeraVBV());
 
 		command->GetCommandList()->IASetIndexBuffer(&index->GetIndexBufferView());
 
