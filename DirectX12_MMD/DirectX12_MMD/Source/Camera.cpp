@@ -8,14 +8,14 @@ Camera::Camera() {
 
 void Camera::Initialize(ID3D12Device * _dev) {
 	//視線、注視点、上ベクトル
-	XMFLOAT3 eye	(0.0f, 15.0f, -10.0f);
-	XMFLOAT3 focus	(0.0f, 15.0f,   0.0f);
+	XMFLOAT3 eye	(0.0f, 14.0f, -13.0f);
+	XMFLOAT3 focus	(0.0f, 12.0f,   0.0f);
 	XMFLOAT3 upper	(0.0f,  1.0f,   0.0f);
 
 	//ワールド・ビュー・プロジェクション行列の作成
 	mt.world		= XMMatrixIdentity();
 	mt.view			= XMMatrixLookAtLH(XMLoadFloat3(&eye), XMLoadFloat3(&focus), XMLoadFloat3(&upper));
-	mt.projection	= XMMatrixPerspectiveFovLH(90.0f * 3.14159264f / 180.0f,
+	mt.projection	= XMMatrixPerspectiveFovLH(XM_PIDIV2/*90.0f * 3.14159264f / 180.0f*/,
 		static_cast<FLOAT>(WIN_WIDTH) / static_cast<FLOAT>(WIN_HEIGHT), 0.01f, 500.0f);
 
 	//プロパティ設定
