@@ -17,7 +17,8 @@ public:
 	void InitRenderTarget(UINT _bufferCnt, ID3D12Device* _dev, IDXGISwapChain3* _swapChain, CD3DX12_CPU_DESCRIPTOR_HANDLE _descriptorHandle, UINT _descriptorSize);
 
 	//1パス目に使うレンダリングバッファ
-	void Init1stPathRTVSRV(ID3D12Device* _dev, ID3D12Resource* buff);
+	void Init1stPathRTVSRV(ID3D12Device* _dev);
+	void Set1stPathRTV(ID3D12GraphicsCommandList* list, ID3D12DescriptorHeap* depthHeap);
 
 	std::vector<ID3D12Resource*> GetRenderTarget();
 

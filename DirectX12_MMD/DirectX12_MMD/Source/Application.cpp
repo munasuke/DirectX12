@@ -71,6 +71,8 @@ void Application::Initialize() {
 	//レンダーターゲット
 	renderTarget->InitRenderTarget(swapChain->GetSwapChainDesc().BufferCount,
 		device->GetDevice(), swapChain->GetSwapChain(), descriptor->GetDescriptorHandle(), descriptor->GetDescriptorSize());
+	//pera
+	renderTarget->Init1stPathRTVSRV(device->GetDevice());
 
 	//サンプラ
 	sampler->InitSampler();
@@ -88,9 +90,9 @@ void Application::Initialize() {
 	//pmd->Load("PMD/reimu/reimu_F01.pmd");
 	//pmd->Load("PMD/luka/巡音ルカ.pmd");
 	//pmd->Load("PMD/hibiki/我那覇響v1_グラビアミズギ.pmd");
-	//pmd->Load("PMD/asuka/飛鳥Ver1.10.pmd");
+	pmd->Load("PMD/asuka/飛鳥Ver1.10.pmd");
 	//pmd->Load("PMD/yagyu/柳生Ver1.12.pmd");
-	pmd->Load("PMD/katuragi/葛城Ver1.10.pmd");
+	//pmd->Load("PMD/katuragi/葛城Ver1.10.pmd");
 	//pmd->Load("PMD/ikaruga/斑鳩Ver1.10.pmd");
 	//pmd->Load("PMD/hibari/雲雀Ver1.10.pmd");
 
@@ -104,8 +106,10 @@ void Application::Initialize() {
 	//インデックスバッファ
 	index->Initialize(device->GetDevice(), pmd->GetIndices());
 
-
+	//カメラ
 	camera->Initialize(device->GetDevice());
+
+	//モデル
 	model->Initialize(device->GetDevice());
 
 	//深度バッファ
@@ -117,6 +121,9 @@ void Application::Initialize() {
 	//パイプライン
 	pipline->Initialize(device->GetDevice(), shader->GetVS(), shader->GetPS(),
 		vertex->GetInputDescNum(), vertex->GetInputDesc(), root->GetRootSignature());
+	//pera
+	pipline->PeraInitialize(device->GetDevice(), shader->GetPeraVS(), shader->GetPeraPS(),
+		vertex->GetPeraInputDescNum(), vertex->GetPeraInputDesc(), root->GetPeraRootSignature());
 
 	//ビューポート
 	viewPort->Initialize();
@@ -132,10 +139,16 @@ void Application::Run() {
 
 		command->GetCommandAllocator()->Reset();
 		command->GetCommandList()->Reset(command->GetCommandAllocator(), pipline->GetPiplineState());
+		//pera
+		command->GetCommandList()->Reset(command->GetCommandAllocator(), pipline->GetPeraPiplineState());
 
 		command->GetCommandList()->SetGraphicsRootSignature(root->GetRootSignature());
+		//pera
+		command->GetCommandList()->SetGraphicsRootSignature(root->GetPeraRootSignature());
 
 		command->GetCommandList()->SetPipelineState(pipline->GetPiplineState());
+		//pera
+		command->GetCommandList()->SetPipelineState(pipline->GetPeraPiplineState());
 
 		command->GetCommandList()->RSSetViewports(1, &viewPort->GetViewPort());
 
@@ -153,6 +166,9 @@ void Application::Run() {
 
 		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(descriptor->GetDescriptorHeap()->GetCPUDescriptorHandleForHeapStart(),
 			bbIndex, descriptor->GetDescriptorSize());
+
+		//1パス目
+		//renderTarget->Set1stPathRTV(command->GetCommandList(), depth->GetHeap());
 		command->GetCommandList()->OMSetRenderTargets(1, &rtvHandle, false, &depth->GetHeap()->GetCPUDescriptorHandleForHeapStart());
 
 		const FLOAT color[] = { 0.4f, 0.4f, 0.4f, 1.0f };
@@ -162,6 +178,8 @@ void Application::Run() {
 		command->GetCommandList()->IASetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 		command->GetCommandList()->IASetVertexBuffers(0, 1, &vertex->GetVBV());
+		//pera
+		command->GetCommandList()->IASetVertexBuffers(0, 1, &vertex->GetPeraVBV());
 
 		command->GetCommandList()->IASetIndexBuffer(&index->GetIndexBufferView());
 

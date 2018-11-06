@@ -5,13 +5,10 @@
 namespace {
 	//頂点情報
 	VERTEX vertices[] = {
-		{ { -0.5f,  0.7f, 0.0f },{ 0.0f, 0.0f } },
-		{ {  0.5f,  0.7f, 0.0f },{ 1.0f, 0.0f } },
-		{ {  0.5f, -0.7f, 0.0f },{ 1.0f, 1.0f } },
-
-		{ {  0.5f, -0.7f, 0.0f },{ 1.0f, 1.0f } },
-		{ { -0.5f, -0.7f, 0.0f },{ 0.0f, 1.0f } },
-		{ { -0.5f,  0.7f, 0.0f },{ 0.0f, 0.0f } }
+		{ { -1.0f, -1.0f, 0.0f },{ 0.0f, 1.0f } },
+		{ { -1.0f,  1.0f, 0.0f },{ 0.0f, 0.0f } },
+		{ {  1.0f, -1.0f, 0.0f },{ 1.0f, 1.0f } },
+		{ {  1.0f,  1.0f, 0.0f },{ 1.0f, 0.0f } }
 	};
 
 	//頂点レイアウト
@@ -67,6 +64,28 @@ namespace {
 			0
 		}
 	};
+
+	//ペラポリゴン用
+	D3D12_INPUT_ELEMENT_DESC peraInput[] = {
+		{
+			"POSITION",
+			0,
+			DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT,
+			0,
+			D3D12_APPEND_ALIGNED_ELEMENT,
+			D3D12_INPUT_CLASSIFICATION::D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,
+			0
+		},
+		{
+			"TEXCOORD",
+			0,
+			DXGI_FORMAT::DXGI_FORMAT_R32G32_FLOAT,
+			0,
+			D3D12_APPEND_ALIGNED_ELEMENT,
+			D3D12_INPUT_CLASSIFICATION::D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,
+			0
+		}
+	};
 }
 
 Vertex::Vertex() : vertexBuffer(nullptr), pData(nullptr)
@@ -93,18 +112,46 @@ void Vertex::Initialize(ID3D12Device * _dev, std::vector<PMDVertex> _pmdV)
 	vbView.BufferLocation	= vertexBuffer->GetGPUVirtualAddress();	//頂点アドレスのGPUにあるアドレスを記憶
 	vbView.StrideInBytes	= sizeof(PMDVertex);					//頂点1つあたりのバイト数を指定
 	vbView.SizeInBytes		= sizeof(PMDVertex) * _pmdV.size();		//データ全体のサイズを指定
+
+	//ペラポリゴン用
+	//ペラバッファ生成
+	ID3D12Resource* peraBuffer = nullptr;
+	result = _dev->CreateCommittedResource(
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE::D3D12_HEAP_TYPE_DEFAULT),
+		D3D12_HEAP_FLAGS::D3D12_HEAP_FLAG_NONE,
+		&CD3DX12_RESOURCE_DESC::Buffer(sizeof(vertices)),
+		D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(&peraBuffer)
+	);
+
+	peraVBV.BufferLocation = peraBuffer->GetGPUVirtualAddress();
+	peraVBV.SizeInBytes = sizeof(vertices);
+	peraVBV.StrideInBytes = sizeof(VERTEX);
 }
 
 D3D12_INPUT_ELEMENT_DESC * Vertex::GetInputDesc() {
 	return inputDesc;
 }
 
+D3D12_INPUT_ELEMENT_DESC * Vertex::GetPeraInputDesc() {
+	return peraInput;
+}
+
 UINT Vertex::GetInputDescNum() {
 	return _countof(inputDesc);
 }
 
+UINT Vertex::GetPeraInputDescNum() {
+	return _countof(peraInput);
+}
+
 D3D12_VERTEX_BUFFER_VIEW Vertex::GetVBV() {
 	return vbView;
+}
+
+D3D12_VERTEX_BUFFER_VIEW Vertex::GetPeraVBV() {
+	return peraVBV;
 }
 
 

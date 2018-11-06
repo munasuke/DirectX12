@@ -4,6 +4,7 @@
 
 
 RootSignature::RootSignature() : 
+	peraSignature(nullptr),
 	rootSignature(nullptr),
 	signature(nullptr),
 	error(nullptr)
@@ -80,10 +81,45 @@ void RootSignature::InitRootSignature(D3D12_STATIC_SAMPLER_DESC _samplerDesc, ID
 		signature->GetBufferSize(),
 		IID_PPV_ARGS(&rootSignature)
 	);
+
+	//ƒyƒ‰ƒ|ƒŠƒSƒ“—p
+	CD3DX12_DESCRIPTOR_RANGE peraRange = {};
+	peraRange.RangeType							= D3D12_DESCRIPTOR_RANGE_TYPE::D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	peraRange.NumDescriptors					= 1;
+	peraRange.BaseShaderRegister				= 0;
+	peraRange.RegisterSpace						= 0;
+	peraRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+	D3D12_ROOT_PARAMETER peraParam = {};
+	peraParam.ParameterType							= D3D12_ROOT_PARAMETER_TYPE::D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	peraParam.ShaderVisibility						= D3D12_SHADER_VISIBILITY::D3D12_SHADER_VISIBILITY_PIXEL;
+	peraParam.DescriptorTable.NumDescriptorRanges	= 1;
+	peraParam.DescriptorTable.pDescriptorRanges		= &peraRange;
+
+	rsDesc.pParameters			= &peraParam;
+	rsDesc.pStaticSamplers		= &_samplerDesc;
+
+	result = D3D12SerializeRootSignature(
+		&rsDesc,
+		D3D_ROOT_SIGNATURE_VERSION::D3D_ROOT_SIGNATURE_VERSION_1,
+		&signature,
+		&error
+	);
+
+	result = _dev->CreateRootSignature(
+		0,
+		signature->GetBufferPointer(),
+		signature->GetBufferSize(),
+		IID_PPV_ARGS(&peraSignature)
+	);
 }
 
 ID3D12RootSignature * RootSignature::GetRootSignature() {
 	return rootSignature;
+}
+
+ID3D12RootSignature * RootSignature::GetPeraRootSignature() {
+	return peraSignature;
 }
 
 ID3DBlob * RootSignature::GetError() {

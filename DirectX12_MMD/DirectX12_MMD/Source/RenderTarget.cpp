@@ -25,7 +25,7 @@ void RenderTarget:: InitRenderTarget(UINT _bufferCnt, ID3D12Device* _dev, IDXGIS
 	}
 }
 
-void RenderTarget::Init1stPathRTVSRV(ID3D12Device* _dev, ID3D12Resource* buff) {
+void RenderTarget::Init1stPathRTVSRV(ID3D12Device* _dev) {
 	//ペラポリ用
 
 	D3D12_DESCRIPTOR_HEAP_DESC descHeap = {};
@@ -38,23 +38,57 @@ void RenderTarget::Init1stPathRTVSRV(ID3D12Device* _dev, ID3D12Resource* buff) {
 	_dev->CreateDescriptorHeap(&descHeap, IID_PPV_ARGS(&heapFor1stPath["RTV"]));
 
 	//SRV用ヒープ
-	descHeap.Type = D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	descHeap.Type	= D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	descHeap.Flags	= D3D12_DESCRIPTOR_HEAP_FLAGS::D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	_dev->CreateDescriptorHeap(&descHeap, IID_PPV_ARGS(&heapFor1stPath["SRV"]));
 
 	D3D12_RESOURCE_DESC rDesc = {};
-	rDesc.Height = WIN_HEIGHT;
-	rDesc.Width = WIN_WIDTH;
-	rDesc.Flags = D3D12_RESOURCE_FLAGS::D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+	rDesc.Height			= WIN_HEIGHT;
+	rDesc.Width				= WIN_WIDTH;
+	rDesc.MipLevels			= 1;
+	rDesc.DepthOrArraySize	= 1;
+	rDesc.SampleDesc.Count	= 1;
+	rDesc.Flags				= D3D12_RESOURCE_FLAGS::D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+	rDesc.Dimension			= D3D12_RESOURCE_DIMENSION::D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+	rDesc.Layout			= D3D12_TEXTURE_LAYOUT::D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+	rDesc.Format			= DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM;
 
-	//バッファ生成
+	//RTVバッファ生成
 	result = _dev->CreateCommittedResource(
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE::D3D12_HEAP_TYPE_UPLOAD),
+		D3D12_HEAP_FLAGS::D3D12_HEAP_FLAG_NONE,
+		&rDesc,
+		D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_RENDER_TARGET,
+		nullptr,
+		IID_PPV_ARGS(&peraBuffer)
+	);
+
+	//RTV生成
+	_dev->CreateRenderTargetView(peraBuffer, nullptr, heapFor1stPath["RTV"]->GetCPUDescriptorHandleForHeapStart());
+
+	//SRVバッファ生成
+	ID3D12Resource* buffer = nullptr;
+	rDesc.Flags = D3D12_RESOURCE_FLAGS::D3D12_RESOURCE_FLAG_NONE;
+	_dev->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE::D3D12_HEAP_TYPE_UPLOAD),
 		D3D12_HEAP_FLAGS::D3D12_HEAP_FLAG_NONE,
 		&rDesc,
 		D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_GENERIC_READ,
 		nullptr,
-		IID_PPV_ARGS(&peraBuffer)
+		IID_PPV_ARGS(&buffer)
 	);
+
+	//SRV生成
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+	srvDesc.Format					= DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM;
+	srvDesc.ViewDimension			= D3D12_SRV_DIMENSION::D3D12_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MipLevels		= 1;
+	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	_dev->CreateShaderResourceView(buffer, &srvDesc, heapFor1stPath["SRV"]->GetCPUDescriptorHandleForHeapStart());
+}
+
+void RenderTarget::Set1stPathRTV(ID3D12GraphicsCommandList * list, ID3D12DescriptorHeap * depthHeap) {
+	list->OMSetRenderTargets(1, &heapFor1stPath["RTV"]->GetCPUDescriptorHandleForHeapStart(), false, &depthHeap->GetCPUDescriptorHandleForHeapStart());
 }
 
 std::vector<ID3D12Resource*> RenderTarget::GetRenderTarget() {

@@ -16,12 +16,17 @@ public:
 	Vertex();
 	void Initialize(ID3D12Device* _dev, std::vector<PMDVertex> _pmdV);//初期化
 	D3D12_INPUT_ELEMENT_DESC* GetInputDesc();
+	D3D12_INPUT_ELEMENT_DESC* GetPeraInputDesc();
 	UINT GetInputDescNum();
+	UINT GetPeraInputDescNum();
 	D3D12_VERTEX_BUFFER_VIEW GetVBV();
+	D3D12_VERTEX_BUFFER_VIEW GetPeraVBV();
 	~Vertex();
 private:
 	ID3D12Resource* vertexBuffer;//頂点バッファ
 	UCHAR* pData;
 	D3D12_VERTEX_BUFFER_VIEW vbView = {};
+
+	D3D12_VERTEX_BUFFER_VIEW peraVBV = {};
 };
 

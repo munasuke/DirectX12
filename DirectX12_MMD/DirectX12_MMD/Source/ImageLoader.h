@@ -47,5 +47,6 @@ private:
 	std::vector<ID3D12Resource*> spaBuffer;
 	//トゥーンテクスチャ
 	std::vector<ID3D12Resource*> toonBuffer;
+	//トゥーンフラグ
 	bool toonFlag;
 };
