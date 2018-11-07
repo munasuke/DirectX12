@@ -42,6 +42,9 @@ private:
 	Application(const Application&);		//コピー禁止
 	void operator=(const Application&) {};	//代入禁止
 
+	//ペラポリゴン用
+	void UpdatePera();
+
 	void CreateModelDrawBundle();
 
 

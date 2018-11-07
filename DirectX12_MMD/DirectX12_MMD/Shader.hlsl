@@ -39,7 +39,7 @@ struct Out
     float2 weight   : WEIGHT;
 };
 
-//VertexShader
+//頂点シェーダ
 Out BasicVS(float4 pos : POSITION, float4 normal : NORMAL, float2 uv : TEXCOORD, min16uint2 boneno : BONENO, min16uint weight : WEIGHT)
 {
     Out o;
@@ -63,18 +63,10 @@ Out BasicVS(float4 pos : POSITION, float4 normal : NORMAL, float2 uv : TEXCOORD,
     return o;
 }
 
-//PixelShader
-float4 BasicPS(Out o) : SV_TARGET
+
+//スフィアUVの作成
+float2 CreateSphereUV(float3 ray, float3 normal)
 {
-	//視点
-    float3 eye = float3(0.0f, 15.0f, -40.0f);
-
-    //逆視線ベクトル
-    float3 rray = eye - o.pos.xyz;
-
-    //視線ベクトル
-    float3 ray = o.pos.xyz - eye;
-
     //上ベクトル
     float3 upVec = float3(0.0f, 1.0f, 0.0f);
 
@@ -85,16 +77,19 @@ float4 BasicPS(Out o) : SV_TARGET
     upVec = normalize(cross(ray, rightVec));
 
     //スフィアUV計算
-    float2 uv = float2(dot(o.normal.xyz, rightVec), dot(o.normal.xyz, upVec));
+    float2 uv = float2(dot(normal, rightVec), dot(normal, upVec));
 
     //-1～1を0～1に変換
     uv = float2(0.5f, -0.5f) * (uv + float2(1.0f, -1.0f));
 
-	//ライト
-    float3 light = normalize(float3(-1.0f, 1.0f, -1.0f));
+    return uv;
+}
 
+//スペキュラ生成
+float3 CreateSpecular(float3 light, float3 normal, float3 rray)
+{
     //ライト反射ベクトル
-    float3 mirror = reflect(-light, o.normal);
+    float3 mirror = reflect(-light, normal);
 
     //スペキュラ
     float spec = saturate(dot(mirror, rray));
@@ -102,23 +97,45 @@ float4 BasicPS(Out o) : SV_TARGET
     //スペキュラの強さ
     spec = pow(spec, specular.a);
 
+    return spec;
+}
+
+//ピクセルシェーダ
+float4 BasicPS(Out o) : SV_TARGET
+{
+	//視点
+    const float3 eye = float3(0.0f, 15.0f, -40.0f);
+
+    //視線ベクトル
+    float3 ray = o.pos.xyz - eye;
+
+    //逆視線ベクトル
+    float3 rray = -ray;
+
+	//ライト
+    float3 light = normalize(float3(-1.0f, 1.0f, -1.0f));
+    
     //円周率
-    float pi = 3.14159265359;
+    const float pi = 3.14159265359f;
 
     //明るさ
     float brightness = saturate(dot(light, o.normal.xyz)); //rcp : 正規化ランバート
     brightness = saturate(1 - acos(brightness) / pi);
 
+    //スフィアUV取得
+    float2 spuv = CreateSphereUV(ray, o.normal.xyz);
+
+    //スペキュラ取得
+    float3 spec = CreateSpecular(light, o.normal, rray);
+
     //トゥーン
     float4 tToon = toon.Sample(smp, float2(0.0f, 1.0f - brightness));
 
     //テクスチャカラー（通常*乗算+加算）
-    float3 texColor = tex.Sample(smp, o.uv).rgb * sph.Sample(smp, uv).rgb + spa.Sample(smp, uv).rgb;
+    float3 texColor = tex.Sample(smp, o.uv).rgb * sph.Sample(smp, spuv).rgb + spa.Sample(smp, spuv).rgb;
 
     //マテリアルカラー
     float3 color = saturate(tToon.rgb * diffuse.rgb * brightness + specular.rgb * spec + ambient.rgb);
-
-    //return float4(pow(color.r, 2.2f), pow(color.g, 2.2f), pow(color.b, 2.2f), diffuse.a);
 
     return float4(pow(texColor * color, 2.2f), diffuse.a);
 }
