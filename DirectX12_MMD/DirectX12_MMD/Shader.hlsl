@@ -113,17 +113,17 @@ float4 BasicPS(Out o) : SV_TARGET
     float3 rray = -ray;
 
 	//ライト
-    float3 light = normalize(float3(-1.0f, 1.0f, -1.0f));
+    float3 light = float3(-1.0f, 1.0f, -1.0f);
     
     //円周率
     const float pi = 3.14159265359f;
 
     //明るさ
-    float brightness = saturate(dot(light, o.normal.xyz)); //rcp : 正規化ランバート
+    float brightness = saturate(dot(light, o.normal)); //rcp : 正規化ランバート
     brightness = saturate(1 - acos(brightness) / pi);
 
     //スフィアUV取得
-    float2 spuv = CreateSphereUV(ray, o.normal.xyz);
+    float2 spuv = CreateSphereUV(ray, o.normal);
 
     //スペキュラ取得
     float3 spec = CreateSpecular(light, o.normal, rray);

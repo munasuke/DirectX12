@@ -99,6 +99,7 @@ void Application::Initialize() {
 	//VMD
 	//vmd->Load("Motion/swing2.vmd");
 	vmd->Load("Motion/ヤゴコロダンス.vmd");
+	//vmd->Load("Motion/えれくとりっくえんじぇぅ.vmd");
 
 	//頂点バッファ
 	vertex->Initialize(device->GetDevice(), pmd->GetPMDVertex());
@@ -122,8 +123,8 @@ void Application::Initialize() {
 	pipline->Initialize(device->GetDevice(), shader->GetVS(), shader->GetPS(),
 		vertex->GetInputDescNum(), vertex->GetInputDesc(), root->GetRootSignature());
 	//pera
-	pipline->PeraInitialize(device->GetDevice(), shader->GetPeraVS(), shader->GetPeraPS(),
-		vertex->GetPeraInputDescNum(), vertex->GetPeraInputDesc(), root->GetPeraRootSignature());
+	//pipline->PeraInitialize(device->GetDevice(), shader->GetPeraVS(), shader->GetPeraPS(),
+	//	vertex->GetPeraInputDescNum(), vertex->GetPeraInputDesc(), root->GetPeraRootSignature());
 
 	//ビューポート
 	viewPort->Initialize();
@@ -138,7 +139,7 @@ void Application::Run() {
 		}
 
 		//ペラポリゴン
-		UpdatePera();
+		//UpdatePera();
 
 		command->GetCommandAllocator()->Reset();
 
