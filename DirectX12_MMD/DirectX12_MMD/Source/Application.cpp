@@ -141,6 +141,8 @@ void Application::Run() {
 		//ペラポリゴン
 		//UpdatePera();
 
+		//今までのレンダリング
+
 		command->GetCommandAllocator()->Reset();
 
 		command->GetCommandList()->Reset(command->GetCommandAllocator(), pipline->GetPiplineState());
@@ -210,7 +212,6 @@ void Application::Run() {
 		command->GetCommandQueue()->Signal(fence->GetFence(), fence->GetFenceValue(true));
 		while (fence->GetFence()->GetCompletedValue() != fence->GetFenceValue()) {
 		}
-
 	}
 }
 
@@ -218,6 +219,7 @@ void Application::Terminate() {
 	CoUninitialize();
 }
 
+//ペラポリゴン用
 void Application::UpdatePera() {
 	//アロケータのリセット
 	command->GetCommandAllocator()->Reset();
@@ -237,11 +239,50 @@ void Application::UpdatePera() {
 	//シザーレクトのセット
 	command->GetCommandList()->RSSetScissorRects(1, &window->GetScissorRect());
 
+	//バリア
+	command->GetCommandList()->ResourceBarrier(
+		1,
+		&CD3DX12_RESOURCE_BARRIER::Transition(
+			renderTarget->GetPeraRenderTarget(),
+			D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_PRESENT,
+			D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_RENDER_TARGET)
+	);
+
 	//レンダーターゲットのセット
 	renderTarget->Set1stPathRTV(command->GetCommandList(), depth->GetHeap());
 
+	//プリミティブトポロジー
+	command->GetCommandList()->IASetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+
 	//ペラポリゴンのVBVをセット
 	command->GetCommandList()->IASetVertexBuffers(0, 1, &vertex->GetPeraVBV());
+	command->GetCommandList()->IASetIndexBuffer(&index->GetIndexBufferView());
+
+	//描画
+	command->GetCommandList()->DrawInstanced(4, 1, 0, 0);
+
+	//バリア
+	command->GetCommandList()->ResourceBarrier(
+		1,
+		&CD3DX12_RESOURCE_BARRIER::Transition(
+			renderTarget->GetPeraRenderTarget(),
+			D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_RENDER_TARGET,
+			D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_PRESENT)
+	);
+
+	//コマンドリストを閉じる
+	command->GetCommandList()->Close();
+
+	//実行
+	command->Execute();
+
+	//スワップ
+	swapChain->GetSwapChain()->Present(0, 0);
+	command->GetCommandQueue()->Signal(fence->GetFence(), fence->GetFenceValue(true));
+
+	//待機
+	while (fence->GetFence()->GetCompletedValue() != fence->GetFenceValue()) {
+	}
 }
 
 void Application::CreateModelDrawBundle() {

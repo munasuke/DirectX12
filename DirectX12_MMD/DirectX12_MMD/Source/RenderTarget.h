@@ -21,6 +21,7 @@ public:
 	void Set1stPathRTV(ID3D12GraphicsCommandList* list, ID3D12DescriptorHeap* depthHeap);
 
 	std::vector<ID3D12Resource*> GetRenderTarget();
+	ID3D12Resource* GetPeraRenderTarget();
 
 	~RenderTarget();
 private:

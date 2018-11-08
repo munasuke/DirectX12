@@ -50,12 +50,12 @@ void RenderTarget::Init1stPathRTVSRV(ID3D12Device* _dev) {
 	rDesc.SampleDesc.Count	= 1;
 	rDesc.Flags				= D3D12_RESOURCE_FLAGS::D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
 	rDesc.Dimension			= D3D12_RESOURCE_DIMENSION::D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-	rDesc.Layout			= D3D12_TEXTURE_LAYOUT::D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+	rDesc.Layout			= D3D12_TEXTURE_LAYOUT::D3D12_TEXTURE_LAYOUT_UNKNOWN;
 	rDesc.Format			= DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM;
 
 	//RTVバッファ生成
 	result = _dev->CreateCommittedResource(
-		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE::D3D12_HEAP_TYPE_UPLOAD),
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE::D3D12_HEAP_TYPE_DEFAULT),
 		D3D12_HEAP_FLAGS::D3D12_HEAP_FLAG_NONE,
 		&rDesc,
 		D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_RENDER_TARGET,
@@ -67,16 +67,16 @@ void RenderTarget::Init1stPathRTVSRV(ID3D12Device* _dev) {
 	_dev->CreateRenderTargetView(peraBuffer, nullptr, heapFor1stPath["RTV"]->GetCPUDescriptorHandleForHeapStart());
 
 	//SRVバッファ生成
-	ID3D12Resource* buffer = nullptr;
-	rDesc.Flags = D3D12_RESOURCE_FLAGS::D3D12_RESOURCE_FLAG_NONE;
-	_dev->CreateCommittedResource(
-		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE::D3D12_HEAP_TYPE_UPLOAD),
-		D3D12_HEAP_FLAGS::D3D12_HEAP_FLAG_NONE,
-		&rDesc,
-		D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_GENERIC_READ,
-		nullptr,
-		IID_PPV_ARGS(&buffer)
-	);
+	//ID3D12Resource* buffer = nullptr;
+	//rDesc.Flags = D3D12_RESOURCE_FLAGS::D3D12_RESOURCE_FLAG_NONE;
+	//_dev->CreateCommittedResource(
+	//	&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE::D3D12_HEAP_TYPE_UPLOAD),
+	//	D3D12_HEAP_FLAGS::D3D12_HEAP_FLAG_NONE,
+	//	&rDesc,
+	//	D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_GENERIC_READ,
+	//	nullptr,
+	//	IID_PPV_ARGS(&buffer)
+	//);
 
 	//SRV生成
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
@@ -84,7 +84,7 @@ void RenderTarget::Init1stPathRTVSRV(ID3D12Device* _dev) {
 	srvDesc.ViewDimension			= D3D12_SRV_DIMENSION::D3D12_SRV_DIMENSION_TEXTURE2D;
 	srvDesc.Texture2D.MipLevels		= 1;
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	_dev->CreateShaderResourceView(buffer, &srvDesc, heapFor1stPath["SRV"]->GetCPUDescriptorHandleForHeapStart());
+	_dev->CreateShaderResourceView(peraBuffer, &srvDesc, heapFor1stPath["SRV"]->GetCPUDescriptorHandleForHeapStart());
 }
 
 void RenderTarget::Set1stPathRTV(ID3D12GraphicsCommandList * list, ID3D12DescriptorHeap * depthHeap) {
@@ -93,6 +93,10 @@ void RenderTarget::Set1stPathRTV(ID3D12GraphicsCommandList * list, ID3D12Descrip
 
 std::vector<ID3D12Resource*> RenderTarget::GetRenderTarget() {
 	return renderTarget;
+}
+
+ID3D12Resource* RenderTarget::GetPeraRenderTarget() {
+	return peraBuffer;
 }
 
 
