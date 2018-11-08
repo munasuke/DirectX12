@@ -277,7 +277,7 @@ void Application::UpdatePera() {
 	command->Execute();
 
 	//スワップ
-	swapChain->GetSwapChain()->Present(0, 0);
+	//swapChain->GetSwapChain()->Present(0, 0);
 	command->GetCommandQueue()->Signal(fence->GetFence(), fence->GetFenceValue(true));
 
 	//待機
