@@ -66,18 +66,6 @@ void RenderTarget::Init1stPathRTVSRV(ID3D12Device* _dev) {
 	//RTV生成
 	_dev->CreateRenderTargetView(peraBuffer, nullptr, heapFor1stPath["RTV"]->GetCPUDescriptorHandleForHeapStart());
 
-	//SRVバッファ生成
-	//ID3D12Resource* buffer = nullptr;
-	//rDesc.Flags = D3D12_RESOURCE_FLAGS::D3D12_RESOURCE_FLAG_NONE;
-	//_dev->CreateCommittedResource(
-	//	&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE::D3D12_HEAP_TYPE_UPLOAD),
-	//	D3D12_HEAP_FLAGS::D3D12_HEAP_FLAG_NONE,
-	//	&rDesc,
-	//	D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_GENERIC_READ,
-	//	nullptr,
-	//	IID_PPV_ARGS(&buffer)
-	//);
-
 	//SRV生成
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 	srvDesc.Format					= DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -97,6 +85,11 @@ std::vector<ID3D12Resource*> RenderTarget::GetRenderTarget() {
 
 ID3D12Resource* RenderTarget::GetPeraRenderTarget() {
 	return peraBuffer;
+}
+
+std::map<std::string, ID3D12DescriptorHeap*> RenderTarget::GetHeap()
+{
+	return heapFor1stPath;
 }
 
 

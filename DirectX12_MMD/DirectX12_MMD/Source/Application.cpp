@@ -72,7 +72,7 @@ void Application::Initialize() {
 	renderTarget->InitRenderTarget(swapChain->GetSwapChainDesc().BufferCount,
 		device->GetDevice(), swapChain->GetSwapChain(), descriptor->GetDescriptorHandle(), descriptor->GetDescriptorSize());
 	//pera
-	//renderTarget->Init1stPathRTVSRV(device->GetDevice());
+	renderTarget->Init1stPathRTVSRV(device->GetDevice());
 
 	//サンプラ
 	sampler->InitSampler();
@@ -123,8 +123,8 @@ void Application::Initialize() {
 	pipline->Initialize(device->GetDevice(), shader->GetVS(), shader->GetPS(),
 		vertex->GetInputDescNum(), vertex->GetInputDesc(), root->GetRootSignature());
 	//pera
-	//pipline->PeraInitialize(device->GetDevice(), shader->GetPeraVS(), shader->GetPeraPS(),
-	//	vertex->GetPeraInputDescNum(), vertex->GetPeraInputDesc(), root->GetPeraRootSignature());
+	pipline->PeraInitialize(device->GetDevice(), shader->GetPeraVS(), shader->GetPeraPS(),
+		vertex->GetPeraInputDescNum(), vertex->GetPeraInputDesc(), root->GetPeraRootSignature());
 
 	//ビューポート
 	viewPort->Initialize();
@@ -137,9 +137,6 @@ void Application::Run() {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
-
-		//ペラポリゴン
-		//UpdatePera();
 
 		//今までのレンダリング
 
@@ -155,20 +152,17 @@ void Application::Run() {
 
 		command->GetCommandList()->RSSetScissorRects(1, &window->GetScissorRect());
 
-		//レンダリング
+		//バリア
 		command->GetCommandList()->ResourceBarrier(
 			1,
 			&CD3DX12_RESOURCE_BARRIER::Transition(
-				renderTarget->GetRenderTarget()[swapChain->GetSwapChain()->GetCurrentBackBufferIndex()],
+				renderTarget->GetPeraRenderTarget(),
 				D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_PRESENT,
 				D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_RENDER_TARGET)
 		);
 
-		auto bbIndex = swapChain->GetSwapChain()->GetCurrentBackBufferIndex();
-
-		CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(descriptor->GetDescriptorHeap()->GetCPUDescriptorHandleForHeapStart(),
-			bbIndex, descriptor->GetDescriptorSize());
-
+		auto rtvHandle = renderTarget->GetHeap()["RTV"]->GetCPUDescriptorHandleForHeapStart();
+		//レンダーターゲットのセット
 		command->GetCommandList()->OMSetRenderTargets(1, &rtvHandle, false, &depth->GetHeap()->GetCPUDescriptorHandleForHeapStart());
 
 		const FLOAT color[] = { 0.4f, 0.4f, 0.4f, 1.0f };
@@ -194,10 +188,11 @@ void Application::Run() {
 		//モデル描画関連をバンドル
 		//CreateModelDrawBundle();
 
+		//バリア
 		command->GetCommandList()->ResourceBarrier(
 			1,
 			&CD3DX12_RESOURCE_BARRIER::Transition(
-				renderTarget->GetRenderTarget()[swapChain->GetSwapChain()->GetCurrentBackBufferIndex()],
+				renderTarget->GetPeraRenderTarget(),
 				D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_RENDER_TARGET,
 				D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_PRESENT)
 		);
@@ -208,10 +203,14 @@ void Application::Run() {
 
 		command->Execute();
 
-		swapChain->GetSwapChain()->Present(0, 0);
 		command->GetCommandQueue()->Signal(fence->GetFence(), fence->GetFenceValue(true));
 		while (fence->GetFence()->GetCompletedValue() != fence->GetFenceValue()) {
 		}
+
+		//ペラポリゴン
+		UpdatePera();
+
+		swapChain->GetSwapChain()->Present(0, 0);
 	}
 }
 
@@ -230,33 +229,43 @@ void Application::UpdatePera() {
 	//ルートシグネチャのセット
 	command->GetCommandList()->SetGraphicsRootSignature(root->GetPeraRootSignature());
 
-	//パイプラインステートのセット
-	command->GetCommandList()->SetPipelineState(pipline->GetPeraPiplineState());
-
 	//ビューポートのセット
 	command->GetCommandList()->RSSetViewports(1, &viewPort->GetViewPort());
 
 	//シザーレクトのセット
 	command->GetCommandList()->RSSetScissorRects(1, &window->GetScissorRect());
 
-	//バリア
+	auto bbIndex = swapChain->GetSwapChain()->GetCurrentBackBufferIndex();
+
+	//レンダリング
 	command->GetCommandList()->ResourceBarrier(
 		1,
 		&CD3DX12_RESOURCE_BARRIER::Transition(
-			renderTarget->GetPeraRenderTarget(),
+			renderTarget->GetRenderTarget()[bbIndex],
 			D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_PRESENT,
 			D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_RENDER_TARGET)
 	);
 
-	//レンダーターゲットのセット
-	renderTarget->Set1stPathRTV(command->GetCommandList(), depth->GetHeap());
+	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(descriptor->GetDescriptorHeap()->GetCPUDescriptorHandleForHeapStart(),
+		bbIndex, descriptor->GetDescriptorSize());
+
+	command->GetCommandList()->OMSetRenderTargets(1, &rtvHandle, false, &depth->GetHeap()->GetCPUDescriptorHandleForHeapStart());
+
+	const FLOAT color[] = { 0.4f, 0.4f, 0.4f, 1.0f };
+
+	command->GetCommandList()->ClearRenderTargetView(rtvHandle, color, 0, nullptr);
+
+	//SRVのヒープセット
+	auto srvH = renderTarget->GetHeap()["SRV"];
+	command->GetCommandList()->SetDescriptorHeaps(1, &srvH);
+
+	command->GetCommandList()->SetGraphicsRootShaderResourceView(0, renderTarget->GetPeraRenderTarget()->GetGPUVirtualAddress());
 
 	//プリミティブトポロジー
 	command->GetCommandList()->IASetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
 	//ペラポリゴンのVBVをセット
 	command->GetCommandList()->IASetVertexBuffers(0, 1, &vertex->GetPeraVBV());
-	command->GetCommandList()->IASetIndexBuffer(&index->GetIndexBufferView());
 
 	//描画
 	command->GetCommandList()->DrawInstanced(4, 1, 0, 0);
@@ -265,7 +274,7 @@ void Application::UpdatePera() {
 	command->GetCommandList()->ResourceBarrier(
 		1,
 		&CD3DX12_RESOURCE_BARRIER::Transition(
-			renderTarget->GetPeraRenderTarget(),
+			renderTarget->GetRenderTarget()[bbIndex],
 			D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_RENDER_TARGET,
 			D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_PRESENT)
 	);
@@ -276,8 +285,6 @@ void Application::UpdatePera() {
 	//実行
 	command->Execute();
 
-	//スワップ
-	//swapChain->GetSwapChain()->Present(0, 0);
 	command->GetCommandQueue()->Signal(fence->GetFence(), fence->GetFenceValue(true));
 
 	//待機

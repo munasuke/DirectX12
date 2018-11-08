@@ -22,6 +22,7 @@ public:
 
 	std::vector<ID3D12Resource*> GetRenderTarget();
 	ID3D12Resource* GetPeraRenderTarget();
+	std::map<std::string, ID3D12DescriptorHeap*> GetHeap();
 
 	~RenderTarget();
 private:

@@ -96,6 +96,7 @@ void RootSignature::InitRootSignature(D3D12_STATIC_SAMPLER_DESC _samplerDesc, ID
 	peraParam.DescriptorTable.NumDescriptorRanges	= 1;
 	peraParam.DescriptorTable.pDescriptorRanges		= &peraRange;
 
+	rsDesc.NumParameters		= 1;
 	rsDesc.pParameters			= &peraParam;
 	rsDesc.pStaticSamplers		= &_samplerDesc;
 

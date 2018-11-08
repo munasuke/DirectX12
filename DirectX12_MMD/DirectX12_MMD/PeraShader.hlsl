@@ -22,5 +22,6 @@ Out BasicVS(float4 pos : POSITION, float2 uv : TEXCOORD)
 //PixelShader
 float4 BasicPS(Out o) : SV_TARGET
 {
+    //return float4(o.uv.x, o.uv.y, 1, 1);
     return tex.Sample(smp, o.uv);
 }
