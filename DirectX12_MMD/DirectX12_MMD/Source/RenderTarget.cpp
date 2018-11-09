@@ -29,8 +29,8 @@ void RenderTarget::Init1stPathRTVSRV(ID3D12Device* _dev) {
 	//ペラポリ用
 
 	D3D12_DESCRIPTOR_HEAP_DESC descHeap = {};
-	descHeap.Flags = D3D12_DESCRIPTOR_HEAP_FLAGS::D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-	descHeap.NodeMask = 0;
+	descHeap.Flags			= D3D12_DESCRIPTOR_HEAP_FLAGS::D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+	descHeap.NodeMask		= 0;
 	descHeap.NumDescriptors = 1;
 
 	//RTV用ヒープ
@@ -60,7 +60,7 @@ void RenderTarget::Init1stPathRTVSRV(ID3D12Device* _dev) {
 	rDesc.Layout			= D3D12_TEXTURE_LAYOUT::D3D12_TEXTURE_LAYOUT_UNKNOWN;
 	rDesc.Format			= DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM;
 
-	//RTVバッファ生成
+	//RTVSRVバッファ生成
 	result = _dev->CreateCommittedResource(
 		&hProp,
 		D3D12_HEAP_FLAGS::D3D12_HEAP_FLAG_NONE,

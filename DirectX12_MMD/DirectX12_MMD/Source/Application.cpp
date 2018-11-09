@@ -140,13 +140,11 @@ void Application::Run() {
 
 		//今までのレンダリング
 
-		command->GetCommandAllocator()->Reset();
+		auto r = command->GetCommandAllocator()->Reset();
 
 		command->GetCommandList()->Reset(command->GetCommandAllocator(), pipline->GetPiplineState());
 
 		command->GetCommandList()->SetGraphicsRootSignature(root->GetRootSignature());
-
-		command->GetCommandList()->SetPipelineState(pipline->GetPiplineState());
 
 		command->GetCommandList()->RSSetViewports(1, &viewPort->GetViewPort());
 
@@ -161,8 +159,8 @@ void Application::Run() {
 				D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_RENDER_TARGET)
 		);
 
-		auto rtvHandle = renderTarget->GetHeap()["RTV"]->GetCPUDescriptorHandleForHeapStart();
 		//レンダーターゲットのセット
+		auto rtvHandle = renderTarget->GetHeap()["RTV"]->GetCPUDescriptorHandleForHeapStart();
 		command->GetCommandList()->OMSetRenderTargets(1, &rtvHandle, false, &depth->GetHeap()->GetCPUDescriptorHandleForHeapStart());
 
 		const FLOAT color[] = { 0.4f, 0.4f, 0.4f, 1.0f };
