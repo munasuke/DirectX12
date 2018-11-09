@@ -259,7 +259,7 @@ void Application::UpdatePera() {
 	auto srvH = renderTarget->GetHeap()["SRV"];
 	command->GetCommandList()->SetDescriptorHeaps(1, &srvH);
 
-	command->GetCommandList()->SetGraphicsRootShaderResourceView(0, renderTarget->GetPeraRenderTarget()->GetGPUVirtualAddress());
+	command->GetCommandList()->SetGraphicsRootDescriptorTable(0, srvH->GetGPUDescriptorHandleForHeapStart());
 
 	//プリミティブトポロジー
 	command->GetCommandList()->IASetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);

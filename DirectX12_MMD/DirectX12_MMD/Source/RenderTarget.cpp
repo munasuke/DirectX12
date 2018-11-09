@@ -42,6 +42,13 @@ void RenderTarget::Init1stPathRTVSRV(ID3D12Device* _dev) {
 	descHeap.Flags	= D3D12_DESCRIPTOR_HEAP_FLAGS::D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	_dev->CreateDescriptorHeap(&descHeap, IID_PPV_ARGS(&heapFor1stPath["SRV"]));
 
+	D3D12_HEAP_PROPERTIES hProp = {};
+	hProp.Type					= D3D12_HEAP_TYPE::D3D12_HEAP_TYPE_DEFAULT;
+	hProp.CPUPageProperty		= D3D12_CPU_PAGE_PROPERTY::D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+	hProp.MemoryPoolPreference	= D3D12_MEMORY_POOL::D3D12_MEMORY_POOL_UNKNOWN;
+	hProp.CreationNodeMask		= 1;
+	hProp.VisibleNodeMask		= 1;
+
 	D3D12_RESOURCE_DESC rDesc = {};
 	rDesc.Height			= WIN_HEIGHT;
 	rDesc.Width				= WIN_WIDTH;
@@ -55,7 +62,7 @@ void RenderTarget::Init1stPathRTVSRV(ID3D12Device* _dev) {
 
 	//RTVバッファ生成
 	result = _dev->CreateCommittedResource(
-		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE::D3D12_HEAP_TYPE_DEFAULT),
+		&hProp,
 		D3D12_HEAP_FLAGS::D3D12_HEAP_FLAG_NONE,
 		&rDesc,
 		D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_RENDER_TARGET,
