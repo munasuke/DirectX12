@@ -60,7 +60,7 @@ public:
 	void MotionUpdate(int framNo);
 
 	//
-	float GetVezierYValueFromXWithNewton(float x, DirectX::XMFLOAT2 a, DirectX::XMFLOAT2 b, unsigned int n = 16);
+	float GetBezierYValueFromXWithNewton(float x, DirectX::XMFLOAT2 a, DirectX::XMFLOAT2 b, unsigned int n = 16);
 
 	~Model();
 

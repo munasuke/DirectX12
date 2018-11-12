@@ -257,7 +257,7 @@ void Model::MotionUpdate(int framNo) {
 			float a = frameIt->frameNo;
 			float b = nextIt->frameNo;
 			float t = static_cast<float>(framNo - a) / (b - a);
-			t = GetVezierYValueFromXWithNewton(t, frameIt->bz[0], frameIt->bz[1]);
+			t = GetBezierYValueFromXWithNewton(t, frameIt->bz[0], frameIt->bz[1]);
 			RotationBone(anim.first.c_str(), frameIt->quaternion, nextIt->quaternion, t);
 		}
 	}
@@ -268,7 +268,7 @@ void Model::MotionUpdate(int framNo) {
 	memcpy(boneMatrixData, boneMatrix.data(), ((sizeof(XMMATRIX) + 0xff) &~ 0xff) * pmd.lock()->GetBoneData().size());
 }
 
-float Model::GetVezierYValueFromXWithNewton(float x, DirectX::XMFLOAT2 a, DirectX::XMFLOAT2 b, unsigned int n) {
+float Model::GetBezierYValueFromXWithNewton(float x, DirectX::XMFLOAT2 a, DirectX::XMFLOAT2 b, unsigned int n) {
 	//’¼ü‚¾‚Á‚½ê‡‚ÍŒvZ‚¹‚¸‚É”²‚¯‚é
 	if (a.x == a.y && b.x == b.y) {
 		return x;
