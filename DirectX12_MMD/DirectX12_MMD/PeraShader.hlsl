@@ -119,23 +119,21 @@ float4 ExtractOutline(float4 ret, float2 d, float2 uv, float power = 1.0f)
     float b = dot(value, 1 - ret.rgb);
     b = pow(b, power);
 
-    return float4(b, b, b, 1.0f);
+    return float4(1.0f - b, 1.0f - b, 1.0f - b, 1.0f);
 }
 
 //ƒ‰ƒ“ƒ_ƒ€
-float Rand(float2 vec)
+float Rand(float2 co)
 {
-    float a = frac(dot(vec, float2(2.067390879775102f, 12.451168662908249f))) - 0.5f;
-    float s = a * (6.182785114200511f + a * a * (-38.026512460676566f + a * a * 53.392573080032137f));
-
-    return frac(s * 43758.5453f);
+    return frac(sin(dot(co, float2(12.9898, 78.233))) * 43758.5453);
 }
 
-//‚¨•—˜C‚ÌƒKƒ‰ƒXi“Ü‚èƒKƒ‰ƒXj
+//‚¨•—˜Cê‚ÌƒKƒ‰ƒXi“Ü‚èƒKƒ‰ƒXj
 float4 FrostedGlass(float2 uv, float2 wh)
 {
     float radius = 5.0f;
-    float2 _uv = float2((uv.x * wh.x) + Rand(uv) * radius * 2.0f - radius, (uv.y * wh.y) + Rand(float2(uv.y, uv.x)) * radius * 2.0f - radius);
+    float2 _uv = float2((uv.x * wh.x) + Rand(uv) * radius * 2.0f - radius, 
+                    (uv.y * wh.y) + Rand(float2(uv.y, uv.x)) * radius * 2.0f - radius);
 
     return float4(tex.Sample(smp, float2(_uv.x / wh.x, _uv.y / wh.y)));
 }
@@ -170,13 +168,13 @@ float4 BasicPS(Out o) : SV_TARGET
     float2 d = float2(1.0f / w, 1.0f / h);
     float4 ret = tex.Sample(smp, o.uv);
 
+    //return texColor;
     //return Monochrome(texColor.rgb);
     //return Sepia(texColor.rgb);
     //return Posterization(texColor.rgb);
     //return AveragingFilter(ret, d, o.uv);
     //return GaussianFilter(ret, d, o.uv);
     //return ExtractOutline(ret, d, o.uv, 6.0f);
-    //return FrostedGlass(o.uv, float2(w, h));
-    return Spiral(o.uv, float2(w, h));
-
+    return FrostedGlass(o.uv, float2(w, h));
+    //return Spiral(o.uv, float2(w, h), 200.0f, 8.0f);
 }
