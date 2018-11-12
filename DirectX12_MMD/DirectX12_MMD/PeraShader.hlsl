@@ -35,6 +35,7 @@ float4 Monochrome(float3 rgb)
 float4 Sepia(float3 rgb)
 {
     float v = dot(value, rgb);
+    return float4(v * 0.5f, v * 0.5f, v * 0.7f, 1.0f);
     return float4(v * 0.9f, v * 0.7f, v * 0.4f, 1.0f);
 }
 
@@ -75,7 +76,7 @@ float4 GaussianFilter(float4 ret, float2 d, float2 uv)
     d.y *= 2; 
 
     //今のピクセルに8近傍のピクセル値を加算 
-    ret += tex.Sample(smp, uv + float2(-2 * d.x, 2 * d.y)) * 1 / 256; 
+    ret += tex.Sample(smp, uv + float2(-2 * d.x, 2 * d.y)) * 1 / 256;
     ret += tex.Sample(smp, uv + float2(-1 * d.x, 2 * d.y)) * 4 / 256; 
     ret += tex.Sample(smp, uv + float2( 0 * d.x, 2 * d.y)) * 6 / 256; 
     ret += tex.Sample(smp, uv + float2( 1 * d.x, 2 * d.y)) * 4 / 256; 
@@ -170,11 +171,12 @@ float4 BasicPS(Out o) : SV_TARGET
 
     //return texColor;
     //return Monochrome(texColor.rgb);
+    return Sepia(ExtractOutline(FrostedGlass(o.uv, float2(w, h)), d, o.uv, 4.0f).rgb);
     //return Sepia(texColor.rgb);
     //return Posterization(texColor.rgb);
     //return AveragingFilter(ret, d, o.uv);
     //return GaussianFilter(ret, d, o.uv);
     //return ExtractOutline(ret, d, o.uv, 6.0f);
     return FrostedGlass(o.uv, float2(w, h));
-    //return Spiral(o.uv, float2(w, h), 200.0f, 8.0f);
+    return Spiral(o.uv, float2(w, h), 200.0f, 8.0f);
 }
