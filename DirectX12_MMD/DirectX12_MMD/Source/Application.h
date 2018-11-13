@@ -44,6 +44,7 @@ private:
 
 	//ƒyƒ‰ƒ|ƒŠƒSƒ“—p
 	void UpdatePera();
+	void UpdatePera2nd();
 
 	void CreateModelDrawBundle();
 

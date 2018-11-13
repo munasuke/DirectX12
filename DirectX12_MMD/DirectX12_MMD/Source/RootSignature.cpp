@@ -4,7 +4,6 @@
 
 
 RootSignature::RootSignature() : 
-	peraSignature(nullptr),
 	rootSignature(nullptr),
 	signature(nullptr),
 	error(nullptr)
@@ -83,21 +82,26 @@ void RootSignature::InitRootSignature(D3D12_STATIC_SAMPLER_DESC _samplerDesc, ID
 	);
 
 	//ペラポリゴン用
-	CD3DX12_DESCRIPTOR_RANGE peraRange = {};
-	peraRange.RangeType							= D3D12_DESCRIPTOR_RANGE_TYPE::D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-	peraRange.NumDescriptors					= 1;
-	peraRange.BaseShaderRegister				= 0;
-	peraRange.RegisterSpace						= 0;
-	peraRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	D3D12_ROOT_PARAMETER peraParam = {};
-	peraParam.ParameterType							= D3D12_ROOT_PARAMETER_TYPE::D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	peraParam.ShaderVisibility						= D3D12_SHADER_VISIBILITY::D3D12_SHADER_VISIBILITY_PIXEL;
-	peraParam.DescriptorTable.NumDescriptorRanges	= 1;
-	peraParam.DescriptorTable.pDescriptorRanges		= &peraRange;
+	const unsigned int max = 2;
+	peraSignature.resize(max);
+
+	//1パス目
+	CD3DX12_DESCRIPTOR_RANGE peraRange[max] = {};
+	peraRange[0].RangeType							= D3D12_DESCRIPTOR_RANGE_TYPE::D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	peraRange[0].NumDescriptors						= 1;
+	peraRange[0].BaseShaderRegister					= 0;
+	peraRange[0].RegisterSpace						= 0;
+	peraRange[0].OffsetInDescriptorsFromTableStart	= D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+	D3D12_ROOT_PARAMETER peraParam[max] = {};
+	peraParam[0].ParameterType							= D3D12_ROOT_PARAMETER_TYPE::D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	peraParam[0].ShaderVisibility						= D3D12_SHADER_VISIBILITY::D3D12_SHADER_VISIBILITY_PIXEL;
+	peraParam[0].DescriptorTable.NumDescriptorRanges	= 1;
+	peraParam[0].DescriptorTable.pDescriptorRanges		= &peraRange[0];
 
 	rsDesc.NumParameters		= 1;
-	rsDesc.pParameters			= &peraParam;
+	rsDesc.pParameters			= &peraParam[0];
 	rsDesc.pStaticSamplers		= &_samplerDesc;
 
 	result = D3D12SerializeRootSignature(
@@ -111,7 +115,37 @@ void RootSignature::InitRootSignature(D3D12_STATIC_SAMPLER_DESC _samplerDesc, ID
 		0,
 		signature->GetBufferPointer(),
 		signature->GetBufferSize(),
-		IID_PPV_ARGS(&peraSignature)
+		IID_PPV_ARGS(&peraSignature[0])
+	);
+
+	//2パス目
+	peraRange[1].RangeType							= D3D12_DESCRIPTOR_RANGE_TYPE::D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	peraRange[1].NumDescriptors						= 1;
+	peraRange[1].BaseShaderRegister					= 0;
+	peraRange[1].RegisterSpace						= 0;
+	peraRange[1].OffsetInDescriptorsFromTableStart	= D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+	peraParam[1].ParameterType							= D3D12_ROOT_PARAMETER_TYPE::D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	peraParam[1].ShaderVisibility						= D3D12_SHADER_VISIBILITY::D3D12_SHADER_VISIBILITY_PIXEL;
+	peraParam[1].DescriptorTable.NumDescriptorRanges	= 1;
+	peraParam[1].DescriptorTable.pDescriptorRanges		= &peraRange[1];
+
+	rsDesc.NumParameters		= 1;
+	rsDesc.pParameters			= &peraParam[1];
+	rsDesc.pStaticSamplers		= &_samplerDesc;
+
+	result = D3D12SerializeRootSignature(
+		&rsDesc,
+		D3D_ROOT_SIGNATURE_VERSION::D3D_ROOT_SIGNATURE_VERSION_1,
+		&signature,
+		&error
+	);
+
+	result = _dev->CreateRootSignature(
+		0,
+		signature->GetBufferPointer(),
+		signature->GetBufferSize(),
+		IID_PPV_ARGS(&peraSignature[1])
 	);
 }
 
@@ -119,7 +153,7 @@ ID3D12RootSignature * RootSignature::GetRootSignature() {
 	return rootSignature;
 }
 
-ID3D12RootSignature * RootSignature::GetPeraRootSignature() {
+std::vector<ID3D12RootSignature*> RootSignature::GetPeraRootSignature() {
 	return peraSignature;
 }
 

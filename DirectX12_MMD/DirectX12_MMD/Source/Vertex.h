@@ -20,13 +20,13 @@ public:
 	UINT GetInputDescNum();
 	UINT GetPeraInputDescNum();
 	D3D12_VERTEX_BUFFER_VIEW GetVBV();
-	D3D12_VERTEX_BUFFER_VIEW GetPeraVBV();
+	D3D12_VERTEX_BUFFER_VIEW GetPeraVBV(const unsigned int index);
 	~Vertex();
 private:
 	ID3D12Resource* vertexBuffer;//頂点バッファ
 	UCHAR* pData;
 	D3D12_VERTEX_BUFFER_VIEW vbView = {};
 
-	D3D12_VERTEX_BUFFER_VIEW peraVBV = {};
+	D3D12_VERTEX_BUFFER_VIEW peraVBV[2] = {};
 };
 

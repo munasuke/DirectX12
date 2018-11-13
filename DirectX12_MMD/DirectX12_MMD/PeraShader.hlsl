@@ -1,5 +1,6 @@
 //テクスチャ
 Texture2D<float4> tex   : register(t0);
+//Texture2D<float4> dist  : register(t1);
 //サンプラ
 SamplerState smp        : register(s0);
 
@@ -32,10 +33,10 @@ float4 Monochrome(float3 rgb)
 }
 
 //セピア調
-float4 Sepia(float3 rgb)
+float4 Sepia(float3 rgb, float3 sepiaCol)
 {
     float v = dot(value, rgb);
-    return float4(v * 0.5f, v * 0.5f, v * 0.7f, 1.0f);
+    return float4(v * sepiaCol, 1.0f);
     return float4(v * 0.9f, v * 0.7f, v * 0.4f, 1.0f);
 }
 
@@ -129,7 +130,14 @@ float Rand(float2 co)
     return frac(sin(dot(co, float2(12.9898, 78.233))) * 43758.5453);
 }
 
-//お風呂場のガラス（曇りガラス）
+/**
+* @fn float4 FrostedGlass(float2 uv, float2 wh)
+* @brief 曇りガラスを作る関数
+* @param uv テクスチャのUV座標
+* @param wh テクスチャの横幅と高さ
+* @return float4 曇りガラスの出来たテクスチャを返す
+* @details 詳細な説明
+*/
 float4 FrostedGlass(float2 uv, float2 wh)
 {
     float radius = 5.0f;
@@ -139,7 +147,16 @@ float4 FrostedGlass(float2 uv, float2 wh)
     return float4(tex.Sample(smp, float2(_uv.x / wh.x, _uv.y / wh.y)));
 }
 
-//うずまきナルト
+/**
+* @fn float4 Spiral(float2 uv, float2 screen, float radius = 100.0f, float strength = 10.0f)
+* @brief 渦巻きを作る関数
+* @param uv テクスチャのUV座標
+* @param screen 画面サイズ
+* @param radius 渦の大きさ
+* @param strength 渦の強さ
+* @return float4 渦巻きの出来たテクスチャを返す
+* @details 詳細な説明
+*/
 float4 Spiral(float2 uv, float2 screen, float radius = 100.0f, float strength = 10.0f)
 {
     float2 centor = screen / 2.0f;
@@ -166,12 +183,19 @@ float4 BasicPS(Out o) : SV_TARGET
     float w, h, level;
     tex.GetDimensions(0, w, h, level);
 
+    //1ピクセル
     float2 d = float2(1.0f / w, 1.0f / h);
     float4 ret = tex.Sample(smp, o.uv);
+    float3 sepia = float3(0.5f, 0.8f, 0.5f);
+
+    if (o.uv.x + o.uv.y < 0.8f)
+    {
+        return texColor;
+    }
 
     //return texColor;
     //return Monochrome(texColor.rgb);
-    return Sepia(ExtractOutline(FrostedGlass(o.uv, float2(w, h)), d, o.uv, 4.0f).rgb);
+        return Sepia(ExtractOutline(FrostedGlass(o.uv, float2(w, h)), d, o.uv, 6.0f).rgb, sepia);
     //return Sepia(texColor.rgb);
     //return Posterization(texColor.rgb);
     //return AveragingFilter(ret, d, o.uv);

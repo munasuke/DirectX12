@@ -115,24 +115,47 @@ void Vertex::Initialize(ID3D12Device * _dev, std::vector<PMDVertex> _pmdV)
 
 	//ペラポリゴン用
 	//ペラバッファ生成
-	ID3D12Resource* peraBuffer = nullptr;
+	ID3D12Resource* peraBuffer[2];
+	for (int i = 0; i < 2; i++) {
+		peraBuffer[i] = nullptr;
+	}
+	//1パス目
 	result = _dev->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE::D3D12_HEAP_TYPE_UPLOAD),
 		D3D12_HEAP_FLAGS::D3D12_HEAP_FLAG_NONE,
 		&CD3DX12_RESOURCE_DESC::Buffer(sizeof(vertices)),
 		D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_GENERIC_READ,
 		nullptr,
-		IID_PPV_ARGS(&peraBuffer)
+		IID_PPV_ARGS(&peraBuffer[0])
 	);
 
 	VERTEX* vData = nullptr;
-	result = peraBuffer->Map(0, nullptr, (void**)&vData);
+	result = peraBuffer[0]->Map(0, nullptr, (void**)&vData);
 	memcpy(vData, vertices, sizeof(vertices));
-	peraBuffer->Unmap(0, nullptr);
+	peraBuffer[0]->Unmap(0, nullptr);
 
-	peraVBV.BufferLocation = peraBuffer->GetGPUVirtualAddress();
-	peraVBV.SizeInBytes = sizeof(vertices);
-	peraVBV.StrideInBytes = sizeof(VERTEX);
+	peraVBV[0].BufferLocation = peraBuffer[0]->GetGPUVirtualAddress();
+	peraVBV[0].SizeInBytes = sizeof(vertices);
+	peraVBV[0].StrideInBytes = sizeof(VERTEX);
+
+	//2パス目
+	result = _dev->CreateCommittedResource(
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE::D3D12_HEAP_TYPE_UPLOAD),
+		D3D12_HEAP_FLAGS::D3D12_HEAP_FLAG_NONE,
+		&CD3DX12_RESOURCE_DESC::Buffer(sizeof(vertices)),
+		D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(&peraBuffer[1])
+	);
+
+	vData = nullptr;
+	result = peraBuffer[1]->Map(0, nullptr, (void**)&vData);
+	memcpy(vData, vertices, sizeof(vertices));
+	peraBuffer[1]->Unmap(0, nullptr);
+
+	peraVBV[1].BufferLocation = peraBuffer[1]->GetGPUVirtualAddress();
+	peraVBV[1].SizeInBytes = sizeof(vertices);
+	peraVBV[1].StrideInBytes = sizeof(VERTEX);
 }
 
 D3D12_INPUT_ELEMENT_DESC * Vertex::GetInputDesc() {
@@ -155,8 +178,8 @@ D3D12_VERTEX_BUFFER_VIEW Vertex::GetVBV() {
 	return vbView;
 }
 
-D3D12_VERTEX_BUFFER_VIEW Vertex::GetPeraVBV() {
-	return peraVBV;
+D3D12_VERTEX_BUFFER_VIEW Vertex::GetPeraVBV(const unsigned int index) {
+	return peraVBV[index];
 }
 
 

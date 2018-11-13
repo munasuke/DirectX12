@@ -71,8 +71,10 @@ void Application::Initialize() {
 	//レンダーターゲット
 	renderTarget->InitRenderTarget(swapChain->GetSwapChainDesc().BufferCount,
 		device->GetDevice(), swapChain->GetSwapChain(), descriptor->GetDescriptorHandle(), descriptor->GetDescriptorSize());
-	//pera
+	//1パス目
 	renderTarget->Init1stPathRTVSRV(device->GetDevice());
+	//2パス目
+	renderTarget->Init2ndPathRTVSRV(device->GetDevice());
 
 	//サンプラ
 	sampler->InitSampler();
@@ -122,9 +124,12 @@ void Application::Initialize() {
 	//パイプライン
 	pipline->Initialize(device->GetDevice(), shader->GetVS(), shader->GetPS(),
 		vertex->GetInputDescNum(), vertex->GetInputDesc(), root->GetRootSignature());
-	//pera
-	pipline->PeraInitialize(device->GetDevice(), shader->GetPeraVS(), shader->GetPeraPS(),
-		vertex->GetPeraInputDescNum(), vertex->GetPeraInputDesc(), root->GetPeraRootSignature());
+	//1パス目
+	pipline->PeraInitialize(device->GetDevice(), shader->GetPeraVS(0), shader->GetPeraPS(0),
+		vertex->GetPeraInputDescNum(), vertex->GetPeraInputDesc(), root->GetPeraRootSignature()[0], 0);
+	//2パス目
+	pipline->PeraInitialize(device->GetDevice(), shader->GetPeraVS(1), shader->GetPeraPS(1),
+		vertex->GetPeraInputDescNum(), vertex->GetPeraInputDesc(), root->GetPeraRootSignature()[1], 1);
 
 	//ビューポート
 	viewPort->Initialize();
@@ -206,7 +211,10 @@ void Application::Run() {
 		}
 
 		//ペラポリゴン
+		//1パス目
 		UpdatePera();
+		//2パス目
+		UpdatePera2nd();
 
 		swapChain->GetSwapChain()->Present(0, 0);
 	}
@@ -222,10 +230,81 @@ void Application::UpdatePera() {
 	command->GetCommandAllocator()->Reset();
 
 	//コマンドリストのリセット
-	command->GetCommandList()->Reset(command->GetCommandAllocator(), pipline->GetPeraPiplineState());
+	command->GetCommandList()->Reset(command->GetCommandAllocator(), pipline->GetPeraPiplineState()[0]);
 
 	//ルートシグネチャのセット
-	command->GetCommandList()->SetGraphicsRootSignature(root->GetPeraRootSignature());
+	command->GetCommandList()->SetGraphicsRootSignature(root->GetPeraRootSignature()[0]);
+
+	//ビューポートのセット
+	command->GetCommandList()->RSSetViewports(1, &viewPort->GetViewPort());
+
+	//シザーレクトのセット
+	command->GetCommandList()->RSSetScissorRects(1, &window->GetScissorRect());
+
+	auto bbIndex = swapChain->GetSwapChain()->GetCurrentBackBufferIndex();
+
+	//レンダリング
+	command->GetCommandList()->ResourceBarrier(
+		1,
+		&CD3DX12_RESOURCE_BARRIER::Transition(
+			renderTarget->GetPeraRenderTarget2(),
+			D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_PRESENT,
+			D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_RENDER_TARGET)
+	);
+
+	auto rtvHandle = renderTarget->GetHeap2nd()["RTV"]->GetCPUDescriptorHandleForHeapStart();
+	command->GetCommandList()->OMSetRenderTargets(1, &rtvHandle, false, &depth->GetHeap()->GetCPUDescriptorHandleForHeapStart());
+
+	const FLOAT color[] = { 0.4f, 0.4f, 0.4f, 1.0f };
+
+	command->GetCommandList()->ClearRenderTargetView(rtvHandle, color, 0, nullptr);
+
+	//SRVのヒープセット
+	auto srvH = renderTarget->GetHeap()["SRV"];
+	command->GetCommandList()->SetDescriptorHeaps(1, &srvH);
+
+	command->GetCommandList()->SetGraphicsRootDescriptorTable(0, srvH->GetGPUDescriptorHandleForHeapStart());
+
+	//プリミティブトポロジー
+	command->GetCommandList()->IASetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+
+	//ペラポリゴンのVBVをセット
+	command->GetCommandList()->IASetVertexBuffers(0, 1, &vertex->GetPeraVBV(0));
+
+	//描画
+	command->GetCommandList()->DrawInstanced(4, 1, 0, 0);
+
+	//バリア
+	command->GetCommandList()->ResourceBarrier(
+		1,
+		&CD3DX12_RESOURCE_BARRIER::Transition(
+			renderTarget->GetPeraRenderTarget2(),
+			D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_RENDER_TARGET,
+			D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_PRESENT)
+	);
+
+	//コマンドリストを閉じる
+	command->GetCommandList()->Close();
+
+	//実行
+	command->Execute();
+
+	command->GetCommandQueue()->Signal(fence->GetFence(), fence->GetFenceValue(true));
+
+	//待機
+	while (fence->GetFence()->GetCompletedValue() != fence->GetFenceValue()) {
+	}
+}
+
+void Application::UpdatePera2nd() {
+	//アロケータのリセット
+	command->GetCommandAllocator()->Reset();
+
+	//コマンドリストのリセット
+	command->GetCommandList()->Reset(command->GetCommandAllocator(), pipline->GetPeraPiplineState()[1]);
+
+	//ルートシグネチャのセット
+	command->GetCommandList()->SetGraphicsRootSignature(root->GetPeraRootSignature()[1]);
 
 	//ビューポートのセット
 	command->GetCommandList()->RSSetViewports(1, &viewPort->GetViewPort());
@@ -254,7 +333,7 @@ void Application::UpdatePera() {
 	command->GetCommandList()->ClearRenderTargetView(rtvHandle, color, 0, nullptr);
 
 	//SRVのヒープセット
-	auto srvH = renderTarget->GetHeap()["SRV"];
+	auto srvH = renderTarget->GetHeap2nd()["SRV"];
 	command->GetCommandList()->SetDescriptorHeaps(1, &srvH);
 
 	command->GetCommandList()->SetGraphicsRootDescriptorTable(0, srvH->GetGPUDescriptorHandleForHeapStart());
@@ -263,7 +342,7 @@ void Application::UpdatePera() {
 	command->GetCommandList()->IASetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
 	//ペラポリゴンのVBVをセット
-	command->GetCommandList()->IASetVertexBuffers(0, 1, &vertex->GetPeraVBV());
+	command->GetCommandList()->IASetVertexBuffers(0, 1, &vertex->GetPeraVBV(1));
 
 	//描画
 	command->GetCommandList()->DrawInstanced(4, 1, 0, 0);

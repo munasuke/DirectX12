@@ -18,11 +18,15 @@ public:
 
 	//1パス目に使うレンダリングバッファ
 	void Init1stPathRTVSRV(ID3D12Device* _dev);
+	//2パス目
+	void Init2ndPathRTVSRV(ID3D12Device* _dev);
 	void Set1stPathRTV(ID3D12GraphicsCommandList* list, ID3D12DescriptorHeap* depthHeap);
 
 	std::vector<ID3D12Resource*> GetRenderTarget();
 	ID3D12Resource* GetPeraRenderTarget();
+	ID3D12Resource* GetPeraRenderTarget2();
 	std::map<std::string, ID3D12DescriptorHeap*> GetHeap();
+	std::map<std::string, ID3D12DescriptorHeap*> GetHeap2nd();
 
 	~RenderTarget();
 private:
@@ -31,5 +35,7 @@ private:
 
 	std::map<std::string, ID3D12DescriptorHeap*> heapFor1stPath;
 	ID3D12Resource* peraBuffer;
+	std::map<std::string, ID3D12DescriptorHeap*> heapFor2ndPath;
+	ID3D12Resource* peraBuffer2nd;
 };
 

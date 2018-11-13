@@ -36,6 +36,11 @@ int ShaderLoader::Load(ID3DBlob* _error) {
 		&_error);
 
 	//ペラポリゴン用
+	const unsigned int max = 2;
+	peraVShader.resize(max);
+	peraPShader.resize(max);
+
+	//1パス目
 	//頂点シェーダ
 	result = D3DCompileFromFile(
 		_T("PeraShader.hlsl"),
@@ -45,7 +50,7 @@ int ShaderLoader::Load(ID3DBlob* _error) {
 		"vs_5_0",
 		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
 		0,
-		&peraVShader,
+		&peraVShader[0],
 		&_error);
 
 	//ピクセルシェーダ
@@ -57,7 +62,32 @@ int ShaderLoader::Load(ID3DBlob* _error) {
 		"ps_5_0",
 		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
 		0,
-		&peraPShader,
+		&peraPShader[0],
+		&_error);
+
+	//2パス目
+	//頂点シェーダ
+	result = D3DCompileFromFile(
+		_T("PeraShader2.hlsl"),
+		nullptr,
+		nullptr,
+		"BasicVS",
+		"vs_5_0",
+		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
+		0,
+		&peraVShader[1],
+		&_error);
+
+	//ピクセルシェーダ
+	result = D3DCompileFromFile(
+		_T("PeraShader2.hlsl"),
+		nullptr,
+		nullptr,
+		"BasicPS",
+		"ps_5_0",
+		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
+		0,
+		&peraPShader[1],
 		&_error);
 
 	return 0;
@@ -71,12 +101,12 @@ CD3DX12_SHADER_BYTECODE ShaderLoader::GetPS() {
 	return CD3DX12_SHADER_BYTECODE(pixelShader);
 }
 
-CD3DX12_SHADER_BYTECODE ShaderLoader::GetPeraVS() {
-	return CD3DX12_SHADER_BYTECODE(peraVShader);
+CD3DX12_SHADER_BYTECODE ShaderLoader::GetPeraVS(unsigned int index) {
+	return CD3DX12_SHADER_BYTECODE(peraVShader[index]);
 }
 
-CD3DX12_SHADER_BYTECODE ShaderLoader::GetPeraPS() {
-	return CD3DX12_SHADER_BYTECODE(peraPShader);
+CD3DX12_SHADER_BYTECODE ShaderLoader::GetPeraPS(unsigned int index) {
+	return CD3DX12_SHADER_BYTECODE(peraPShader[index]);
 }
 
 
