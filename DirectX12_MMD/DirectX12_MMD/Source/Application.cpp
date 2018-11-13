@@ -214,7 +214,7 @@ void Application::Run() {
 		//1パス目
 		UpdatePera();
 		//2パス目
-		UpdatePera2nd();
+		//UpdatePera2nd();
 
 		swapChain->GetSwapChain()->Present(0, 0);
 	}
@@ -247,12 +247,17 @@ void Application::UpdatePera() {
 	command->GetCommandList()->ResourceBarrier(
 		1,
 		&CD3DX12_RESOURCE_BARRIER::Transition(
-			renderTarget->GetPeraRenderTarget2(),
+			renderTarget->GetRenderTarget()[bbIndex],
+			//renderTarget->GetPeraRenderTarget2(),
 			D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_PRESENT,
 			D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_RENDER_TARGET)
 	);
 
-	auto rtvHandle = renderTarget->GetHeap2nd()["RTV"]->GetCPUDescriptorHandleForHeapStart();
+	//auto rtvHandle = renderTarget->GetHeap2nd()["RTV"]->GetCPUDescriptorHandleForHeapStart();
+	//command->GetCommandList()->OMSetRenderTargets(1, &rtvHandle, false, &depth->GetHeap()->GetCPUDescriptorHandleForHeapStart());
+	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(descriptor->GetDescriptorHeap()->GetCPUDescriptorHandleForHeapStart(),
+		bbIndex, descriptor->GetDescriptorSize());
+
 	command->GetCommandList()->OMSetRenderTargets(1, &rtvHandle, false, &depth->GetHeap()->GetCPUDescriptorHandleForHeapStart());
 
 	const FLOAT color[] = { 0.4f, 0.4f, 0.4f, 1.0f };
@@ -278,7 +283,8 @@ void Application::UpdatePera() {
 	command->GetCommandList()->ResourceBarrier(
 		1,
 		&CD3DX12_RESOURCE_BARRIER::Transition(
-			renderTarget->GetPeraRenderTarget2(),
+			renderTarget->GetRenderTarget()[bbIndex],
+			//renderTarget->GetPeraRenderTarget2(),
 			D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_RENDER_TARGET,
 			D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_PRESENT)
 	);

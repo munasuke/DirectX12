@@ -1,6 +1,5 @@
 //テクスチャ
 Texture2D<float4> tex   : register(t0);
-//Texture2D<float4> dist  : register(t1);
 //サンプラ
 SamplerState smp        : register(s0);
 
@@ -33,11 +32,11 @@ float4 Monochrome(float3 rgb)
 }
 
 //セピア調
-float4 Sepia(float3 rgb, float3 sepiaCol)
+float3 Sepia(float3 rgb, float3 sepiaCol)
 {
     float v = dot(value, rgb);
-    return float4(v * sepiaCol, 1.0f);
-    return float4(v * 0.9f, v * 0.7f, v * 0.4f, 1.0f);
+    return v * sepiaCol;
+    return v * 0.9f, v * 0.7f, v * 0.4f;
 }
 
 //ポスタリゼーション
@@ -77,36 +76,69 @@ float4 GaussianFilter(float4 ret, float2 d, float2 uv)
     d.y *= 2; 
 
     //今のピクセルに8近傍のピクセル値を加算 
-    ret += tex.Sample(smp, uv + float2(-2 * d.x, 2 * d.y)) * 1 / 256;
-    ret += tex.Sample(smp, uv + float2(-1 * d.x, 2 * d.y)) * 4 / 256; 
-    ret += tex.Sample(smp, uv + float2( 0 * d.x, 2 * d.y)) * 6 / 256; 
-    ret += tex.Sample(smp, uv + float2( 1 * d.x, 2 * d.y)) * 4 / 256; 
-    ret += tex.Sample(smp, uv + float2( 2 * d.x, 2 * d.y)) * 1 / 256;
-    
-    ret += tex.Sample(smp, uv + float2(-2 * d.x, 1 * d.y)) * 4  / 256; 
-    ret += tex.Sample(smp, uv + float2(-1 * d.x, 1 * d.y)) * 16 / 256; 
-    ret += tex.Sample(smp, uv + float2( 0 * d.x, 1 * d.y)) * 24 / 256; 
-    ret += tex.Sample(smp, uv + float2( 1 * d.x, 1 * d.y)) * 16 / 256; 
-    ret += tex.Sample(smp, uv + float2( 2 * d.x, 1 * d.y)) * 4  / 256;
-    
-    ret += tex.Sample(smp, uv + float2(-2 * d.x, 0 * d.y)) * 6  / 256; 
-    ret += tex.Sample(smp, uv + float2(-1 * d.x, 0 * d.y)) * 24 / 256;
+    //1行目
+    ret += tex.Sample(smp, uv + float2(-2 * d.x, -2 * d.y)) *  1 / 256; 
+    ret += tex.Sample(smp, uv + float2(-1 * d.x, -2 * d.y)) *  4 / 256; 
+    ret += tex.Sample(smp, uv + float2( 0 * d.x, -2 * d.y)) *  6 / 256; 
+    ret += tex.Sample(smp, uv + float2( 1 * d.x, -2 * d.y)) *  4 / 256; 
+    ret += tex.Sample(smp, uv + float2( 2 * d.x, -2 * d.y)) *  1 / 256;
 
-    //既に計算済み 
-    ret += tex.Sample(smp, uv + float2( 1 * d.x,  0 * d.y)) * 24 / 256; 
-    ret += tex.Sample(smp, uv + float2( 2 * d.x,  0 * d.y)) *  6 / 256;
-    
+    //2行目
     ret += tex.Sample(smp, uv + float2(-2 * d.x, -1 * d.y)) *  4 / 256; 
     ret += tex.Sample(smp, uv + float2(-1 * d.x, -1 * d.y)) * 16 / 256; 
     ret += tex.Sample(smp, uv + float2( 0 * d.x, -1 * d.y)) * 24 / 256; 
     ret += tex.Sample(smp, uv + float2( 1 * d.x, -1 * d.y)) * 16 / 256; 
     ret += tex.Sample(smp, uv + float2( 2 * d.x, -1 * d.y)) *  4 / 256;
     
-    ret += tex.Sample(smp, uv + float2(-2 * d.x, -2 * d.y)) *  1 / 256; 
-    ret += tex.Sample(smp, uv + float2(-1 * d.x, -2 * d.y)) *  4 / 256; 
-    ret += tex.Sample(smp, uv + float2( 0 * d.x, -2 * d.y)) *  6 / 256; 
-    ret += tex.Sample(smp, uv + float2( 1 * d.x, -2 * d.y)) *  4 / 256; 
-    ret += tex.Sample(smp, uv + float2( 2 * d.x, -2 * d.y)) *  1 / 256;
+    //3行目
+    ret += tex.Sample(smp, uv + float2( -2 * d.x, 0 * d.y)) *  6 / 256; 
+    ret += tex.Sample(smp, uv + float2( -1 * d.x, 0 * d.y)) * 24 / 256;
+    ret += tex.Sample(smp, uv + float2( 1 * d.x,  0 * d.y)) * 24 / 256; 
+    ret += tex.Sample(smp, uv + float2( 2 * d.x,  0 * d.y)) *  6 / 256;
+    
+    //4行目
+    ret += tex.Sample(smp, uv + float2(-2 * d.x, 1 * d.y)) *  4 / 256; 
+    ret += tex.Sample(smp, uv + float2(-1 * d.x, 1 * d.y)) * 16 / 256; 
+    ret += tex.Sample(smp, uv + float2( 0 * d.x, 1 * d.y)) * 24 / 256; 
+    ret += tex.Sample(smp, uv + float2( 1 * d.x, 1 * d.y)) * 16 / 256; 
+    ret += tex.Sample(smp, uv + float2( 2 * d.x, 1 * d.y)) *  4 / 256;
+    
+    //5行目
+    ret += tex.Sample(smp, uv + float2(-2 * d.x, 2 * d.y)) * 1 / 256;
+    ret += tex.Sample(smp, uv + float2(-1 * d.x, 2 * d.y)) * 4 / 256; 
+    ret += tex.Sample(smp, uv + float2( 0 * d.x, 2 * d.y)) * 6 / 256; 
+    ret += tex.Sample(smp, uv + float2( 1 * d.x, 2 * d.y)) * 4 / 256; 
+    ret += tex.Sample(smp, uv + float2( 2 * d.x, 2 * d.y)) * 1 / 256;
+    
+    return ret;
+}
+
+//エンボス
+float4 Emboss(float4 ret, float2 uv, float2 d)
+{
+    /*
+        2  1  0
+        1  1 -1
+        0 -1 -1
+    */
+    ret += tex.Sample(smp, uv + float2(-d.x, -d.y)) * 2.0f;
+    ret += tex.Sample(smp, uv + float2(0.0f, -d.y)) * 1.0f;
+    ret += tex.Sample(smp, uv + float2(-d.x, 0.0f)) * 1.0f;
+    ret += tex.Sample(smp, uv + float2(d.x, 0.0f)) * -1.0f;
+    ret += tex.Sample(smp, uv + float2(0.0f, d.y)) * -1.0f;
+    ret += tex.Sample(smp, uv + float2(d.x, d.y)) * -2.0f;
+
+    return ret;
+}
+
+//シャープネス
+float4 Sharpness(float4 ret, float2 uv, float2 d)
+{
+    ret += tex.Sample(smp, uv + float2(0.0f, -d.y)) * -1.0f;
+    ret += tex.Sample(smp, uv + float2(-d.x, 0.0f)) * -1.0f;
+    ret += tex.Sample(smp, uv) * 5.0f;
+    ret += tex.Sample(smp, uv + float2(d.x, 0.0f)) * -1.0f;
+    ret += tex.Sample(smp, uv + float2(0.0f, d.y)) * -1.0f;
 
     return ret;
 }
@@ -136,7 +168,7 @@ float Rand(float2 co)
 * @param uv テクスチャのUV座標
 * @param wh テクスチャの横幅と高さ
 * @return float4 曇りガラスの出来たテクスチャを返す
-* @details 詳細な説明
+* @details 
 */
 float4 FrostedGlass(float2 uv, float2 wh)
 {
@@ -180,27 +212,30 @@ float4 BasicPS(Out o) : SV_TARGET
     float4 texColor = tex.Sample(smp, o.uv);
     
     //リソースのサイズを取得
-    float w, h, level;
-    tex.GetDimensions(0, w, h, level);
+    float w, h;
+    tex.GetDimensions(w, h);
 
-    //1ピクセル
+    //1ピクセル分取得
     float2 d = float2(1.0f / w, 1.0f / h);
-    float4 ret = tex.Sample(smp, o.uv);
+
+    //セピアカラー
     float3 sepia = float3(0.5f, 0.8f, 0.5f);
 
-    if (o.uv.x + o.uv.y < 0.8f)
+    //加工しない部分の指定
+    if (o.uv.x + o.uv.y < 0.9f)
     {
         return texColor;
     }
 
     //return texColor;
     //return Monochrome(texColor.rgb);
-        return Sepia(ExtractOutline(FrostedGlass(o.uv, float2(w, h)), d, o.uv, 6.0f).rgb, sepia);
-    //return Sepia(texColor.rgb);
+    //return Emboss(texColor, o.uv, d);
+    return float4(Sepia(ExtractOutline(FrostedGlass(o.uv, float2(w, h)), d, o.uv, 6.0f).rgb, sepia), texColor.a);
+    //return Sepia(texColor.rgb, sepia);
     //return Posterization(texColor.rgb);
-    //return AveragingFilter(ret, d, o.uv);
-    //return GaussianFilter(ret, d, o.uv);
-    //return ExtractOutline(ret, d, o.uv, 6.0f);
+    //return AveragingFilter(texColor, d, o.uv);
+    //return GaussianFilter(texColor, d, o.uv);
+    //return ExtractOutline(texColor, d, o.uv, 6.0f);
     return FrostedGlass(o.uv, float2(w, h));
-    return Spiral(o.uv, float2(w, h), 200.0f, 8.0f);
+    //return Spiral(o.uv, float2(w, h), 200.0f, 8.0f);
 }
