@@ -156,7 +156,12 @@ float4 ExtractOutline(float4 ret, float2 d, float2 uv, float power = 1.0f)
     return float4(1.0f - b, 1.0f - b, 1.0f - b, 1.0f);
 }
 
-//ランダム
+/**
+* @fn float Rand(float2 co)
+* @brief 乱数を作る関数
+* @param co テクスチャ
+* @return float 生成された乱数を返す
+*/
 float Rand(float2 co)
 {
     return frac(sin(dot(co, float2(12.9898, 78.233))) * 43758.5453);
@@ -168,7 +173,7 @@ float Rand(float2 co)
 * @param uv テクスチャのUV座標
 * @param wh テクスチャの横幅と高さ
 * @return float4 曇りガラスの出来たテクスチャを返す
-* @details 
+* @details 周囲のピクセルからランダムにピクセルを取得する
 */
 float4 FrostedGlass(float2 uv, float2 wh)
 {
