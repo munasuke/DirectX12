@@ -6,7 +6,7 @@ SamplerState smp        : register(s0);
 struct Out
 {
     float4 svpos    : SV_POSITION;
-    float2 uv       : TEXCOORD;
+    float2 uv       : TEXCOORD0;
 };
 
 //頂点シェーダ
@@ -231,6 +231,12 @@ float4 BasicPS(Out o) : SV_TARGET
     {
         return texColor;
     }
+
+    //half2 pos = o.uv * 2.0f - 1.0f;
+    //half p = length(pos);
+    //pos = (1.0f + 1.0f * p * p) / (1.0f + 2.0f * 1.0f) * pos;
+
+    return tex.Sample(smp, pos * 0.5f + 0.5f);
 
     //return texColor;
     //return Monochrome(texColor.rgb);
