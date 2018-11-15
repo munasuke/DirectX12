@@ -46,12 +46,12 @@ namespace {
 		//ボーン
 		{
 			"BONENO",
-				0,
-				DXGI_FORMAT::DXGI_FORMAT_R16G16_UINT,
-				0,
-				D3D12_APPEND_ALIGNED_ELEMENT,
-				D3D12_INPUT_CLASSIFICATION::D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,
-				0
+			0,
+			DXGI_FORMAT::DXGI_FORMAT_R16G16_UINT,
+			0,
+			D3D12_APPEND_ALIGNED_ELEMENT,
+			D3D12_INPUT_CLASSIFICATION::D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,
+			0
 		},
 		//ウエイト
 		{
@@ -134,9 +134,9 @@ void Vertex::Initialize(ID3D12Device * _dev, std::vector<PMDVertex> _pmdV)
 	memcpy(vData, vertices, sizeof(vertices));
 	peraBuffer[0]->Unmap(0, nullptr);
 
-	peraVBV[0].BufferLocation = peraBuffer[0]->GetGPUVirtualAddress();
-	peraVBV[0].SizeInBytes = sizeof(vertices);
-	peraVBV[0].StrideInBytes = sizeof(VERTEX);
+	peraVBV[0].BufferLocation	= peraBuffer[0]->GetGPUVirtualAddress();
+	peraVBV[0].SizeInBytes		= sizeof(vertices);
+	peraVBV[0].StrideInBytes	= sizeof(VERTEX);
 
 	//2パス目
 	result = _dev->CreateCommittedResource(
@@ -153,9 +153,9 @@ void Vertex::Initialize(ID3D12Device * _dev, std::vector<PMDVertex> _pmdV)
 	memcpy(vData, vertices, sizeof(vertices));
 	peraBuffer[1]->Unmap(0, nullptr);
 
-	peraVBV[1].BufferLocation = peraBuffer[1]->GetGPUVirtualAddress();
-	peraVBV[1].SizeInBytes = sizeof(vertices);
-	peraVBV[1].StrideInBytes = sizeof(VERTEX);
+	peraVBV[1].BufferLocation	= peraBuffer[1]->GetGPUVirtualAddress();
+	peraVBV[1].SizeInBytes		= sizeof(vertices);
+	peraVBV[1].StrideInBytes	= sizeof(VERTEX);
 }
 
 D3D12_INPUT_ELEMENT_DESC * Vertex::GetInputDesc() {

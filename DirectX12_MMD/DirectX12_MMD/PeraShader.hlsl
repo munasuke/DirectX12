@@ -236,7 +236,7 @@ float4 BasicPS(Out o) : SV_TARGET
     //half p = length(pos);
     //pos = (1.0f + 1.0f * p * p) / (1.0f + 2.0f * 1.0f) * pos;
 
-    return tex.Sample(smp, pos * 0.5f + 0.5f);
+    //return tex.Sample(smp, pos * 0.5f + 0.5f);
 
     //return texColor;
     //return Monochrome(texColor.rgb);

@@ -109,6 +109,11 @@ int ImageLoader::Load(const std::string path, int materialsize, int materialInde
 		ID3D12Resource* buffer = CreateBuffer(metaData.width, metaData.height, metaData.format);
 		result = buffer->WriteToSubresource(0, nullptr, image.GetPixels(), metaData.width * 4, metaData.height * 4);
 
+		if (folderName == L"Normal") {
+			normalBuffer = buffer;
+			return 0;
+		}
+
 		if (toonFlag) {
 			//トゥーンテクスチャ
 			toonBuffer[materialIndex] = buffer;
@@ -146,6 +151,10 @@ std::vector<ID3D12Resource*> ImageLoader::GetSpaBuffer() {
 
 std::vector<ID3D12Resource*> ImageLoader::GetToonBuffer() {
 	return toonBuffer;
+}
+
+ID3D12Resource * ImageLoader::GetNormalBuffer() {
+	return normalBuffer;
 }
 
 std::string ImageLoader::GetToonPathFromIndex(const std::string folder, const char* toonName) {

@@ -20,6 +20,7 @@ public:
 	std::vector<ID3D12Resource*> GetSphBuffer();
 	std::vector<ID3D12Resource*> GetSpaBuffer();
 	std::vector<ID3D12Resource*> GetToonBuffer();
+	ID3D12Resource* GetNormalBuffer();
 	std::string GetToonPathFromIndex(const std::string folder, const char* toonName);
 
 	~ImageLoader();
@@ -49,4 +50,6 @@ private:
 	std::vector<ID3D12Resource*> toonBuffer;
 	//トゥーンフラグ
 	bool toonFlag;
+	//ノーマルマップ
+	ID3D12Resource* normalBuffer;
 };

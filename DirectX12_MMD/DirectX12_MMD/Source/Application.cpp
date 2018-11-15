@@ -225,6 +225,7 @@ void Application::Terminate() {
 }
 
 //ペラポリゴン用
+//1パス目の処理
 void Application::UpdatePera() {
 	//アロケータのリセット
 	command->GetCommandAllocator()->Reset();
@@ -247,27 +248,26 @@ void Application::UpdatePera() {
 	command->GetCommandList()->ResourceBarrier(
 		1,
 		&CD3DX12_RESOURCE_BARRIER::Transition(
-			renderTarget->GetRenderTarget()[bbIndex],
-			//renderTarget->GetPeraRenderTarget2(),
+			//renderTarget->GetRenderTarget()[bbIndex],
+			renderTarget->GetPeraRenderTarget2(),
 			D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_PRESENT,
 			D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_RENDER_TARGET)
 	);
 
-	//auto rtvHandle = renderTarget->GetHeap2nd()["RTV"]->GetCPUDescriptorHandleForHeapStart();
-	//command->GetCommandList()->OMSetRenderTargets(1, &rtvHandle, false, &depth->GetHeap()->GetCPUDescriptorHandleForHeapStart());
-	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(descriptor->GetDescriptorHeap()->GetCPUDescriptorHandleForHeapStart(),
-		bbIndex, descriptor->GetDescriptorSize());
-
+	auto rtvHandle = renderTarget->GetHeap2nd()["RTV"]->GetCPUDescriptorHandleForHeapStart();
 	command->GetCommandList()->OMSetRenderTargets(1, &rtvHandle, false, &depth->GetHeap()->GetCPUDescriptorHandleForHeapStart());
+	//CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(descriptor->GetDescriptorHeap()->GetCPUDescriptorHandleForHeapStart(),
+	//	bbIndex, descriptor->GetDescriptorSize());
 
-	const FLOAT color[] = { 0.4f, 0.4f, 0.4f, 1.0f };
+	//command->GetCommandList()->OMSetRenderTargets(1, &rtvHandle, false, &depth->GetHeap()->GetCPUDescriptorHandleForHeapStart());
+
+	const FLOAT color[] = { 1.0f, 0.0f, 0.0f, 1.0f };
 
 	command->GetCommandList()->ClearRenderTargetView(rtvHandle, color, 0, nullptr);
-
+	
 	//SRVのヒープセット
 	auto srvH = renderTarget->GetHeap()["SRV"];
 	command->GetCommandList()->SetDescriptorHeaps(1, &srvH);
-
 	command->GetCommandList()->SetGraphicsRootDescriptorTable(0, srvH->GetGPUDescriptorHandleForHeapStart());
 
 	//プリミティブトポロジー
@@ -283,8 +283,8 @@ void Application::UpdatePera() {
 	command->GetCommandList()->ResourceBarrier(
 		1,
 		&CD3DX12_RESOURCE_BARRIER::Transition(
-			renderTarget->GetRenderTarget()[bbIndex],
-			//renderTarget->GetPeraRenderTarget2(),
+			//renderTarget->GetRenderTarget()[bbIndex],
+			renderTarget->GetPeraRenderTarget2(),
 			D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_RENDER_TARGET,
 			D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_PRESENT)
 	);
@@ -302,6 +302,7 @@ void Application::UpdatePera() {
 	}
 }
 
+//2パス目の処理
 void Application::UpdatePera2nd() {
 	//アロケータのリセット
 	command->GetCommandAllocator()->Reset();
@@ -334,7 +335,7 @@ void Application::UpdatePera2nd() {
 
 	command->GetCommandList()->OMSetRenderTargets(1, &rtvHandle, false, &depth->GetHeap()->GetCPUDescriptorHandleForHeapStart());
 
-	const FLOAT color[] = { 0.4f, 0.4f, 0.4f, 1.0f };
+	const FLOAT color[] = { 0.0f, 1.0f, 0.0f, 1.0f };
 
 	command->GetCommandList()->ClearRenderTargetView(rtvHandle, color, 0, nullptr);
 
@@ -368,9 +369,8 @@ void Application::UpdatePera2nd() {
 	//実行
 	command->Execute();
 
-	command->GetCommandQueue()->Signal(fence->GetFence(), fence->GetFenceValue(true));
-
 	//待機
+	command->GetCommandQueue()->Signal(fence->GetFence(), fence->GetFenceValue(true));
 	while (fence->GetFence()->GetCompletedValue() != fence->GetFenceValue()) {
 	}
 }
