@@ -22,6 +22,7 @@ Out BasicVS(float4 pos : POSITION, float2 uv : TEXCOORD)
 //ピクセルシェーダ
 float4 BasicPS(Out o) : SV_TARGET
 {
+    return float4(o.uv.x, o.uv.y, 1, 1);
     //リソースカラー
     float4 texColor = tex.Sample(smp, o.uv);
     

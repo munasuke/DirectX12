@@ -214,7 +214,7 @@ void Application::Run() {
 		//1パス目
 		UpdatePera();
 		//2パス目
-		//UpdatePera2nd();
+		UpdatePera2nd();
 
 		swapChain->GetSwapChain()->Present(0, 0);
 	}
@@ -255,11 +255,10 @@ void Application::UpdatePera() {
 	);
 
 	auto rtvHandle = renderTarget->GetHeap2nd()["RTV"]->GetCPUDescriptorHandleForHeapStart();
-	command->GetCommandList()->OMSetRenderTargets(1, &rtvHandle, false, &depth->GetHeap()->GetCPUDescriptorHandleForHeapStart());
 	//CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(descriptor->GetDescriptorHeap()->GetCPUDescriptorHandleForHeapStart(),
 	//	bbIndex, descriptor->GetDescriptorSize());
 
-	//command->GetCommandList()->OMSetRenderTargets(1, &rtvHandle, false, &depth->GetHeap()->GetCPUDescriptorHandleForHeapStart());
+	command->GetCommandList()->OMSetRenderTargets(1, &rtvHandle, false, &depth->GetHeap()->GetCPUDescriptorHandleForHeapStart());
 
 	const FLOAT color[] = { 1.0f, 0.0f, 0.0f, 1.0f };
 
@@ -342,7 +341,6 @@ void Application::UpdatePera2nd() {
 	//SRVのヒープセット
 	auto srvH = renderTarget->GetHeap2nd()["SRV"];
 	command->GetCommandList()->SetDescriptorHeaps(1, &srvH);
-
 	command->GetCommandList()->SetGraphicsRootDescriptorTable(0, srvH->GetGPUDescriptorHandleForHeapStart());
 
 	//プリミティブトポロジー
