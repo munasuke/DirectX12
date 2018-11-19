@@ -13,7 +13,7 @@ void DepthStencilBuffer::Initialize(ID3D12Device * _dev)
 	depthResDesc.Width				= WIN_WIDTH;													//画面に対して使うバッファ
 	depthResDesc.Height				= WIN_HEIGHT;													//画面に対して使うバッファ
 	depthResDesc.DepthOrArraySize	= 1;
-	depthResDesc.Format				= DXGI_FORMAT::DXGI_FORMAT_D32_FLOAT;
+	depthResDesc.Format				= DXGI_FORMAT::DXGI_FORMAT_R32_TYPELESS;
 	depthResDesc.SampleDesc.Count	= 1;
 	depthResDesc.Flags				= D3D12_RESOURCE_FLAGS::D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 
@@ -49,6 +49,21 @@ void DepthStencilBuffer::Initialize(ID3D12Device * _dev)
 	_dev->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&descriptorHeap));
 
 	_dev->CreateDepthStencilView(depthBuffer, &dsvDesc, descriptorHeap->GetCPUDescriptorHandleForHeapStart());
+
+
+	heapDesc.Type	= D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	heapDesc.Flags	= D3D12_DESCRIPTOR_HEAP_FLAGS::D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	heapDesc.NodeMask		= 0;
+	heapDesc.NumDescriptors = 1;
+	result = _dev->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&heapForDSVSRV["SRV"]));
+
+	//SRV生成
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+	srvDesc.Format					= DXGI_FORMAT::DXGI_FORMAT_R32_FLOAT;
+	srvDesc.ViewDimension			= D3D12_SRV_DIMENSION::D3D12_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MipLevels		= 1;
+	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	_dev->CreateShaderResourceView(depthBuffer, &srvDesc, heapForDSVSRV["SRV"]->GetCPUDescriptorHandleForHeapStart());
 }
 
 //DSVSRV

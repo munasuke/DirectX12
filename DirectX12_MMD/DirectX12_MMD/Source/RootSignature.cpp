@@ -87,21 +87,32 @@ void RootSignature::InitRootSignature(D3D12_STATIC_SAMPLER_DESC _samplerDesc, ID
 	peraSignature.resize(max);
 
 	//1パス目
-	CD3DX12_DESCRIPTOR_RANGE peraRange[max] = {};
+	CD3DX12_DESCRIPTOR_RANGE peraRange[3] = {};
 	peraRange[0].RangeType							= D3D12_DESCRIPTOR_RANGE_TYPE::D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	peraRange[0].NumDescriptors						= 1;
 	peraRange[0].BaseShaderRegister					= 0;
 	peraRange[0].RegisterSpace						= 0;
 	peraRange[0].OffsetInDescriptorsFromTableStart	= D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	D3D12_ROOT_PARAMETER peraParam[max] = {};
+	peraRange[1].RangeType							= D3D12_DESCRIPTOR_RANGE_TYPE::D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	peraRange[1].NumDescriptors						= 1;
+	peraRange[1].BaseShaderRegister					= 1;
+	peraRange[1].RegisterSpace						= 0;
+	peraRange[1].OffsetInDescriptorsFromTableStart	= D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+	D3D12_ROOT_PARAMETER peraParam[3] = {};
 	peraParam[0].ParameterType							= D3D12_ROOT_PARAMETER_TYPE::D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	peraParam[0].ShaderVisibility						= D3D12_SHADER_VISIBILITY::D3D12_SHADER_VISIBILITY_PIXEL;
 	peraParam[0].DescriptorTable.NumDescriptorRanges	= 1;
 	peraParam[0].DescriptorTable.pDescriptorRanges		= &peraRange[0];
 
-	rsDesc.NumParameters		= 1;
-	rsDesc.pParameters			= &peraParam[0];
+	peraParam[1].ParameterType							= D3D12_ROOT_PARAMETER_TYPE::D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	peraParam[1].ShaderVisibility						= D3D12_SHADER_VISIBILITY::D3D12_SHADER_VISIBILITY_PIXEL;
+	peraParam[1].DescriptorTable.NumDescriptorRanges	= 1;
+	peraParam[1].DescriptorTable.pDescriptorRanges		= &peraRange[1];
+
+	rsDesc.NumParameters		= 2;
+	rsDesc.pParameters			= peraParam;
 	rsDesc.pStaticSamplers		= &_samplerDesc;
 
 	result = D3D12SerializeRootSignature(
@@ -119,19 +130,19 @@ void RootSignature::InitRootSignature(D3D12_STATIC_SAMPLER_DESC _samplerDesc, ID
 	);
 
 	//2パス目
-	peraRange[1].RangeType							= D3D12_DESCRIPTOR_RANGE_TYPE::D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-	peraRange[1].NumDescriptors						= 1;
-	peraRange[1].BaseShaderRegister					= 0;
-	peraRange[1].RegisterSpace						= 0;
-	peraRange[1].OffsetInDescriptorsFromTableStart	= D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+	peraRange[2].RangeType							= D3D12_DESCRIPTOR_RANGE_TYPE::D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	peraRange[2].NumDescriptors						= 1;
+	peraRange[2].BaseShaderRegister					= 0;
+	peraRange[2].RegisterSpace						= 0;
+	peraRange[2].OffsetInDescriptorsFromTableStart	= D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	peraParam[1].ParameterType							= D3D12_ROOT_PARAMETER_TYPE::D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	peraParam[1].ShaderVisibility						= D3D12_SHADER_VISIBILITY::D3D12_SHADER_VISIBILITY_PIXEL;
-	peraParam[1].DescriptorTable.NumDescriptorRanges	= 1;
-	peraParam[1].DescriptorTable.pDescriptorRanges		= &peraRange[1];
+	peraParam[2].ParameterType							= D3D12_ROOT_PARAMETER_TYPE::D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	peraParam[2].ShaderVisibility						= D3D12_SHADER_VISIBILITY::D3D12_SHADER_VISIBILITY_PIXEL;
+	peraParam[2].DescriptorTable.NumDescriptorRanges	= 1;
+	peraParam[2].DescriptorTable.pDescriptorRanges		= &peraRange[2];
 
 	rsDesc.NumParameters		= 1;
-	rsDesc.pParameters			= &peraParam[1];
+	rsDesc.pParameters			= &peraParam[2];
 	rsDesc.pStaticSamplers		= &_samplerDesc;
 
 	result = D3D12SerializeRootSignature(

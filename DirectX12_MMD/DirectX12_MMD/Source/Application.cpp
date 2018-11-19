@@ -117,7 +117,6 @@ void Application::Initialize() {
 
 	//深度バッファ
 	depth->Initialize(device->GetDevice());
-	depth->Initialize2(device->GetDevice());
 
 	//シェーダ
 	shader->Load(root->GetError());
@@ -259,7 +258,7 @@ void Application::UpdatePera() {
 	CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(descriptor->GetDescriptorHeap()->GetCPUDescriptorHandleForHeapStart(),
 		bbIndex, descriptor->GetDescriptorSize());
 
-	command->GetCommandList()->OMSetRenderTargets(1, &rtvHandle, false, &depth->GetHeap()->GetCPUDescriptorHandleForHeapStart());
+	command->GetCommandList()->OMSetRenderTargets(1, &rtvHandle, false, nullptr);
 
 	const FLOAT color[] = { 1.0f, 0.0f, 0.0f, 1.0f };
 
@@ -272,7 +271,7 @@ void Application::UpdatePera() {
 
 	auto srvH2 = depth->GetHeapDSVSRV()["SRV"];
 	command->GetCommandList()->SetDescriptorHeaps(1, &srvH2);
-	command->GetCommandList()->SetGraphicsRootDescriptorTable(0, srvH2->GetGPUDescriptorHandleForHeapStart());
+	command->GetCommandList()->SetGraphicsRootDescriptorTable(1, srvH2->GetGPUDescriptorHandleForHeapStart());
 
 	//プリミティブトポロジー
 	command->GetCommandList()->IASetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
