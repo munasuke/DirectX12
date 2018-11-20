@@ -24,6 +24,7 @@ class DepthStencilBuffer;
 class Model;
 class Camera;
 class VMDMotion;
+class PrimitiveManager;
 
 class Application {
 public:
@@ -70,5 +71,6 @@ private:
 	std::shared_ptr<Model>				model;			//ƒ‚ƒfƒ‹
 	std::shared_ptr<Camera>				camera;			//ƒJƒƒ‰
 	std::shared_ptr<VMDMotion>			vmd;
+	std::shared_ptr<PrimitiveManager>	prim;
 };
 

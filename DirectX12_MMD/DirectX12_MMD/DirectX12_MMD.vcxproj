@@ -138,6 +138,7 @@
     <ClCompile Include="Source\PipelineState.cpp" />
     <ClCompile Include="Source\Plane.cpp" />
     <ClCompile Include="Source\PMDLoader.cpp" />
+    <ClCompile Include="Source\PrimitiveCreator.cpp" />
     <ClCompile Include="Source\PrimitiveObject.cpp" />
     <ClCompile Include="Source\RenderTarget.cpp" />
     <ClCompile Include="Source\Result.cpp" />
@@ -170,6 +171,7 @@
     <ClInclude Include="Source\PipelineState.h" />
     <ClInclude Include="Source\Plane.h" />
     <ClInclude Include="Source\PMDLoader.h" />
+    <ClInclude Include="Source\PrimitiveCreator.h" />
     <ClInclude Include="Source\PrimitiveObject.h" />
     <ClInclude Include="Source\RenderTarget.h" />
     <ClInclude Include="Source\Result.h" />
@@ -194,6 +196,18 @@
       </EntryPointName>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Effect</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="Primitive.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Effect</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Geometry</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Geometry</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Geometry</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </EntryPointName>
     </FxCompile>
     <FxCompile Include="Shader.hlsl">
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">

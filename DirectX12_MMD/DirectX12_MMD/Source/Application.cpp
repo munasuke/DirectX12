@@ -24,6 +24,9 @@
 #include "Model.h"
 #include "Camera.h"
 #include "VMDMotion.h"
+#include "PrimitiveCreator.h"
+
+#include <DirectXMath.h>
 
 namespace {
 	MSG msg = {};
@@ -131,6 +134,9 @@ void Application::Initialize() {
 	pipline->PeraInitialize(device->GetDevice(), shader->GetPeraVS(1), shader->GetPeraPS(1),
 		vertex->GetPeraInputDescNum(), vertex->GetPeraInputDesc(), root->GetPeraRootSignature()[1], 1);
 
+	prim = std::make_shared<PrimitiveManager>(device->GetDevice());
+	prim->CreatePlane(DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f), 50.0f, 50.0f);
+
 	//ビューポート
 	viewPort->Initialize();
 }
@@ -187,6 +193,9 @@ void Application::Run() {
 		model->Update();
 		//
 		model->Draw(command->GetCommandList(), device->GetDevice());
+
+		prim->SetPrimitiveDrawMode(command->GetCommandList());
+		prim->Draw(command->GetCommandList());
 
 		//モデル描画関連をバンドル
 		//CreateModelDrawBundle();
