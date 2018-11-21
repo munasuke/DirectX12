@@ -1,8 +1,8 @@
 cbuffer wvp : register(b0)
 {
-    float4x4 world; //ワールド行列
-    float4x4 view; //ビュー行列
-    float4x4 projection; //プロジェクション行列
+    float4x4 world;         //ワールド行列
+    float4x4 view;          //ビュー行列
+    float4x4 projection;    //プロジェクション行列
 };
 
 struct Out
@@ -12,11 +12,14 @@ struct Out
     float2 uv       : TEXCOORD;
 };
 
-Out VS(float3 pos : POSITION, float3 norm : NORMAL, float2 uv : TEXCOORD)
+Out VS(float3 pos : POSITION, float3 normal : NORMAL, float2 uv : TEXCOORD)
 {
+    float4x4 vp     = mul(projection, view);
+    float4x4 wvp    = mul(vp, world);
+
     Out o;
-    o.svpos     = float4(pos, 1.0f);
-    o.normal    = norm;
+    o.svpos     = mul(wvp, float4(pos, 1.0f));
+    o.normal    = normal;
     o.uv        = uv;
 
     return o;

@@ -1,6 +1,8 @@
 #include "PrimitiveCreator.h"
 #include "PrimitiveObject.h"
 #include "Plane.h"
+#include "Camera.h"
+#include "Window.h"
 #include <d3dcompiler.h>
 
 PrimitiveManager::PrimitiveManager(ID3D12Device* d) : piplineState(nullptr){
@@ -32,10 +34,15 @@ PrimitiveManager::PrimitiveManager(ID3D12Device* d) : piplineState(nullptr){
 
 	//ルートパラメータ
 	D3D12_ROOT_PARAMETER rp[1] = {};
-	rp[0].ParameterType							= D3D12_ROOT_PARAMETER_TYPE::D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	rp[0].DescriptorTable.NumDescriptorRanges	= 1;
-	rp[0].DescriptorTable.pDescriptorRanges		= &dr[0];
-	rp[0].ShaderVisibility						= D3D12_SHADER_VISIBILITY::D3D12_SHADER_VISIBILITY_ALL;
+	rp[0].ParameterType				= D3D12_ROOT_PARAMETER_TYPE::D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rp[0].ShaderVisibility			= D3D12_SHADER_VISIBILITY::D3D12_SHADER_VISIBILITY_ALL;
+	rp[0].Descriptor.RegisterSpace	= 0;
+	rp[0].Descriptor.ShaderRegister = 0;
+
+	//rp[0].ParameterType							= D3D12_ROOT_PARAMETER_TYPE::D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	//rp[0].DescriptorTable.NumDescriptorRanges	= 1;
+	//rp[0].DescriptorTable.pDescriptorRanges		= &dr[0];
+	//rp[0].ShaderVisibility						= D3D12_SHADER_VISIBILITY::D3D12_SHADER_VISIBILITY_ALL;
 
 	//ルートシグネチャ
 	D3D12_ROOT_SIGNATURE_DESC rsDesc = {};
@@ -61,6 +68,50 @@ PrimitiveManager::PrimitiveManager(ID3D12Device* d) : piplineState(nullptr){
 		signature->GetBufferSize(),
 		IID_PPV_ARGS(&rs)
 	);
+
+	//視線、注視点、上ベクトル
+	XMFLOAT3 eye	(0.0f, 14.0f, -13.0f);
+	XMFLOAT3 focus	(0.0f, 12.0f,   0.0f);
+	XMFLOAT3 upper	(0.0f,  1.0f,   0.0f);
+	Matrix mt;
+	//ワールド・ビュー・プロジェクション行列の作成
+	mt.world		= XMMatrixIdentity();
+	mt.view			= XMMatrixLookAtLH(XMLoadFloat3(&eye), XMLoadFloat3(&focus), XMLoadFloat3(&upper));
+	mt.projection	= XMMatrixPerspectiveFovLH(XM_PIDIV2/*90.0f * 3.14159264f / 180.0f*/,
+		static_cast<FLOAT>(WIN_WIDTH) / static_cast<FLOAT>(WIN_HEIGHT), 0.01f, 500.0f);
+
+	//プロパティ設定
+	CD3DX12_HEAP_PROPERTIES heapProperties = {};
+	heapProperties.Type					= D3D12_HEAP_TYPE::D3D12_HEAP_TYPE_UPLOAD;
+	heapProperties.MemoryPoolPreference = D3D12_MEMORY_POOL::D3D12_MEMORY_POOL_UNKNOWN;
+	heapProperties.CPUPageProperty		= D3D12_CPU_PAGE_PROPERTY::D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+	heapProperties.VisibleNodeMask		= 1;
+	heapProperties.CreationNodeMask		= 1;
+
+	//リソース設定
+	D3D12_RESOURCE_DESC cbvResDesc = {};
+	cbvResDesc.Dimension		= D3D12_RESOURCE_DIMENSION::D3D12_RESOURCE_DIMENSION_BUFFER;//1次元バッファ
+	cbvResDesc.Width			= (sizeof(mt) + 0xff) &~0xff;								//255アライメント
+	cbvResDesc.Height			= 1;														//1次元なので１を設定
+	cbvResDesc.DepthOrArraySize = 1;														//深さはないので１を設定
+	cbvResDesc.MipLevels		= 1;														//ミップはない
+	cbvResDesc.SampleDesc.Count = 1;														//ないと失敗する
+	cbvResDesc.Layout			= D3D12_TEXTURE_LAYOUT::D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+
+	UINT* data = nullptr;
+
+	//行列リソースを作成
+	result = dev->CreateCommittedResource(
+		&heapProperties,
+		D3D12_HEAP_FLAGS::D3D12_HEAP_FLAG_NONE,
+		&cbvResDesc,
+		D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(&resource)
+	);
+
+	result = resource->Map(0, nullptr, (void**)(&data));
+	memcpy(data, &mt, sizeof(mt));
 
 	signature->Release();
 
@@ -135,6 +186,7 @@ void PrimitiveManager::Initialize() {
 void PrimitiveManager::SetPrimitiveDrawMode(ID3D12GraphicsCommandList* list) {
 	list->SetPipelineState(piplineState);
 	list->SetGraphicsRootSignature(rs);
+	list->SetGraphicsRootConstantBufferView(0, resource->GetGPUVirtualAddress());
 }
 
 void PrimitiveManager::Draw(ID3D12GraphicsCommandList* list) {

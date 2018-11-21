@@ -7,13 +7,11 @@ using namespace DirectX;
 struct PrimitiveVertex {
 	XMFLOAT3 pos;
 	XMFLOAT3 normal;
-	XMFLOAT3 color;
 	XMFLOAT2 uv;
 
 	PrimitiveVertex() {
 		pos		= XMFLOAT3(0.0f, 0.0f, 0.0f);
 		normal	= XMFLOAT3(0.0f, 0.0f, 0.0f);
-		color	= XMFLOAT3(0.0f, 0.0f, 0.0f);
 		uv		= XMFLOAT2(0.0f, 0.0f);
 	}
 	PrimitiveVertex(const XMFLOAT3& pos, const XMFLOAT3& normal, const XMFLOAT2& uv) {

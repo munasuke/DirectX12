@@ -35,6 +35,7 @@ public:
 private:
 	ID3D12PipelineState* piplineState;
 	ID3D12RootSignature* rs;
+	ID3D12Resource* resource;
 	std::vector<std::shared_ptr<PrimitiveObject>> obj;
 	ID3D12Device* dev;
 };

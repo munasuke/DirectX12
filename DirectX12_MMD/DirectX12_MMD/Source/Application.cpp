@@ -134,6 +134,7 @@ void Application::Initialize() {
 	pipline->PeraInitialize(device->GetDevice(), shader->GetPeraVS(1), shader->GetPeraPS(1),
 		vertex->GetPeraInputDescNum(), vertex->GetPeraInputDesc(), root->GetPeraRootSignature()[1], 1);
 
+	//平面
 	prim = std::make_shared<PrimitiveManager>(device->GetDevice());
 	prim->CreatePlane(DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f), 50.0f, 50.0f);
 
@@ -194,6 +195,7 @@ void Application::Run() {
 		//
 		model->Draw(command->GetCommandList(), device->GetDevice());
 
+		//プリミティブ用
 		prim->SetPrimitiveDrawMode(command->GetCommandList());
 		prim->Draw(command->GetCommandList());
 
