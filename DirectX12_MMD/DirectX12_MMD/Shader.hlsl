@@ -12,6 +12,7 @@ cbuffer wvp : register(b0)
     float4x4 world;         //ワールド行列
     float4x4 view;          //ビュー行列
     float4x4 projection;    //プロジェクション行列
+    float4x4 lvp;           //ライトビュー行列
 };
 
 //マテリアル

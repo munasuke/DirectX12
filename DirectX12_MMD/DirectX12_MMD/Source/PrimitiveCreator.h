@@ -27,7 +27,7 @@ public:
 	* @param width	•½–Ê‚Ì•
 	* @param depth	•½–Ê‚Ì‰œs
 	*/
-	std::shared_ptr<Plane> CreatePlane(const XMFLOAT3& pos, float width, float depth);
+	std::shared_ptr<Plane> CreatePlane(const XMFLOAT3& pos, const float width, const float depth);
 
 
 	~PrimitiveManager();

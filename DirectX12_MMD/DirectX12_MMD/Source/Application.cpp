@@ -177,7 +177,12 @@ void Application::Run() {
 
 		const FLOAT color[] = { 0.4f, 0.4f, 0.4f, 1.0f };
 
-		command->GetCommandList()->ClearRenderTargetView(rtvHandle, color, 0, nullptr);
+		D3D12_RECT rec = {};
+		rec.bottom = WIN_HEIGHT;
+		rec.left = 0;
+		rec.right = WIN_WIDTH;
+		rec.top = 0;
+		command->GetCommandList()->ClearRenderTargetView(rtvHandle, color, 0, &rec);
 
 		command->GetCommandList()->IASetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
@@ -195,8 +200,11 @@ void Application::Run() {
 		//
 		model->Draw(command->GetCommandList(), device->GetDevice());
 
-		//プリミティブ用
+		//プリミティブの描画準備
 		prim->SetPrimitiveDrawMode(command->GetCommandList());
+		//カメラの再セット
+		camera->SetDescriptor(command->GetCommandList(), device->GetDevice());
+		//プリミティブの描画
 		prim->Draw(command->GetCommandList());
 
 		//モデル描画関連をバンドル
@@ -273,7 +281,12 @@ void Application::UpdatePera() {
 
 	const FLOAT color[] = { 1.0f, 0.0f, 0.0f, 1.0f };
 
-	command->GetCommandList()->ClearRenderTargetView(rtvHandle, color, 0, nullptr);
+	D3D12_RECT rec = {};
+	rec.bottom = WIN_HEIGHT;
+	rec.left = 0;
+	rec.right = WIN_WIDTH;
+	rec.top = 0;
+	command->GetCommandList()->ClearRenderTargetView(rtvHandle, color, 0, &rec);
 	
 	//SRVのヒープセット
 	auto srvH = renderTarget->GetHeap()["SRV"];

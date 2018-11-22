@@ -7,6 +7,7 @@ struct Matrix {
 	DirectX::XMMATRIX world;		//ワールド行列
 	DirectX::XMMATRIX view;			//ビュー行列
 	DirectX::XMMATRIX projection;	//プロジェクション行列
+	DirectX::XMMATRIX lvp;			//ライトビュー行列
 };
 
 class Camera {

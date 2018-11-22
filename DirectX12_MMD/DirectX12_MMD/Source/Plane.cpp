@@ -6,10 +6,10 @@ using namespace DirectX;
 Plane::Plane(ID3D12Device* dev, const XMFLOAT3& pos, const float width, const float depth) {
 	vBuffer = nullptr;
 	std::array<PrimitiveVertex, 4> vertex {{
-		{XMFLOAT3(pos.x - width / 2.0f, 0.0f, pos.z - depth / 2.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), XMFLOAT2(0.0f, 0.0f)},
-		{XMFLOAT3(pos.x - width / 2.0f, 0.0f, pos.z + depth / 2.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), XMFLOAT2(0.0f, 1.0f)},
-		{XMFLOAT3(pos.x - width / 2.0f, 0.0f, pos.z - depth / 2.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), XMFLOAT2(1.0f, 0.0f)},
-		{XMFLOAT3(pos.x - width / 2.0f, 0.0f, pos.z + depth / 2.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), XMFLOAT2(1.0f, 1.0f)},
+		{XMFLOAT3(pos.x - width / 2.0f, pos.y, pos.z - depth / 2.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), XMFLOAT2(0.0f, 0.0f)},
+		{XMFLOAT3(pos.x - width / 2.0f, pos.y, pos.z + depth / 2.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), XMFLOAT2(0.0f, 1.0f)},
+		{XMFLOAT3(pos.x - width / 2.0f, pos.y, pos.z - depth / 2.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), XMFLOAT2(1.0f, 0.0f)},
+		{XMFLOAT3(pos.x - width / 2.0f, pos.y, pos.z + depth / 2.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), XMFLOAT2(1.0f, 1.0f)},
 	}};
 
 	auto result = dev->CreateCommittedResource(
