@@ -3,7 +3,7 @@
 #include <d3dcompiler.h>
 
 
-ShadowMap::ShadowMap(ID3D12Device* dev) : resource(nullptr), gps(nullptr), rs(nullptr) {
+ShadowMap::ShadowMap(ID3D12Device* dev, unsigned int inputDescNum, D3D12_INPUT_ELEMENT_DESC* inputDesc) : resource(nullptr), gps(nullptr), rs(nullptr) {
 	heap["DSV"] = nullptr;
 	heap["SRV"] = nullptr;
 
@@ -121,40 +121,6 @@ ShadowMap::ShadowMap(ID3D12Device* dev) : resource(nullptr), gps(nullptr), rs(nu
 	result = D3DCompileFromFile(L"Light.hlsl", nullptr, nullptr, "VS", "vs_5_0", D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, 0, &vs, &error);
 	result = D3DCompileFromFile(L"Light.hlsl", nullptr, nullptr, "PS", "ps_5_0", D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, 0, &ps, &error);
 
-	//レイアウト
-	D3D12_INPUT_ELEMENT_DESC inputDesc[] = {
-		//頂点
-		{
-			"POSITION",																//SemanticName
-			0,																		//SemanticIndex
-			DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT,								//Format
-			0,																		//InputSlot
-			D3D12_APPEND_ALIGNED_ELEMENT,											//AlignedByteoffset
-			D3D12_INPUT_CLASSIFICATION::D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, //InputSlotClass
-			0																		//InstanceDataStepRate
-		},
-		//法線
-		{
-			"NORMAL",
-			0,
-			DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT,
-			0,
-			D3D12_APPEND_ALIGNED_ELEMENT,
-			D3D12_INPUT_CLASSIFICATION::D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,
-			0
-		},
-		//UV
-		{
-			"TEXCOORD",
-			0,
-			DXGI_FORMAT::DXGI_FORMAT_R32G32_FLOAT,
-			0,
-			D3D12_APPEND_ALIGNED_ELEMENT,
-			D3D12_INPUT_CLASSIFICATION::D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,
-			0
-		}
-	};
-
 	//パイプライン
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC gpsDesc = {};
 	gpsDesc.BlendState							= CD3DX12_BLEND_DESC(D3D12_DEFAULT);
@@ -165,7 +131,7 @@ ShadowMap::ShadowMap(ID3D12Device* dev) : resource(nullptr), gps(nullptr), rs(nu
 	gpsDesc.DepthStencilState.StencilEnable		= false;
 	gpsDesc.VS									= CD3DX12_SHADER_BYTECODE(vs);
 	gpsDesc.PS									= CD3DX12_SHADER_BYTECODE(ps);
-	gpsDesc.InputLayout.NumElements				= _countof(inputDesc);
+	gpsDesc.InputLayout.NumElements				= inputDescNum;
 	gpsDesc.InputLayout.pInputElementDescs		= inputDesc;
 	gpsDesc.pRootSignature						= rs;
 	gpsDesc.RasterizerState						= CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);

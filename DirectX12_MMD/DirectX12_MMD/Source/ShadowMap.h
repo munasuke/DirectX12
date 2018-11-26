@@ -5,7 +5,7 @@
 
 class ShadowMap {
 public:
-	ShadowMap(ID3D12Device* dev);
+	ShadowMap(ID3D12Device* dev, unsigned int inputDescNum, D3D12_INPUT_ELEMENT_DESC* inputDesc);
 
 	void Draw(ID3D12GraphicsCommandList* list, const unsigned int materialNum);
 
