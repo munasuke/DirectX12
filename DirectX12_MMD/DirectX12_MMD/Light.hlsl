@@ -15,13 +15,13 @@ struct Out
 
 Out VS(float4 pos : POSITION, float3 normal : NORMAL, float2 uv : TEXCOORD)
 {
-    float4x4 vp     = mul(projection, view);
-    float4x4 wvp    = mul(vp, world);
+    float4x4 vp = mul(projection, view);
+    float4x4 wvp = mul(vp, world);
 
     Out o;
-    o.svpos     = mul(wvp, pos);
-    o.normal    = normal;
-    o.uv        = uv;
+    o.svpos = mul(wvp, pos);
+    o.normal = normal;
+    o.uv = uv;
 
     return o;
 }

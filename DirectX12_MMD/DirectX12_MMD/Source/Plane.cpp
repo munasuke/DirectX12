@@ -6,12 +6,13 @@ using namespace DirectX;
 Plane::Plane(ID3D12Device* dev, const XMFLOAT3& pos, const float width, const float depth) {
 	vBuffer = nullptr;
 	std::array<PrimitiveVertex, 4> vertex {{
-		{XMFLOAT3(pos.x - width / 2.0f, pos.y, pos.z - depth / 2.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), XMFLOAT2(0.0f, 0.0f)},
-		{XMFLOAT3(pos.x - width / 2.0f, pos.y, pos.z + depth / 2.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), XMFLOAT2(0.0f, 1.0f)},
-		{XMFLOAT3(pos.x - width / 2.0f, pos.y, pos.z - depth / 2.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), XMFLOAT2(1.0f, 0.0f)},
-		{XMFLOAT3(pos.x - width / 2.0f, pos.y, pos.z + depth / 2.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), XMFLOAT2(1.0f, 1.0f)},
+		{ XMFLOAT3(pos.x - width / 2.0f, pos.y, pos.z - depth / 2.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), XMFLOAT2(0.0f, 0.0f) },
+		{ XMFLOAT3(pos.x - width / 2.0f, pos.y, pos.z + depth / 2.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), XMFLOAT2(0.0f, 1.0f) },
+		{ XMFLOAT3(pos.x + width / 2.0f, pos.y, pos.z - depth / 2.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), XMFLOAT2(1.0f, 0.0f) },
+		{ XMFLOAT3(pos.x + width / 2.0f, pos.y, pos.z + depth / 2.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), XMFLOAT2(1.0f, 1.0f) },
 	}};
 
+	//頂点バッファの生成
 	auto result = dev->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE::D3D12_HEAP_TYPE_UPLOAD),
 		D3D12_HEAP_FLAGS::D3D12_HEAP_FLAG_NONE,
@@ -20,6 +21,7 @@ Plane::Plane(ID3D12Device* dev, const XMFLOAT3& pos, const float width, const fl
 		nullptr,
 		IID_PPV_ARGS(&vBuffer));
 
+	//シェーダに渡す
 	PrimitiveVertex* data = nullptr;
 	result = vBuffer->Map(0, nullptr, (void**)&data);
 	memcpy(data, &vertex, sizeof(vertex));

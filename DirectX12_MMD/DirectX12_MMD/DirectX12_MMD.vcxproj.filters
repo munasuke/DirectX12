@@ -105,6 +105,9 @@
     <ClCompile Include="Source\PrimitiveCreator.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="Source\ShadowMap.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Application.h">
@@ -200,6 +203,9 @@
     <ClInclude Include="Source\PrimitiveCreator.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="Source\ShadowMap.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="PeraShader.hlsl">
@@ -212,6 +218,9 @@
       <Filter>リソース ファイル</Filter>
     </FxCompile>
     <FxCompile Include="Primitive.hlsl">
+      <Filter>リソース ファイル</Filter>
+    </FxCompile>
+    <FxCompile Include="Light.hlsl">
       <Filter>リソース ファイル</Filter>
     </FxCompile>
   </ItemGroup>

@@ -203,7 +203,7 @@ void Application::Run() {
 		//プリミティブの描画準備
 		prim->SetPrimitiveDrawMode(command->GetCommandList());
 		//カメラの再セット
-		camera->SetDescriptor(command->GetCommandList(), device->GetDevice());
+		//camera->SetDescriptor(command->GetCommandList(), device->GetDevice());
 		//プリミティブの描画
 		prim->Draw(command->GetCommandList());
 

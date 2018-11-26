@@ -20,9 +20,12 @@ public:
 
 	~Camera();
 private:
+	float Magnitude(const DirectX::XMFLOAT3& f);
+
 	ID3D12Resource* resource;
 
 	Matrix mt;
 	UINT* data;
 };
-
+DirectX::XMFLOAT3 operator*(DirectX::XMFLOAT3& v, float f);
+DirectX::XMFLOAT3 operator-(DirectX::XMFLOAT3& f1, DirectX::XMFLOAT3& f2);
