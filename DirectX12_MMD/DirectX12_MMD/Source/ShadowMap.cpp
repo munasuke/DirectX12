@@ -18,7 +18,7 @@ ShadowMap::ShadowMap(ID3D12Device* dev, unsigned int inputDescNum, D3D12_INPUT_E
 	resDesc.Format				= DXGI_FORMAT::DXGI_FORMAT_R32_TYPELESS;
 	resDesc.Height				= size;
 	resDesc.Width				= size;
-	resDesc.Layout				= D3D12_TEXTURE_LAYOUT::D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+	resDesc.Layout				= D3D12_TEXTURE_LAYOUT::D3D12_TEXTURE_LAYOUT_UNKNOWN;
 	resDesc.MipLevels			= 1;
 	resDesc.SampleDesc.Count	= 1;
 	resDesc.SampleDesc.Quality	= 0;
@@ -74,26 +74,45 @@ ShadowMap::ShadowMap(ID3D12Device* dev, unsigned int inputDescNum, D3D12_INPUT_E
 	dev->CreateShaderResourceView(resource, &srvDesc, heap["SRV"]->GetCPUDescriptorHandleForHeapStart());
 
 	//デスクリプタレンジ
-	D3D12_DESCRIPTOR_RANGE dr[1] = {};
+	D3D12_DESCRIPTOR_RANGE dr[2] = {};
+	//カメラ
 	dr[0].BaseShaderRegister				= 0;
 	dr[0].NumDescriptors					= 1;
 	dr[0].RangeType							= D3D12_DESCRIPTOR_RANGE_TYPE::D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
 	dr[0].RegisterSpace						= 0;
 	dr[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
+	dr[1].BaseShaderRegister				= 0;
+	dr[1].NumDescriptors					= 1;
+	dr[1].RangeType							= D3D12_DESCRIPTOR_RANGE_TYPE::D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	dr[1].RegisterSpace						= 0;
+	dr[1].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
 	//ルートパラメータ
-	D3D12_ROOT_PARAMETER rp[1] = {};
-	rp[0].ParameterType							= D3D12_ROOT_PARAMETER_TYPE::D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	rp[0].DescriptorTable.NumDescriptorRanges	= 1;
-	rp[0].DescriptorTable.pDescriptorRanges		= &dr[0];
-	rp[0].ShaderVisibility						= D3D12_SHADER_VISIBILITY::D3D12_SHADER_VISIBILITY_ALL;
+	D3D12_ROOT_PARAMETER rp[3] = {};
+	//カメラ
+	rp[0].ParameterType				= D3D12_ROOT_PARAMETER_TYPE::D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rp[0].Descriptor.RegisterSpace	= 0;
+	rp[0].Descriptor.ShaderRegister = 0;
+	rp[0].ShaderVisibility			= D3D12_SHADER_VISIBILITY::D3D12_SHADER_VISIBILITY_ALL;
+
+	rp[1].ParameterType							= D3D12_ROOT_PARAMETER_TYPE::D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	rp[1].DescriptorTable.NumDescriptorRanges	= 1;
+	rp[1].DescriptorTable.pDescriptorRanges		= &dr[1];
+	rp[1].ShaderVisibility						= D3D12_SHADER_VISIBILITY::D3D12_SHADER_VISIBILITY_ALL;
+
+	//ボーン
+	rp[2].ParameterType				= D3D12_ROOT_PARAMETER_TYPE::D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rp[2].Descriptor.RegisterSpace	= 0;
+	rp[2].Descriptor.ShaderRegister = 1;
+	rp[2].ShaderVisibility			= D3D12_SHADER_VISIBILITY::D3D12_SHADER_VISIBILITY_VERTEX;
 
 	//ルートシグネチャ
 	D3D12_ROOT_SIGNATURE_DESC rsDesc = {};
 	rsDesc.NumParameters		= _countof(rp);
 	rsDesc.pParameters			= rp;
 	rsDesc.pStaticSamplers		= nullptr;
-	rsDesc.NumStaticSamplers	= 1;
+	rsDesc.NumStaticSamplers	= 0;
 	rsDesc.Flags				= D3D12_ROOT_SIGNATURE_FLAGS::D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 
 	ID3DBlob* signature = nullptr;
@@ -145,10 +164,27 @@ ShadowMap::ShadowMap(ID3D12Device* dev, unsigned int inputDescNum, D3D12_INPUT_E
 	result = dev->CreateGraphicsPipelineState(&gpsDesc, IID_PPV_ARGS(&gps));
 }
 
-void ShadowMap::Draw(ID3D12GraphicsCommandList * list, const unsigned int materialNum) {
+void ShadowMap::Setup(ID3D12GraphicsCommandList * list, ID3D12Resource* boneBuffer) {
+	//パイプラインのセット
 	list->SetPipelineState(gps);
+
+	//ルートシグネチャのセット
 	list->SetGraphicsRootSignature(rs);
-	
+
+	//レンダーターゲットなし。デプスは書き込む
+	list->OMSetRenderTargets(0, nullptr, false, &heap["DSV"]->GetCPUDescriptorHandleForHeapStart());
+	list->ClearDepthStencilView(heap["DSV"]->GetCPUDescriptorHandleForHeapStart(), D3D12_CLEAR_FLAGS::D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+
+	//SRVのセット
+	list->SetDescriptorHeaps(1, &heap["SRV"]);
+	list->SetGraphicsRootDescriptorTable(1, heap["SRV"]->GetGPUDescriptorHandleForHeapStart());
+
+	//モデルのボーンをセット
+	list->SetGraphicsRootConstantBufferView(2, boneBuffer->GetGPUVirtualAddress());
+}
+
+void ShadowMap::Draw(ID3D12GraphicsCommandList * list, const unsigned int materialNum) {	
+	//一気に描画する
 	list->DrawIndexedInstanced(materialNum, 1, 0, 0, 0);
 }
 

@@ -62,6 +62,9 @@ public:
 	//
 	float GetBezierYValueFromXWithNewton(float x, DirectX::XMFLOAT2 a, DirectX::XMFLOAT2 b, unsigned int n = 16);
 
+	//ボーンバッファ返す
+	ID3D12Resource* GetBoneBuffer();
+
 	~Model();
 
 private:

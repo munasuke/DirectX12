@@ -25,6 +25,7 @@ class Model;
 class Camera;
 class VMDMotion;
 class PrimitiveManager;
+class ShadowMap;
 
 class Application {
 public:
@@ -72,5 +73,6 @@ private:
 	std::shared_ptr<Camera>				camera;			//ƒJƒƒ‰
 	std::shared_ptr<VMDMotion>			vmd;
 	std::shared_ptr<PrimitiveManager>	prim;
+	std::shared_ptr<ShadowMap>			shadowMap;
 };
 

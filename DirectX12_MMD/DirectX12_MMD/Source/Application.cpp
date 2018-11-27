@@ -25,6 +25,7 @@
 #include "Camera.h"
 #include "VMDMotion.h"
 #include "PrimitiveCreator.h"
+#include "ShadowMap.h"
 
 #include <DirectXMath.h>
 
@@ -138,6 +139,9 @@ void Application::Initialize() {
 	prim = std::make_shared<PrimitiveManager>(device->GetDevice());
 	prim->CreatePlane(DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f), 50.0f, 50.0f);
 
+	//シャドウマップ
+	shadowMap.reset(new ShadowMap(device->GetDevice(), vertex->GetInputDescNum(), vertex->GetInputDesc()));
+
 	//ビューポート
 	viewPort->Initialize();
 }
@@ -151,19 +155,20 @@ void Application::Run() {
 		}
 
 		//今までのレンダリング
+		command->GetCommandAllocator()->Reset();
 
-		auto r = command->GetCommandAllocator()->Reset();
+		auto list = command->GetCommandList();
 
-		command->GetCommandList()->Reset(command->GetCommandAllocator(), pipline->GetPiplineState());
+		list->Reset(command->GetCommandAllocator(), pipline->GetPiplineState());
 
-		command->GetCommandList()->SetGraphicsRootSignature(root->GetRootSignature());
+		list->SetGraphicsRootSignature(root->GetRootSignature());
 
-		command->GetCommandList()->RSSetViewports(1, &viewPort->GetViewPort());
+		list->RSSetViewports(1, &viewPort->GetViewPort());
 
-		command->GetCommandList()->RSSetScissorRects(1, &window->GetScissorRect());
+		list->RSSetScissorRects(1, &window->GetScissorRect());
 
 		//バリア
-		command->GetCommandList()->ResourceBarrier(
+		list->ResourceBarrier(
 			1,
 			&CD3DX12_RESOURCE_BARRIER::Transition(
 				renderTarget->GetPeraRenderTarget(),
@@ -171,9 +176,29 @@ void Application::Run() {
 				D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_RENDER_TARGET)
 		);
 
+
+		list->IASetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+		list->IASetVertexBuffers(0, 1, &vertex->GetVBV());
+
+		list->IASetIndexBuffer(&index->GetIndexBufferView());
+
+		//シャドウマップの準備
+		shadowMap->Setup(list, model->GetBoneBuffer());
+		//ライトビュー用カメラのセット
+		camera->SetDescriptor(list, device->GetDevice());
+		//シャドウマップの描画
+		shadowMap->Draw(list, pmd->GetMaterial().size());
+
+		//通常用パイプラインのセット
+		list->SetPipelineState(pipline->GetPiplineState());
+
+		//通常用ルートシグネチャのセット
+		list->SetGraphicsRootSignature(root->GetRootSignature());
+
 		//レンダーターゲットのセット
 		auto rtvHandle = renderTarget->GetHeap()["RTV"]->GetCPUDescriptorHandleForHeapStart();
-		command->GetCommandList()->OMSetRenderTargets(1, &rtvHandle, false, &depth->GetHeap()->GetCPUDescriptorHandleForHeapStart());
+		list->OMSetRenderTargets(1, &rtvHandle, false, &depth->GetHeap()->GetCPUDescriptorHandleForHeapStart());
 
 		const FLOAT color[] = { 0.4f, 0.4f, 0.4f, 1.0f };
 
@@ -182,36 +207,30 @@ void Application::Run() {
 		rec.left = 0;
 		rec.right = WIN_WIDTH;
 		rec.top = 0;
-		command->GetCommandList()->ClearRenderTargetView(rtvHandle, color, 0, &rec);
+		list->ClearRenderTargetView(rtvHandle, color, 0, &rec);
 
-		command->GetCommandList()->IASetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-		command->GetCommandList()->IASetVertexBuffers(0, 1, &vertex->GetVBV());
-
-		command->GetCommandList()->IASetIndexBuffer(&index->GetIndexBufferView());
-
-		depth->SetDescriptor(command->GetCommandList());
+		depth->SetDescriptor(list);
 
 		camera->UpdateWVP();
 		//
-		camera->SetDescriptor(command->GetCommandList(), device->GetDevice());
+		camera->SetDescriptor(list, device->GetDevice());
 
 		model->Update();
 		//
-		model->Draw(command->GetCommandList(), device->GetDevice());
+		model->Draw(list, device->GetDevice());
 
 		//プリミティブの描画準備
-		prim->SetPrimitiveDrawMode(command->GetCommandList());
+		prim->SetPrimitiveDrawMode(list);
 		//カメラの再セット
-		//camera->SetDescriptor(command->GetCommandList(), device->GetDevice());
+		//camera->SetDescriptor(list, device->GetDevice());
 		//プリミティブの描画
-		prim->Draw(command->GetCommandList());
+		prim->Draw(list);
 
 		//モデル描画関連をバンドル
 		//CreateModelDrawBundle();
 
 		//バリア
-		command->GetCommandList()->ResourceBarrier(
+		list->ResourceBarrier(
 			1,
 			&CD3DX12_RESOURCE_BARRIER::Transition(
 				renderTarget->GetPeraRenderTarget(),
@@ -219,9 +238,9 @@ void Application::Run() {
 				D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_PRESENT)
 		);
 
-		//command->GetCommandList()->ExecuteBundle(command->GetBundleCommandList());
+		//list->ExecuteBundle(command->GetBundleCommandList());
 
-		command->GetCommandList()->Close();
+		list->Close();
 
 		command->Execute();
 

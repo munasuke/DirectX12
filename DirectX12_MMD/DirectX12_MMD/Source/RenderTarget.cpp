@@ -60,13 +60,16 @@ void RenderTarget::Init1stPathRTVSRV(ID3D12Device* _dev) {
 	rDesc.Layout			= D3D12_TEXTURE_LAYOUT::D3D12_TEXTURE_LAYOUT_UNKNOWN;
 	rDesc.Format			= DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM;
 
+	D3D12_CLEAR_VALUE clear = {};
+	clear.Format = rDesc.Format;
+
 	//RTVSRVバッファ生成
 	result = _dev->CreateCommittedResource(
 		&hProp,
 		D3D12_HEAP_FLAGS::D3D12_HEAP_FLAG_NONE,
 		&rDesc,
-		D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_RENDER_TARGET,
-		nullptr,
+		D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_PRESENT,
+		&clear,
 		IID_PPV_ARGS(&peraBuffer)
 	);
 
@@ -116,13 +119,16 @@ void RenderTarget::Init2ndPathRTVSRV(ID3D12Device * _dev) {
 	rDesc.Layout			= D3D12_TEXTURE_LAYOUT::D3D12_TEXTURE_LAYOUT_UNKNOWN;
 	rDesc.Format			= DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM;
 
+	D3D12_CLEAR_VALUE clear = {};
+	clear.Format = rDesc.Format;
+
 	//RTVSRVバッファ生成
 	result = _dev->CreateCommittedResource(
 		&hProp,
 		D3D12_HEAP_FLAGS::D3D12_HEAP_FLAG_NONE,
 		&rDesc,
 		D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_RENDER_TARGET,
-		nullptr,
+		&clear,
 		IID_PPV_ARGS(&peraBuffer2nd)
 	);
 

@@ -316,5 +316,9 @@ float Model::GetBezierYValueFromXWithNewton(float x, DirectX::XMFLOAT2 a, Direct
 	return 3 * (r * r * t * a.y) + 3 * (r * t * t * b.y) + (t * t * t);
 }
 
+ID3D12Resource * Model::GetBoneBuffer() {
+	return boneBuffer;
+}
+
 Model::~Model() {
 }
