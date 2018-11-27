@@ -163,7 +163,11 @@ void Application::Run() {
 
 		list->SetGraphicsRootSignature(root->GetRootSignature());
 
-		list->RSSetViewports(1, &viewPort->GetViewPort());
+		auto viewP = viewPort->GetViewPort();
+		auto shadowDesc = shadowMap->GetBuffer()->GetDesc();
+		viewP.Height = shadowDesc.Height;
+		viewP.Width = shadowDesc.Width;
+		list->RSSetViewports(1, &viewP);
 
 		list->RSSetScissorRects(1, &window->GetScissorRect());
 
@@ -203,11 +207,11 @@ void Application::Run() {
 		const FLOAT color[] = { 0.4f, 0.4f, 0.4f, 1.0f };
 
 		D3D12_RECT rec = {};
-		rec.bottom = WIN_HEIGHT;
-		rec.left = 0;
-		rec.right = WIN_WIDTH;
-		rec.top = 0;
-		list->ClearRenderTargetView(rtvHandle, color, 0, &rec);
+		rec.bottom	= WIN_HEIGHT;
+		rec.left	= 0;
+		rec.right	= WIN_WIDTH;
+		rec.top		= 0;
+		list->ClearRenderTargetView(rtvHandle, color, 1, &rec);
 
 		depth->SetDescriptor(list);
 

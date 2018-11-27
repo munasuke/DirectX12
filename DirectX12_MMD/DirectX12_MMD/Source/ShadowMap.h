@@ -10,6 +10,8 @@ public:
 	void Setup(ID3D12GraphicsCommandList* list, ID3D12Resource* boneBuffer);
 	void Draw(ID3D12GraphicsCommandList* list, const unsigned int materialNum);
 
+	ID3D12Resource* GetBuffer();
+
 	~ShadowMap();
 private:
 	size_t Size(size_t size);

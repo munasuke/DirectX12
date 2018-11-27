@@ -188,6 +188,10 @@ void ShadowMap::Draw(ID3D12GraphicsCommandList * list, const unsigned int materi
 	list->DrawIndexedInstanced(materialNum, 1, 0, 0, 0);
 }
 
+ID3D12Resource * ShadowMap::GetBuffer() {
+	return resource;
+}
+
 
 ShadowMap::~ShadowMap() {
 }

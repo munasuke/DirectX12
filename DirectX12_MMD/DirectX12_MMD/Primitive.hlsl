@@ -28,7 +28,7 @@ Out VS(float4 pos : POSITION, float3 normal : NORMAL, float2 uv : TEXCOORD)
 
 float4 PS(Out o) : SV_TARGET
 {
-    float3 rgb = float3(1.0f, 1.0f, 1.0f);
+    float3 rgb = float3(0.5f, 0.5f, 1.0f);
 
     return float4(rgb, 1.0f);
 }

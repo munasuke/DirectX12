@@ -42,8 +42,11 @@ Out VS(float4 pos : POSITION, float4 normal : NORMAL, float2 uv : TEXCOORD, min1
     matrix boneImpact = boneMatrix[boneno.x] * w + boneMatrix[boneno.y] * (1 - w);
     pos = mul(boneImpact, pos);
 
+    float4 shadowPos = mul(lvp, pos);
+    float2 _uv = float2(1.0f, -1.0f) + shadowPos.xy * float2(0.5f, -0.5f);
+
     o.pos       = mul(world, pos);
-    o.svpos     = mul(wvp, pos);
+    o.svpos     = shadowPos;
     o.normal    = mul(world, normal);
     o.uv        = uv;
     o.weight    = float2(w, 1 - w);
