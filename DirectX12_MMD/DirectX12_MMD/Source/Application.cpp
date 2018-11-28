@@ -165,8 +165,8 @@ void Application::Run() {
 
 		auto viewP = viewPort->GetViewPort();
 		auto shadowDesc = shadowMap->GetBuffer()->GetDesc();
-		viewP.Height = shadowDesc.Height;
-		viewP.Width = shadowDesc.Width;
+		//viewP.Height = shadowDesc.Height;
+		//viewP.Width = shadowDesc.Width;
 		list->RSSetViewports(1, &viewP);
 
 		list->RSSetScissorRects(1, &window->GetScissorRect());

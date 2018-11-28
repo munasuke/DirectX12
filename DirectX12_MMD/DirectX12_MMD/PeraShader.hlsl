@@ -228,11 +228,11 @@ float4 BasicPS(Out o) : SV_TARGET
     //セピアカラー
     float3 sepia = float3(0.5f, 0.8f, 0.5f);
     
-    return texColor;
+    //return texColor;
     //加工しない部分の指定
     if (o.uv.x + o.uv.y < 0.9f)
     {
-        return float4(dep, dep, dep, 1.0f);
+        //return float4(dep, dep, dep, 1.0f);
         return texColor;
     }
 
@@ -245,7 +245,7 @@ float4 BasicPS(Out o) : SV_TARGET
     //return texColor;
     //return Monochrome(texColor.rgb);
     //return Emboss(texColor, o.uv, d);
-    return float4(Sepia(ExtractOutline(FrostedGlass(o.uv, float2(w, h)), d, o.uv, 6.0f).rgb, sepia), texColor.a);
+    //return float4(Sepia(ExtractOutline(FrostedGlass(o.uv, float2(w, h)), d, o.uv, 6.0f).rgb, sepia), texColor.a);
     //return Sepia(texColor.rgb, sepia);
     //return Posterization(texColor.rgb);
     //return AveragingFilter(texColor, d, o.uv);
