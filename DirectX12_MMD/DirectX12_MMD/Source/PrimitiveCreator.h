@@ -6,6 +6,7 @@
 
 class PrimitiveObject;
 class Plane;
+class Cone;
 
 using namespace DirectX;
 
@@ -28,6 +29,15 @@ public:
 	* @param depth	•½–Ê‚Ì‰œs
 	*/
 	std::shared_ptr<Plane> CreatePlane(const XMFLOAT3& pos, const float width, const float depth);
+
+	/**
+	* @brief ‰~ƒIƒuƒWƒFƒNƒg‚Ì¶¬
+	* @param pos	‰~‚ÌÀ•W
+	* @param div	‰~‚Ì•ªŠ„”
+	* @param r		‰~‚Ì”¼Œa
+	* @param height	‰~‚Ì‚‚³
+	*/
+	std::shared_ptr<Cone> CreateCone(const XMFLOAT3& pos, const unsigned int div, const float r, const float height);
 
 
 	~PrimitiveManager();

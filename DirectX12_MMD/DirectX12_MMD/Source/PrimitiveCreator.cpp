@@ -1,6 +1,7 @@
 #include "PrimitiveCreator.h"
 #include "PrimitiveObject.h"
 #include "Plane.h"
+#include "Cone.h"
 #include "Camera.h"
 #include "Window.h"
 #include <d3dcompiler.h>
@@ -203,6 +204,12 @@ std::shared_ptr<Plane> PrimitiveManager::CreatePlane(const XMFLOAT3& pos, const 
 	return ret;
 }
 
+
+std::shared_ptr<Cone> PrimitiveManager::CreateCone(const XMFLOAT3& pos, const unsigned int div, const float r, const float height) {
+	auto ret = std::make_shared<Cone>(dev, pos, div, r, height);
+	obj.emplace_back(ret);
+	return ret;
+}
 
 PrimitiveManager::~PrimitiveManager() {
 }

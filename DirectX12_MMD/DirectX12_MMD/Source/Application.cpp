@@ -135,9 +135,12 @@ void Application::Initialize() {
 	pipline->PeraInitialize(device->GetDevice(), shader->GetPeraVS(1), shader->GetPeraPS(1),
 		vertex->GetPeraInputDescNum(), vertex->GetPeraInputDesc(), root->GetPeraRootSignature()[1], 1);
 
-	//平面
+	//プリミティブ
 	prim = std::make_shared<PrimitiveManager>(device->GetDevice());
-	prim->CreatePlane(DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f), 50.0f, 50.0f);
+	//平面
+	//prim->CreatePlane(DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f), 50.0f, 50.0f);
+	//円錐
+	prim->CreateCone(DirectX::XMFLOAT3(15.0f, 0.0f, 5.0f), 100, 5.0f, 15.0f);
 
 	//シャドウマップ
 	shadowMap.reset(new ShadowMap(device->GetDevice(), vertex->GetInputDescNum(), vertex->GetInputDesc()));

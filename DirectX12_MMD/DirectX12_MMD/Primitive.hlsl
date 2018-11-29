@@ -11,9 +11,10 @@ struct Out
     float4 svpos    : SV_Position;
     float3 normal   : NORMAL;
     float2 uv       : TEXCOORD;
+    float4 color    : COLOR;
 };
 
-Out VS(float4 pos : POSITION, float3 normal : NORMAL, float2 uv : TEXCOORD)
+Out VS(float4 pos : POSITION, float3 normal : NORMAL, float2 uv : TEXCOORD, float4 color : COLOR)
 {
     float4x4 vp     = mul(projection, view);
     float4x4 wvp    = mul(vp, world);
@@ -22,13 +23,15 @@ Out VS(float4 pos : POSITION, float3 normal : NORMAL, float2 uv : TEXCOORD)
     o.svpos     = mul(wvp, pos);
     o.normal    = normal;
     o.uv        = uv;
+    o.color     = color;
 
     return o;
 }
 
 float4 PS(Out o) : SV_TARGET
 {
-    float3 rgb = float3(0.5f, 0.5f, 1.0f);
+    float3 rgb = float3(1.0f, 1.0f, 1.0f);
 
+    return o.color;
     return float4(rgb, 1.0f);
 }

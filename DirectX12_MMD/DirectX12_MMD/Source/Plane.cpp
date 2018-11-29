@@ -3,13 +3,13 @@
 
 using namespace DirectX;
 
-Plane::Plane(ID3D12Device* dev, const XMFLOAT3& pos, const float width, const float depth) {
+Plane::Plane(ID3D12Device* dev, const XMFLOAT3& pos, const float width, const float depth, const XMFLOAT4& color) {
 	vBuffer = nullptr;
 	std::array<PrimitiveVertex, 4> vertex {{
-		{ XMFLOAT3(pos.x - width / 2.0f, pos.y, pos.z - depth / 2.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), XMFLOAT2(0.0f, 0.0f) },
-		{ XMFLOAT3(pos.x - width / 2.0f, pos.y, pos.z + depth / 2.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), XMFLOAT2(0.0f, 1.0f) },
-		{ XMFLOAT3(pos.x + width / 2.0f, pos.y, pos.z - depth / 2.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), XMFLOAT2(1.0f, 0.0f) },
-		{ XMFLOAT3(pos.x + width / 2.0f, pos.y, pos.z + depth / 2.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), XMFLOAT2(1.0f, 1.0f) },
+		{ XMFLOAT3(pos.x - width / 2.0f, pos.y, pos.z - depth / 2.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), XMFLOAT2(0.0f, 0.0f), color },
+		{ XMFLOAT3(pos.x - width / 2.0f, pos.y, pos.z + depth / 2.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), XMFLOAT2(0.0f, 1.0f), color },
+		{ XMFLOAT3(pos.x + width / 2.0f, pos.y, pos.z - depth / 2.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), XMFLOAT2(1.0f, 0.0f), color },
+		{ XMFLOAT3(pos.x + width / 2.0f, pos.y, pos.z + depth / 2.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), XMFLOAT2(1.0f, 1.0f), color },
 	}};
 
 	//頂点バッファの生成
@@ -28,6 +28,7 @@ Plane::Plane(ID3D12Device* dev, const XMFLOAT3& pos, const float width, const fl
 	vBuffer->Unmap(0, nullptr);
 
 	//頂点バッファビューの作成
+	vbView = {};
 	vbView.BufferLocation	= vBuffer->GetGPUVirtualAddress();	//頂点アドレスのGPUにあるアドレスを記憶
 	vbView.StrideInBytes	= sizeof(PrimitiveVertex);			//頂点1つあたりのバイト数を指定
 	vbView.SizeInBytes		= sizeof(vertex);					//データ全体のサイズを指定
