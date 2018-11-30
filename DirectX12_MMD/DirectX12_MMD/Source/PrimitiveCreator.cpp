@@ -26,20 +26,25 @@ PrimitiveManager::PrimitiveManager(ID3D12Device* d) : piplineState(nullptr), rs(
 	samplerDesc.ComparisonFunc		= D3D12_COMPARISON_FUNC::D3D12_COMPARISON_FUNC_NEVER;
 
 	//デスクリプタレンジ
-	//D3D12_DESCRIPTOR_RANGE dr[1] = {};
-	//dr[0].BaseShaderRegister				= 0;
-	//dr[0].NumDescriptors					= 1;
-	//dr[0].RangeType							= D3D12_DESCRIPTOR_RANGE_TYPE::D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
-	//dr[0].RegisterSpace						= 0;
-	//dr[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+	D3D12_DESCRIPTOR_RANGE dr[1] = {};
+	dr[0].BaseShaderRegister				= 0;
+	dr[0].NumDescriptors					= 1;
+	dr[0].RangeType							= D3D12_DESCRIPTOR_RANGE_TYPE::D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	dr[0].RegisterSpace						= 0;
+	dr[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 	//ルートパラメータ
 	//カメラ(b0)
-	D3D12_ROOT_PARAMETER rp[1] = {};
+	D3D12_ROOT_PARAMETER rp[2] = {};
 	rp[0].ParameterType				= D3D12_ROOT_PARAMETER_TYPE::D3D12_ROOT_PARAMETER_TYPE_CBV;
 	rp[0].ShaderVisibility			= D3D12_SHADER_VISIBILITY::D3D12_SHADER_VISIBILITY_ALL;
 	rp[0].Descriptor.RegisterSpace	= 0;
 	rp[0].Descriptor.ShaderRegister = 0;
+
+	rp[1].ParameterType							= D3D12_ROOT_PARAMETER_TYPE::D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	rp[1].ShaderVisibility						= D3D12_SHADER_VISIBILITY::D3D12_SHADER_VISIBILITY_ALL;
+	rp[1].DescriptorTable.NumDescriptorRanges	= 1;
+	rp[1].DescriptorTable.pDescriptorRanges		= &dr[0];
 
 	//rp[0].ParameterType							= D3D12_ROOT_PARAMETER_TYPE::D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	//rp[0].DescriptorTable.NumDescriptorRanges	= 1;

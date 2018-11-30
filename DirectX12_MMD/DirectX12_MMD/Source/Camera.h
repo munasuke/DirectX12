@@ -29,4 +29,5 @@ private:
 	UINT* data;
 };
 DirectX::XMFLOAT3 operator*(DirectX::XMFLOAT3& v, float f);
+DirectX::XMFLOAT3 operator+(DirectX::XMFLOAT3& f1, DirectX::XMFLOAT3& f2);
 DirectX::XMFLOAT3 operator-(DirectX::XMFLOAT3& f1, DirectX::XMFLOAT3& f2);

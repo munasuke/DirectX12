@@ -167,9 +167,9 @@ void Application::Run() {
 
 		auto list = command->GetCommandList();
 		
-		list->Reset(command->GetCommandAllocator(), pipline->GetPiplineState());
+		auto r =list->Reset(command->GetCommandAllocator(), shadowMap->GetGps());
 
-		list->SetGraphicsRootSignature(root->GetRootSignature());
+		list->SetGraphicsRootSignature(shadowMap->GetRs());
 
 		auto viewP = viewPort->GetViewPort();
 		auto shadowDesc = shadowMap->GetBuffer()->GetDesc();
@@ -177,15 +177,18 @@ void Application::Run() {
 		viewP.Width = shadowDesc.Width;
 		list->RSSetViewports(1, &viewP);
 
-		list->RSSetScissorRects(1, &window->GetScissorRect());
+		auto scissor = window->GetScissorRect();
+		scissor.bottom = shadowDesc.Height;
+		scissor.right = shadowDesc.Width;
+		list->RSSetScissorRects(1, &scissor);
 
 		//バリア
 		list->ResourceBarrier(
 			1,
 			&CD3DX12_RESOURCE_BARRIER::Transition(
-				renderTarget->GetPeraRenderTarget(),
+				shadowMap->GetBuffer(),
 				D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_PRESENT,
-				D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE)
+				D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_DEPTH_WRITE)
 		);
 
 		//トポロジー
@@ -202,28 +205,16 @@ void Application::Run() {
 		//ライトビュー用カメラのセット
 		camera->SetDescriptor(list, device->GetDevice());
 		//シャドウマップの描画
-		shadowMap->Draw(list, pmd->GetMaterial().size());
+		shadowMap->Draw(list, pmd->GetIndices().size());
 
 		list->ResourceBarrier(
 			1,
 			&CD3DX12_RESOURCE_BARRIER::Transition(
-				renderTarget->GetPeraRenderTarget(),
-				D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+				shadowMap->GetBuffer(),
+				D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_DEPTH_WRITE,
 				D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_PRESENT)
 		);
 
-		list->Close();
-
-		command->Execute();
-
-		command->GetCommandQueue()->Signal(fence->GetFence(), fence->GetFenceValue(true));
-		while (fence->GetFence()->GetCompletedValue() != fence->GetFenceValue()) {
-		}
-
-		//アロケータのセット
-		command->GetCommandAllocator()->Reset();
-
-		list->Reset(command->GetCommandAllocator(), pipline->GetPiplineState());
 		list->SetPipelineState(pipline->GetPiplineState());
 
 		list->SetGraphicsRootSignature(root->GetRootSignature());
@@ -231,19 +222,6 @@ void Application::Run() {
 		list->RSSetViewports(1, &viewPort->GetViewPort());
 
 		list->RSSetScissorRects(1, &window->GetScissorRect());
-
-		//レンダーターゲットのセット
-		auto rtvHandle = renderTarget->GetHeap()["RTV"]->GetCPUDescriptorHandleForHeapStart();
-		list->OMSetRenderTargets(1, &rtvHandle, false, &depth->GetHeap()->GetCPUDescriptorHandleForHeapStart());
-
-		const FLOAT color[] = { 0.4f, 0.4f, 0.4f, 1.0f };
-
-		D3D12_RECT rec = {};
-		rec.bottom	= WIN_HEIGHT;
-		rec.left	= 0;
-		rec.right	= WIN_WIDTH;
-		rec.top		= 0;
-		list->ClearRenderTargetView(rtvHandle, color, 1, &rec);
 
 		//バリア
 		list->ResourceBarrier(
@@ -253,6 +231,20 @@ void Application::Run() {
 				D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_PRESENT,
 				D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_RENDER_TARGET)
 		);
+
+		//レンダーターゲットのセット
+		auto rtvHandle = renderTarget->GetHeap()["RTV"]->GetCPUDescriptorHandleForHeapStart();
+		list->OMSetRenderTargets(1, &rtvHandle, false, &depth->GetHeap()->GetCPUDescriptorHandleForHeapStart());
+
+		const FLOAT color[] = { 0.4f, 0.4f, 0.4f, 1.0f };
+
+		D3D12_RECT rec = {};
+		rec.bottom = WIN_HEIGHT;
+		rec.left = 0;
+		rec.right = WIN_WIDTH;
+		rec.top = 0;
+		list->ClearRenderTargetView(rtvHandle, color, 1, &rec);
+
 
 		//トポロジー
 		list->IASetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -277,6 +269,10 @@ void Application::Run() {
 		prim->SetPrimitiveDrawMode(list);
 		//カメラの再セット
 		camera->SetDescriptor(list, device->GetDevice());
+		//シャドウマップのセット
+		auto srvH = shadowMap->GetHeap()["SRV"];
+		command->GetCommandList()->SetDescriptorHeaps(1, &srvH);
+		command->GetCommandList()->SetGraphicsRootDescriptorTable(1, srvH->GetGPUDescriptorHandleForHeapStart());
 		//プリミティブの描画
 		prim->Draw(list);
 
@@ -293,14 +289,6 @@ void Application::Run() {
 		);
 
 		//list->ExecuteBundle(command->GetBundleCommandList());
-
-		list->Close();
-
-		command->Execute();
-
-		command->GetCommandQueue()->Signal(fence->GetFence(), fence->GetFenceValue(true));
-		while (fence->GetFence()->GetCompletedValue() != fence->GetFenceValue()) {
-		}
 
 		//ペラポリゴン
 		//1パス目
@@ -319,11 +307,8 @@ void Application::Terminate() {
 //ペラポリゴン用
 //1パス目の処理
 void Application::UpdatePera() {
-	//アロケータのリセット
-	command->GetCommandAllocator()->Reset();
-
-	//コマンドリストのリセット
-	command->GetCommandList()->Reset(command->GetCommandAllocator(), pipline->GetPeraPiplineState()[0]);
+	//パイプラインのセット
+	command->GetCommandList()->SetPipelineState(pipline->GetPeraPiplineState()[0]);
 
 	//ルートシグネチャのセット
 	command->GetCommandList()->SetGraphicsRootSignature(root->GetPeraRootSignature()[0]);
@@ -366,7 +351,7 @@ void Application::UpdatePera() {
 	command->GetCommandList()->SetDescriptorHeaps(1, &srvH);
 	command->GetCommandList()->SetGraphicsRootDescriptorTable(0, srvH->GetGPUDescriptorHandleForHeapStart());
 
-	auto srvH2 = depth->GetHeapDSVSRV()["SRV"];
+	auto srvH2 = shadowMap->GetHeap()["SRV"];
 	command->GetCommandList()->SetDescriptorHeaps(1, &srvH2);
 	command->GetCommandList()->SetGraphicsRootDescriptorTable(1, srvH2->GetGPUDescriptorHandleForHeapStart());
 
@@ -390,7 +375,7 @@ void Application::UpdatePera() {
 	);
 
 	//コマンドリストを閉じる
-	command->GetCommandList()->Close();
+	auto r = command->GetCommandList()->Close();
 
 	//実行
 	command->Execute();

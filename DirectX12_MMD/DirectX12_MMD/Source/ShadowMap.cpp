@@ -82,30 +82,19 @@ ShadowMap::ShadowMap(ID3D12Device* dev, unsigned int inputDescNum, D3D12_INPUT_E
 	dr[0].RegisterSpace						= 0;
 	dr[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	dr[1].BaseShaderRegister				= 0;
-	dr[1].NumDescriptors					= 1;
-	dr[1].RangeType							= D3D12_DESCRIPTOR_RANGE_TYPE::D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-	dr[1].RegisterSpace						= 0;
-	dr[1].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-
 	//ルートパラメータ
-	D3D12_ROOT_PARAMETER rp[3] = {};
+	D3D12_ROOT_PARAMETER rp[2] = {};
 	//カメラ
 	rp[0].ParameterType				= D3D12_ROOT_PARAMETER_TYPE::D3D12_ROOT_PARAMETER_TYPE_CBV;
 	rp[0].Descriptor.RegisterSpace	= 0;
 	rp[0].Descriptor.ShaderRegister = 0;
 	rp[0].ShaderVisibility			= D3D12_SHADER_VISIBILITY::D3D12_SHADER_VISIBILITY_ALL;
 
-	rp[1].ParameterType							= D3D12_ROOT_PARAMETER_TYPE::D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	rp[1].DescriptorTable.NumDescriptorRanges	= 1;
-	rp[1].DescriptorTable.pDescriptorRanges		= &dr[1];
-	rp[1].ShaderVisibility						= D3D12_SHADER_VISIBILITY::D3D12_SHADER_VISIBILITY_ALL;
-
 	//ボーン
-	rp[2].ParameterType				= D3D12_ROOT_PARAMETER_TYPE::D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rp[2].Descriptor.RegisterSpace	= 0;
-	rp[2].Descriptor.ShaderRegister = 1;
-	rp[2].ShaderVisibility			= D3D12_SHADER_VISIBILITY::D3D12_SHADER_VISIBILITY_VERTEX;
+	rp[1].ParameterType				= D3D12_ROOT_PARAMETER_TYPE::D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rp[1].Descriptor.RegisterSpace	= 0;
+	rp[1].Descriptor.ShaderRegister = 1;
+	rp[1].ShaderVisibility			= D3D12_SHADER_VISIBILITY::D3D12_SHADER_VISIBILITY_VERTEX;
 
 	//ルートシグネチャ
 	D3D12_ROOT_SIGNATURE_DESC rsDesc = {};
@@ -166,21 +155,17 @@ ShadowMap::ShadowMap(ID3D12Device* dev, unsigned int inputDescNum, D3D12_INPUT_E
 
 void ShadowMap::Setup(ID3D12GraphicsCommandList * list, ID3D12Resource* boneBuffer) {
 	//パイプラインのセット
-	list->SetPipelineState(gps);
+	//list->SetPipelineState(gps);
 
 	//ルートシグネチャのセット
-	list->SetGraphicsRootSignature(rs);
+	//list->SetGraphicsRootSignature(rs);
 
 	//レンダーターゲットなし。デプスは書き込む
 	list->OMSetRenderTargets(0, nullptr, false, &heap["DSV"]->GetCPUDescriptorHandleForHeapStart());
 	list->ClearDepthStencilView(heap["DSV"]->GetCPUDescriptorHandleForHeapStart(), D3D12_CLEAR_FLAGS::D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
 
-	//SRVのセット
-	list->SetDescriptorHeaps(1, &heap["SRV"]);
-	list->SetGraphicsRootDescriptorTable(1, heap["SRV"]->GetGPUDescriptorHandleForHeapStart());
-
 	//モデルのボーンをセット
-	list->SetGraphicsRootConstantBufferView(2, boneBuffer->GetGPUVirtualAddress());
+	list->SetGraphicsRootConstantBufferView(1, boneBuffer->GetGPUVirtualAddress());
 }
 
 void ShadowMap::Draw(ID3D12GraphicsCommandList * list, const unsigned int materialNum) {	
@@ -190,6 +175,21 @@ void ShadowMap::Draw(ID3D12GraphicsCommandList * list, const unsigned int materi
 
 ID3D12Resource * ShadowMap::GetBuffer() {
 	return resource;
+}
+
+std::map<std::string, ID3D12DescriptorHeap*> ShadowMap::GetHeap()
+{
+	return heap;
+}
+
+ID3D12PipelineState * ShadowMap::GetGps()
+{
+	return gps;
+}
+
+ID3D12RootSignature * ShadowMap::GetRs()
+{
+	return rs;
 }
 
 

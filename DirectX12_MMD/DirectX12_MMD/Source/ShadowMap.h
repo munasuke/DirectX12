@@ -11,6 +11,9 @@ public:
 	void Draw(ID3D12GraphicsCommandList* list, const unsigned int materialNum);
 
 	ID3D12Resource* GetBuffer();
+	std::map<std::string, ID3D12DescriptorHeap*> GetHeap();
+	ID3D12PipelineState* GetGps();
+	ID3D12RootSignature* GetRs();
 
 	~ShadowMap();
 private:

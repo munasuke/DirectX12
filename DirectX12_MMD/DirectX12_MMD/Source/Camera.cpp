@@ -8,14 +8,15 @@ Camera::Camera() {
 
 void Camera::Initialize(ID3D12Device * _dev) {
 	//視線、注視点、上ベクトル
-	XMFLOAT3 eye	(0.0f, 14.0f, -13.0f);
+	XMFLOAT3 eye	(0.0f, 14.0f, -20.0f);
 	XMFLOAT3 focus	(0.0f, 12.0f,   0.0f);
 	XMFLOAT3 upper	(0.0f,  1.0f,   0.0f);
 
 	//光線ベクトル
-	auto toLight = Normalize(eye - focus);
+	auto toLight = Normalize(XMFLOAT3(-10.0f, 10.0f, -10.0f));
 	//光源座標
 	auto lightPos = toLight * Magnitude(focus - eye);
+	lightPos = focus + lightPos;
 	//ライトビュー行列
 	auto lightView = XMMatrixLookAtLH(XMLoadFloat3(&lightPos), XMLoadFloat3(&focus), XMLoadFloat3(&upper));
 	//ライトプロジェクション
@@ -26,7 +27,7 @@ void Camera::Initialize(ID3D12Device * _dev) {
 	//ワールド・ビュー・プロジェクション行列の作成
 	mt.world		= XMMatrixIdentity();
 	mt.view			= XMMatrixLookAtLH(XMLoadFloat3(&eye), XMLoadFloat3(&focus), XMLoadFloat3(&upper));
-	mt.projection	= XMMatrixPerspectiveFovLH(XM_PIDIV2/*90.0f * 3.14159264f / 180.0f*/,
+	mt.projection	= XMMatrixPerspectiveFovLH(60.0f * 3.14159264f / 180.0f,
 		static_cast<FLOAT>(WIN_WIDTH) / static_cast<FLOAT>(WIN_HEIGHT), 0.01f, 500.0f);
 
 	//プロパティ設定
@@ -87,6 +88,11 @@ XMFLOAT3 Camera::Normalize(const XMFLOAT3 & f) {
 
 XMFLOAT3 operator*(XMFLOAT3 & v, float f) {
 	return XMFLOAT3(v.x*f, v.y*f, v.z*f);
+}
+
+XMFLOAT3 operator+(XMFLOAT3 & f1, XMFLOAT3 & f2)
+{
+	return XMFLOAT3(f1.x + f2.x, f1.y + f2.y, f1.z + f2.z);
 }
 
 XMFLOAT3 operator-(XMFLOAT3 & f1, XMFLOAT3 & f2) {

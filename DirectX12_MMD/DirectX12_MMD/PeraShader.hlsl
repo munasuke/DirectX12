@@ -228,13 +228,14 @@ float4 BasicPS(Out o) : SV_TARGET
     //セピアカラー
     float3 sepia = float3(0.5f, 0.8f, 0.5f);
     
-    //return texColor;
     //加工しない部分の指定
-    //if (o.uv.x + o.uv.y < 0.9f)
-    //{
-    //    //return float4(dep, dep, dep, 1.0f);
-    //    return texColor;
-    //}
+    if (o.uv.x + o.uv.y < 0.9f)
+    {
+        //return float4(dep, dep, dep, 1.0f);
+        //return texColor;
+    }
+    //return float4(dep, dep, dep, 1.0f);
+    return texColor;
 
     //half2 pos = o.uv * 2.0f - 1.0f;
     //half p = length(pos);
