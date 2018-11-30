@@ -13,14 +13,13 @@ void Camera::Initialize(ID3D12Device * _dev) {
 	XMFLOAT3 upper	(0.0f,  1.0f,   0.0f);
 
 	//光線ベクトル
-	auto toLight = XMFLOAT3(0.0f, 12.0f, 0.0f);
+	auto toLight = Normalize(eye - focus);
 	//光源座標
 	auto lightPos = toLight * Magnitude(focus - eye);
 	//ライトビュー行列
 	auto lightView = XMMatrixLookAtLH(XMLoadFloat3(&lightPos), XMLoadFloat3(&focus), XMLoadFloat3(&upper));
 	//ライトプロジェクション
-	auto lightProj = XMMatrixOrthographicLH(40.0f, 40.0f, 0.01f, 500.0f);;
-
+	auto lightProj = XMMatrixOrthographicLH(40.0f, 40.0f, 0.01f, 500.0f);
 	//ライトビュープロジェクション
 	mt.lvp = lightView * lightProj;
 
@@ -78,7 +77,12 @@ Camera::~Camera() {
 }
 
 float Camera::Magnitude(const XMFLOAT3 & f) {
-	return f.x*f.x + f.y*f.y + f.z*f.z;
+	return sqrt(f.x*f.x + f.y*f.y + f.z*f.z);
+}
+
+XMFLOAT3 Camera::Normalize(const XMFLOAT3 & f) {
+	auto size = Magnitude(f);
+	return XMFLOAT3(f.x / size, f.y / size, f.z / size);
 }
 
 XMFLOAT3 operator*(XMFLOAT3 & v, float f) {

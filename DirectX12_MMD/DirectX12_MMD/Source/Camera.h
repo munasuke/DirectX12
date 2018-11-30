@@ -21,6 +21,7 @@ public:
 	~Camera();
 private:
 	float Magnitude(const DirectX::XMFLOAT3& f);
+	DirectX::XMFLOAT3 Normalize(const DirectX::XMFLOAT3& f);
 
 	ID3D12Resource* resource;
 

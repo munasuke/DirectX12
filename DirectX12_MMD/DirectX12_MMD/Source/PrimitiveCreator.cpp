@@ -112,9 +112,9 @@ PrimitiveManager::PrimitiveManager(ID3D12Device* d) : piplineState(nullptr), rs(
 		IID_PPV_ARGS(&resource)
 	);
 
-	UINT* data = nullptr;
-	result = resource->Map(0, nullptr, (void**)(&data));
-	memcpy(data, &mt, sizeof(mt));
+	//UINT* data = nullptr;
+	//result = resource->Map(0, nullptr, (void**)(&data));
+	//memcpy(data, &mt, sizeof(mt));
 
 	signature->Release();
 
@@ -155,7 +155,16 @@ PrimitiveManager::PrimitiveManager(ID3D12Device* d) : piplineState(nullptr), rs(
 			D3D12_APPEND_ALIGNED_ELEMENT,
 			D3D12_INPUT_CLASSIFICATION::D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,
 			0
-		}
+		},
+		{
+			"COLOR",
+			0,
+			DXGI_FORMAT::DXGI_FORMAT_R32G32B32A32_FLOAT,
+			0,
+			D3D12_APPEND_ALIGNED_ELEMENT,
+			D3D12_INPUT_CLASSIFICATION::D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,
+			0
+		},
 	};
 
 	//パイプライン
@@ -198,15 +207,15 @@ void PrimitiveManager::Draw(ID3D12GraphicsCommandList* list) {
 	}
 }
 
-std::shared_ptr<Plane> PrimitiveManager::CreatePlane(const XMFLOAT3& pos, const float width, const float depth) {
-	auto ret = std::make_shared<Plane>(dev, pos, width, depth);
+std::shared_ptr<Plane> PrimitiveManager::CreatePlane(const XMFLOAT3& pos, const float width, const float depth, const XMFLOAT4& color) {
+	auto ret = std::make_shared<Plane>(dev, pos, width, depth, color);
 	obj.emplace_back(ret);
 	return ret;
 }
 
 
-std::shared_ptr<Cone> PrimitiveManager::CreateCone(const XMFLOAT3& pos, const unsigned int div, const float r, const float height) {
-	auto ret = std::make_shared<Cone>(dev, pos, div, r, height);
+std::shared_ptr<Cone> PrimitiveManager::CreateCone(const XMFLOAT3& pos, const unsigned int div, const float r, const float height, const XMFLOAT4& color) {
+	auto ret = std::make_shared<Cone>(dev, pos, div, r, height, color);
 	obj.emplace_back(ret);
 	return ret;
 }

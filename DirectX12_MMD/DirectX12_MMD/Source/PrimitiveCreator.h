@@ -27,8 +27,9 @@ public:
 	* @param pos	平面の座標
 	* @param width	平面の幅
 	* @param depth	平面の奥行
+	* @param color	平面の色
 	*/
-	std::shared_ptr<Plane> CreatePlane(const XMFLOAT3& pos, const float width, const float depth);
+	std::shared_ptr<Plane> CreatePlane(const XMFLOAT3& pos, const float width, const float depth, const XMFLOAT4& color);
 
 	/**
 	* @brief 円錐オブジェクトの生成
@@ -36,9 +37,9 @@ public:
 	* @param div	円錐の分割数
 	* @param r		円錐の半径
 	* @param height	円錐の高さ
+	* @param color	円錐の色
 	*/
-	std::shared_ptr<Cone> CreateCone(const XMFLOAT3& pos, const unsigned int div, const float r, const float height);
-
+	std::shared_ptr<Cone> CreateCone(const XMFLOAT3& pos, const unsigned int div, const float r, const float height, const XMFLOAT4& color);
 
 	~PrimitiveManager();
 

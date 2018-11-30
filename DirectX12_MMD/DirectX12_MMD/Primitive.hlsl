@@ -30,8 +30,5 @@ Out VS(float4 pos : POSITION, float3 normal : NORMAL, float2 uv : TEXCOORD, floa
 
 float4 PS(Out o) : SV_TARGET
 {
-    float3 rgb = float3(1.0f, 1.0f, 1.0f);
-
     return o.color;
-    return float4(rgb, 1.0f);
 }

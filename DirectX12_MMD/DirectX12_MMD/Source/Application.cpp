@@ -138,9 +138,13 @@ void Application::Initialize() {
 	//プリミティブ
 	prim = std::make_shared<PrimitiveManager>(device->GetDevice());
 	//平面
-	//prim->CreatePlane(DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f), 50.0f, 50.0f);
+	auto color = DirectX::XMFLOAT4(0.4f, 0.8f, 0.4f, 1.0f);
+	prim->CreatePlane(DirectX::XMFLOAT3(0.0f, 0.0f, 0.0f), 50.0f, 50.0f, color);
 	//円錐
-	prim->CreateCone(DirectX::XMFLOAT3(15.0f, 0.0f, 5.0f), 100, 5.0f, 15.0f);
+	color = DirectX::XMFLOAT4(0.8f, 0.4f, 0.4f, 1.0f);
+	prim->CreateCone(DirectX::XMFLOAT3(15.0f, 0.0f, 5.0f), 100, 4.0f, 15.0f, color);
+	color = DirectX::XMFLOAT4(0.4f, 0.4f, 0.8f, 1.0f);
+	prim->CreateCone(DirectX::XMFLOAT3(-10.0f, 0.0f, 15.0f), 100, 4.0f, 10.0f, color);
 
 	//シャドウマップ
 	shadowMap.reset(new ShadowMap(device->GetDevice(), vertex->GetInputDescNum(), vertex->GetInputDesc()));
@@ -158,18 +162,19 @@ void Application::Run() {
 		}
 
 		//今までのレンダリング
+		//アロケータのセット
 		command->GetCommandAllocator()->Reset();
 
 		auto list = command->GetCommandList();
-
+		
 		list->Reset(command->GetCommandAllocator(), pipline->GetPiplineState());
 
 		list->SetGraphicsRootSignature(root->GetRootSignature());
 
 		auto viewP = viewPort->GetViewPort();
 		auto shadowDesc = shadowMap->GetBuffer()->GetDesc();
-		//viewP.Height = shadowDesc.Height;
-		//viewP.Width = shadowDesc.Width;
+		viewP.Height = shadowDesc.Height;
+		viewP.Width = shadowDesc.Width;
 		list->RSSetViewports(1, &viewP);
 
 		list->RSSetScissorRects(1, &window->GetScissorRect());
@@ -180,14 +185,16 @@ void Application::Run() {
 			&CD3DX12_RESOURCE_BARRIER::Transition(
 				renderTarget->GetPeraRenderTarget(),
 				D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_PRESENT,
-				D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_RENDER_TARGET)
+				D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE)
 		);
 
-
+		//トポロジー
 		list->IASetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
+		//モデルの頂点バッファのセット
 		list->IASetVertexBuffers(0, 1, &vertex->GetVBV());
 
+		//モデルのインデックスバッファのセット
 		list->IASetIndexBuffer(&index->GetIndexBufferView());
 
 		//シャドウマップの準備
@@ -197,11 +204,33 @@ void Application::Run() {
 		//シャドウマップの描画
 		shadowMap->Draw(list, pmd->GetMaterial().size());
 
-		//通常用パイプラインのセット
+		list->ResourceBarrier(
+			1,
+			&CD3DX12_RESOURCE_BARRIER::Transition(
+				renderTarget->GetPeraRenderTarget(),
+				D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+				D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_PRESENT)
+		);
+
+		list->Close();
+
+		command->Execute();
+
+		command->GetCommandQueue()->Signal(fence->GetFence(), fence->GetFenceValue(true));
+		while (fence->GetFence()->GetCompletedValue() != fence->GetFenceValue()) {
+		}
+
+		//アロケータのセット
+		command->GetCommandAllocator()->Reset();
+
+		list->Reset(command->GetCommandAllocator(), pipline->GetPiplineState());
 		list->SetPipelineState(pipline->GetPiplineState());
 
-		//通常用ルートシグネチャのセット
 		list->SetGraphicsRootSignature(root->GetRootSignature());
+
+		list->RSSetViewports(1, &viewPort->GetViewPort());
+
+		list->RSSetScissorRects(1, &window->GetScissorRect());
 
 		//レンダーターゲットのセット
 		auto rtvHandle = renderTarget->GetHeap()["RTV"]->GetCPUDescriptorHandleForHeapStart();
@@ -216,6 +245,24 @@ void Application::Run() {
 		rec.top		= 0;
 		list->ClearRenderTargetView(rtvHandle, color, 1, &rec);
 
+		//バリア
+		list->ResourceBarrier(
+			1,
+			&CD3DX12_RESOURCE_BARRIER::Transition(
+				renderTarget->GetPeraRenderTarget(),
+				D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_PRESENT,
+				D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_RENDER_TARGET)
+		);
+
+		//トポロジー
+		list->IASetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+		//モデルの頂点バッファのセット
+		list->IASetVertexBuffers(0, 1, &vertex->GetVBV());
+
+		//モデルのインデックスバッファのセット
+		list->IASetIndexBuffer(&index->GetIndexBufferView());
+
 		depth->SetDescriptor(list);
 
 		camera->UpdateWVP();
@@ -229,7 +276,7 @@ void Application::Run() {
 		//プリミティブの描画準備
 		prim->SetPrimitiveDrawMode(list);
 		//カメラの再セット
-		//camera->SetDescriptor(list, device->GetDevice());
+		camera->SetDescriptor(list, device->GetDevice());
 		//プリミティブの描画
 		prim->Draw(list);
 
