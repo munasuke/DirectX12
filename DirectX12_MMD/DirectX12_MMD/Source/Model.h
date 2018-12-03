@@ -55,6 +55,9 @@ public:
 
 	//ボーンの回転行列
 	void RotationBone(const std::string str, const DirectX::XMFLOAT4& angle, const DirectX::XMFLOAT4& q2 = DirectX::XMFLOAT4(), float t = 0.0f);
+
+	//ボーンの平行移動行列
+	void TranslationBone(const std::string str);
 	
 	//モーション更新
 	void MotionUpdate(int framNo);

@@ -235,6 +235,12 @@ void Model::RotationBone(const std::string str, const DirectX::XMFLOAT4 & angle,
 		* XMMatrixTranslationFromVector(vec);
 }
 
+void Model::TranslationBone(const std::string str) {
+	auto node = pmd.lock()->boneMap[str];
+	auto vec = XMLoadFloat3(&node.startPos);
+	pmd.lock()->boneMatrices[node.boneIndex] = XMMatrixTranslationFromVector(vec);
+}
+
 void Model::MotionUpdate(int framNo) {
 	auto& boneMatrix = pmd.lock()->boneMatrices;
 
@@ -262,8 +268,9 @@ void Model::MotionUpdate(int framNo) {
 		}
 	}
 	//ツリーをトラバース
-	XMMATRIX root = XMMatrixIdentity();
-	RecursiveMatrixMultiply(&pmd.lock()->boneMap["センター"], root);
+	auto center = pmd.lock()->boneMap["センター"];
+	auto root	= pmd.lock()->boneMatrices[center.boneIndex];
+	RecursiveMatrixMultiply(&center, root);
 
 	memcpy(boneMatrixData, boneMatrix.data(), ((sizeof(XMMATRIX) + 0xff) &~ 0xff) * pmd.lock()->GetBoneData().size());
 }
