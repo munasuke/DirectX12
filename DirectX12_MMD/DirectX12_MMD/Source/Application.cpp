@@ -219,8 +219,15 @@ void Application::Run() {
 
 		list->SetGraphicsRootSignature(root->GetRootSignature());
 
+		auto pera = renderTarget->GetPeraRenderTarget()->GetDesc();
+		viewP.Height	= pera.Height;
+		viewP.Width		= pera.Width;
+		//list->RSSetViewports(1, &viewP);
 		list->RSSetViewports(1, &viewPort->GetViewPort());
 
+		scissor.bottom	= pera.Height;
+		scissor.right	= pera.Width;
+		//list->RSSetScissorRects(1, &scissor);
 		list->RSSetScissorRects(1, &window->GetScissorRect());
 
 		//ƒoƒŠƒA
@@ -239,10 +246,10 @@ void Application::Run() {
 		const FLOAT color[] = { 0.4f, 0.4f, 0.4f, 1.0f };
 
 		D3D12_RECT rec = {};
-		rec.bottom = WIN_HEIGHT;
-		rec.left = 0;
-		rec.right = WIN_WIDTH;
-		rec.top = 0;
+		rec.top		= 0;
+		rec.bottom	= WIN_HEIGHT;
+		rec.left	= 0;
+		rec.right	= WIN_WIDTH;
 		list->ClearRenderTargetView(rtvHandle, color, 1, &rec);
 
 
@@ -257,7 +264,7 @@ void Application::Run() {
 
 		depth->SetDescriptor(list);
 
-		camera->UpdateWVP();
+		//camera->UpdateWVP();
 		//
 		camera->SetDescriptor(list, device->GetDevice());
 
