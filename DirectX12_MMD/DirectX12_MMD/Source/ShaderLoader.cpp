@@ -45,7 +45,7 @@ int ShaderLoader::Load(ID3DBlob* _error) {
 	result = D3DCompileFromFile(
 		_T("PeraShader.hlsl"),
 		nullptr,
-		nullptr,
+		D3D_COMPILE_STANDARD_FILE_INCLUDE,
 		"BasicVS",
 		"vs_5_0",
 		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
@@ -57,7 +57,7 @@ int ShaderLoader::Load(ID3DBlob* _error) {
 	result = D3DCompileFromFile(
 		_T("PeraShader.hlsl"),
 		nullptr,
-		nullptr,
+		D3D_COMPILE_STANDARD_FILE_INCLUDE,
 		"BasicPS",
 		"ps_5_0",
 		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,

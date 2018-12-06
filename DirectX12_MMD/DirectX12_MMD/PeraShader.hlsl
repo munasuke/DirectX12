@@ -1,3 +1,7 @@
+#define FXAA_PC 1
+#define FXAA_HLSL_5 1
+#include "FXAA.hlsl"
+
 //テクスチャ
 Texture2D<float4> tex   : register(t0);
 Texture2D<float> depth   : register(t1);
@@ -211,6 +215,38 @@ float4 Spiral(float2 uv, float2 screen, float radius = 100.0f, float strength = 
     return tex.Sample(smp, (xy + centor) / screen);
 }
 
+/**
+* @fn float4 Fxaa(float2 uv, float2 size, float2 d, float alpha)
+* @brief FXAAを適用する関数
+* @param uv     テクスチャUV
+* @param size   テクスチャ幅高さ
+* @param d      1ピクセル分のサイズ
+* @param alpha  テクスチャのアルファ値
+* @return float4 FXAAを適用した画像
+*/
+float4 Fxaa(float2 uv, float2 size, float2 d, float alpha)
+{
+    FxaaTex InputFXAATex = { smp, tex };
+    return float4(FxaaPixelShader(
+        uv,                                     // FxaaFloat2 pos,
+        FxaaFloat4(0.0f, 0.0f, size.x, size.y), // FxaaFloat4 fxaaConsolePosPos,
+        InputFXAATex,                           // FxaaTex tex,
+        InputFXAATex,                           // FxaaTex fxaaConsole360TexExpBiasNegOne,
+        InputFXAATex,                           // FxaaTex fxaaConsole360TexExpBiasNegTwo,
+        d,                                      // FxaaFloat2 fxaaQualityRcpFrame,
+        FxaaFloat4(0.0f, 0.0f, 0.0f, 0.0f),     // FxaaFloat4 fxaaConsoleRcpFrameOpt,
+        FxaaFloat4(0.0f, 0.0f, 0.0f, 0.0f),     // FxaaFloat4 fxaaConsoleRcpFrameOpt2,
+        FxaaFloat4(0.0f, 0.0f, 0.0f, 0.0f),     // FxaaFloat4 fxaaConsole360RcpFrameOpt2,
+        0.75f,                                  // FxaaFloat fxaaQualitySubpix,
+        0.166f,                                 // FxaaFloat fxaaQualityEdgeThreshold,
+        0.0833f,                                // FxaaFloat fxaaQualityEdgeThresholdMin,
+        8.0f,                                   // FxaaFloat fxaaConsoleEdgeSharpness,
+        0.125f,                                 // FxaaFloat fxaaConsoleEdgeThreshold,
+        0.005f,                                 // FxaaFloat fxaaConsoleEdgeThresholdMin,
+        FxaaFloat4(0.0f, 0.0f, 0.0f, 0.0f)      // FxaaFloat fxaaConsole360ConstDir,
+    ).xyz, alpha);
+}
+
 //ピクセルシェーダ
 float4 BasicPS(Out o) : SV_TARGET
 {
@@ -235,13 +271,13 @@ float4 BasicPS(Out o) : SV_TARGET
         //return texColor;
     }
     //return float4(dep, dep, dep, 1.0f);
-    return texColor;
 
     //half2 pos = o.uv * 2.0f - 1.0f;
     //half p = length(pos);
     //pos = (1.0f + 1.0f * p * p) / (1.0f + 2.0f * 1.0f) * pos;
 
     //return tex.Sample(smp, pos * 0.5f + 0.5f);
+
 
     //return texColor;
     //return Monochrome(texColor.rgb);
@@ -252,6 +288,8 @@ float4 BasicPS(Out o) : SV_TARGET
     //return AveragingFilter(texColor, d, o.uv);
     //return GaussianFilter(texColor, d, o.uv);
     //return ExtractOutline(texColor, d, o.uv, 6.0f);
-    return FrostedGlass(o.uv, float2(w, h));
-    return Spiral(o.uv, float2(w, h), 200.0f, 8.0f);
+    //return FrostedGlass(o.uv, float2(w, h));
+    //return Spiral(o.uv, float2(w, h), 200.0f, 8.0f);
+    return Fxaa(o.uv, float2(w, h), d, texColor.a);
+
 }

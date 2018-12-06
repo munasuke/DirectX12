@@ -222,13 +222,13 @@ void Application::Run() {
 		auto pera = renderTarget->GetPeraRenderTarget()->GetDesc();
 		viewP.Height	= pera.Height;
 		viewP.Width		= pera.Width;
-		//list->RSSetViewports(1, &viewP);
-		list->RSSetViewports(1, &viewPort->GetViewPort());
+		list->RSSetViewports(1, &viewP);
+		//list->RSSetViewports(1, &viewPort->GetViewPort());
 
 		scissor.bottom	= pera.Height;
 		scissor.right	= pera.Width;
-		//list->RSSetScissorRects(1, &scissor);
-		list->RSSetScissorRects(1, &window->GetScissorRect());
+		list->RSSetScissorRects(1, &scissor);
+		//list->RSSetScissorRects(1, &window->GetScissorRect());
 
 		//ƒoƒŠƒA
 		list->ResourceBarrier(
