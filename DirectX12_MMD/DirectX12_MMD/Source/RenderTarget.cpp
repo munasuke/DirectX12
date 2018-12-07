@@ -85,6 +85,65 @@ void RenderTarget::Init1stPathRTVSRV(ID3D12Device* _dev) {
 	_dev->CreateShaderResourceView(peraBuffer, &srvDesc, heapFor1stPath["SRV"]->GetCPUDescriptorHandleForHeapStart());
 }
 
+//ブルーム用
+void RenderTarget::InitBloomRTVSRV(ID3D12Device * _dev) {
+	D3D12_DESCRIPTOR_HEAP_DESC descHeap = {};
+	descHeap.Flags			= D3D12_DESCRIPTOR_HEAP_FLAGS::D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+	descHeap.NodeMask		= 0;
+	descHeap.NumDescriptors = 1;
+
+	//RTV用ヒープ
+	descHeap.Type = D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+	_dev->CreateDescriptorHeap(&descHeap, IID_PPV_ARGS(&heapForBloom["RTV"]));
+
+	//SRV用ヒープ
+	descHeap.Type	= D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+	descHeap.Flags	= D3D12_DESCRIPTOR_HEAP_FLAGS::D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+	_dev->CreateDescriptorHeap(&descHeap, IID_PPV_ARGS(&heapForBloom["SRV"]));
+
+	D3D12_HEAP_PROPERTIES hProp = {};
+	hProp.Type					= D3D12_HEAP_TYPE::D3D12_HEAP_TYPE_DEFAULT;
+	hProp.CPUPageProperty		= D3D12_CPU_PAGE_PROPERTY::D3D12_CPU_PAGE_PROPERTY_UNKNOWN;
+	hProp.MemoryPoolPreference	= D3D12_MEMORY_POOL::D3D12_MEMORY_POOL_UNKNOWN;
+	hProp.CreationNodeMask		= 1;
+	hProp.VisibleNodeMask		= 1;
+
+	D3D12_RESOURCE_DESC rDesc = {};
+	rDesc.Height			= WIN_HEIGHT;
+	rDesc.Width				= WIN_WIDTH;
+	rDesc.MipLevels			= 1;
+	rDesc.DepthOrArraySize	= 1;
+	rDesc.SampleDesc.Count	= 1;
+	rDesc.Flags				= D3D12_RESOURCE_FLAGS::D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+	rDesc.Dimension			= D3D12_RESOURCE_DIMENSION::D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+	rDesc.Layout			= D3D12_TEXTURE_LAYOUT::D3D12_TEXTURE_LAYOUT_UNKNOWN;
+	rDesc.Format			= DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM;
+
+	D3D12_CLEAR_VALUE clear = {};
+	clear.Format = rDesc.Format;
+
+	//RTVSRVバッファ生成
+	result = _dev->CreateCommittedResource(
+		&hProp,
+		D3D12_HEAP_FLAGS::D3D12_HEAP_FLAG_NONE,
+		&rDesc,
+		D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_PRESENT,
+		&clear,
+		IID_PPV_ARGS(&bloomBuffer)
+	);
+
+	//RTV生成
+	_dev->CreateRenderTargetView(bloomBuffer, nullptr, heapForBloom["RTV"]->GetCPUDescriptorHandleForHeapStart());
+
+	//SRV生成
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+	srvDesc.Format					= DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM;
+	srvDesc.ViewDimension			= D3D12_SRV_DIMENSION::D3D12_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MipLevels		= 1;
+	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	_dev->CreateShaderResourceView(bloomBuffer, &srvDesc, heapForBloom["SRV"]->GetCPUDescriptorHandleForHeapStart());
+}
+
 //2パス目
 void RenderTarget::Init2ndPathRTVSRV(ID3D12Device * _dev) {
 	D3D12_DESCRIPTOR_HEAP_DESC descHeap = {};
@@ -156,6 +215,10 @@ ID3D12Resource* RenderTarget::GetPeraRenderTarget() {
 	return peraBuffer;
 }
 
+ID3D12Resource * RenderTarget::GetBloomRenderTarget() {
+	return bloomBuffer;
+}
+
 ID3D12Resource * RenderTarget::GetPeraRenderTarget2() {
 	return peraBuffer2nd;
 }
@@ -163,6 +226,10 @@ ID3D12Resource * RenderTarget::GetPeraRenderTarget2() {
 std::map<std::string, ID3D12DescriptorHeap*> RenderTarget::GetHeap()
 {
 	return heapFor1stPath;
+}
+
+std::map<std::string, ID3D12DescriptorHeap*> RenderTarget::GetHeapBloom() {
+	return heapForBloom;
 }
 
 std::map<std::string, ID3D12DescriptorHeap*> RenderTarget::GetHeap2nd() {

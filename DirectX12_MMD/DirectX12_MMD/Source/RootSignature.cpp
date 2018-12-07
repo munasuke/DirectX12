@@ -100,6 +100,12 @@ void RootSignature::InitRootSignature(D3D12_STATIC_SAMPLER_DESC _samplerDesc, ID
 	peraRange[1].RegisterSpace						= 0;
 	peraRange[1].OffsetInDescriptorsFromTableStart	= D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
+	peraRange[2].RangeType							= D3D12_DESCRIPTOR_RANGE_TYPE::D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	peraRange[2].NumDescriptors						= 1;
+	peraRange[2].BaseShaderRegister					= 2;
+	peraRange[2].RegisterSpace						= 0;
+	peraRange[2].OffsetInDescriptorsFromTableStart	= D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
 	D3D12_ROOT_PARAMETER peraParam[3] = {};
 	peraParam[0].ParameterType							= D3D12_ROOT_PARAMETER_TYPE::D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	peraParam[0].ShaderVisibility						= D3D12_SHADER_VISIBILITY::D3D12_SHADER_VISIBILITY_PIXEL;
@@ -111,7 +117,12 @@ void RootSignature::InitRootSignature(D3D12_STATIC_SAMPLER_DESC _samplerDesc, ID
 	peraParam[1].DescriptorTable.NumDescriptorRanges	= 1;
 	peraParam[1].DescriptorTable.pDescriptorRanges		= &peraRange[1];
 
-	rsDesc.NumParameters		= 2;
+	peraParam[2].ParameterType							= D3D12_ROOT_PARAMETER_TYPE::D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	peraParam[2].ShaderVisibility						= D3D12_SHADER_VISIBILITY::D3D12_SHADER_VISIBILITY_PIXEL;
+	peraParam[2].DescriptorTable.NumDescriptorRanges	= 1;
+	peraParam[2].DescriptorTable.pDescriptorRanges		= &peraRange[2];
+
+	rsDesc.NumParameters		= _countof(peraParam);
 	rsDesc.pParameters			= peraParam;
 	rsDesc.pStaticSamplers		= &_samplerDesc;
 

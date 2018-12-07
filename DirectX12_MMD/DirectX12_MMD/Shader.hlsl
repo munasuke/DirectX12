@@ -64,6 +64,11 @@ Out BasicVS(float4 pos : POSITION, float4 normal : NORMAL, float2 uv : TEXCOORD,
     return o;
 }
 
+struct POutput
+{
+    float4 col : SV_Target0;    //色
+    float4 hbr : SV_Target1;    //高輝度
+};
 
 //スフィアUVの作成
 float2 CreateSphereUV(float3 ray, float3 normal)
@@ -102,7 +107,7 @@ float3 CreateSpecular(float3 light, float3 normal, float3 rray)
 }
 
 //ピクセルシェーダ
-float4 BasicPS(Out o) : SV_TARGET
+POutput BasicPS(Out o)
 {
 	//視点
     const float3 eye = float3(0.0f, 15.0f, -40.0f);
@@ -138,5 +143,9 @@ float4 BasicPS(Out o) : SV_TARGET
     //マテリアルカラー
     float3 color = saturate(tToon.rgb * diffuse.rgb * brightness + specular.rgb * spec + ambient.rgb);
 
-    return float4(pow(texColor * color, 2.2f), diffuse.a);
+    POutput output;
+    output.col = float4(pow(texColor * color, 2.2f), diffuse.a);
+    output.hbr = float4(o.uv.xy, 0.5f, 1.0f);
+
+    return output;
 }

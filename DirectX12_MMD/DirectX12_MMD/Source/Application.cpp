@@ -77,6 +77,7 @@ void Application::Initialize() {
 		device->GetDevice(), swapChain->GetSwapChain(), descriptor->GetDescriptorHandle(), descriptor->GetDescriptorSize());
 	//1パス目
 	renderTarget->Init1stPathRTVSRV(device->GetDevice());
+	renderTarget->InitBloomRTVSRV(device->GetDevice());
 	//2パス目
 	renderTarget->Init2ndPathRTVSRV(device->GetDevice());
 
@@ -167,7 +168,7 @@ void Application::Run() {
 
 		auto list = command->GetCommandList();
 		
-		auto r =list->Reset(command->GetCommandAllocator(), shadowMap->GetGps());
+		list->Reset(command->GetCommandAllocator(), shadowMap->GetGps());
 
 		list->SetGraphicsRootSignature(shadowMap->GetRs());
 
@@ -239,9 +240,14 @@ void Application::Run() {
 				D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_RENDER_TARGET)
 		);
 
-		//レンダーターゲットのセット
-		auto rtvHandle = renderTarget->GetHeap()["RTV"]->GetCPUDescriptorHandleForHeapStart();
-		list->OMSetRenderTargets(1, &rtvHandle, false, &depth->GetHeap()->GetCPUDescriptorHandleForHeapStart());
+		//RTVのセット
+		std::vector<D3D12_CPU_DESCRIPTOR_HANDLE> rtvHandle;
+		//1パスRTV
+		rtvHandle.push_back(renderTarget->GetHeap()["RTV"]->GetCPUDescriptorHandleForHeapStart());
+		//ブルームRTV
+		//rtvHandle.push_back(renderTarget->GetHeapBloom()["RTV"]->GetCPUDescriptorHandleForHeapStart());
+		//RTVのセット
+		list->OMSetRenderTargets(rtvHandle.size(), rtvHandle.data(), false, &depth->GetHeap()->GetCPUDescriptorHandleForHeapStart());
 
 		const FLOAT color[] = { 0.4f, 0.4f, 0.4f, 1.0f };
 
@@ -250,8 +256,10 @@ void Application::Run() {
 		rec.bottom	= WIN_HEIGHT;
 		rec.left	= 0;
 		rec.right	= WIN_WIDTH;
-		list->ClearRenderTargetView(rtvHandle, color, 1, &rec);
-
+		//RTVのクリア
+		for(auto& rtv : rtvHandle) {
+			list->ClearRenderTargetView(rtv, color, 1, &rec);
+		}
 
 		//トポロジー
 		list->IASetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -264,12 +272,14 @@ void Application::Run() {
 
 		depth->SetDescriptor(list);
 
+		//カメラの更新
 		//camera->UpdateWVP();
-		//
+		//カメラのセット
 		camera->SetDescriptor(list, device->GetDevice());
 
+		//モデルの更新
 		model->Update();
-		//
+		//モデルの描画
 		model->Draw(list, device->GetDevice());
 
 		//プリミティブの描画準備
@@ -357,6 +367,11 @@ void Application::UpdatePera() {
 	auto srvH = renderTarget->GetHeap()["SRV"];
 	command->GetCommandList()->SetDescriptorHeaps(1, &srvH);
 	command->GetCommandList()->SetGraphicsRootDescriptorTable(0, srvH->GetGPUDescriptorHandleForHeapStart());
+
+	//ブルームSRV
+	auto bloomSRV = renderTarget->GetHeapBloom()["SRV"];
+	command->GetCommandList()->SetDescriptorHeaps(1, &bloomSRV);
+	command->GetCommandList()->SetGraphicsRootDescriptorTable(2, bloomSRV->GetGPUDescriptorHandleForHeapStart());
 
 	auto srvH2 = shadowMap->GetHeap()["SRV"];
 	command->GetCommandList()->SetDescriptorHeaps(1, &srvH2);

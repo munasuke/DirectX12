@@ -5,6 +5,7 @@
 //テクスチャ
 Texture2D<float4> tex   : register(t0);
 Texture2D<float> depth   : register(t1);
+Texture2D<float> bloom   : register(t2);
 //サンプラ
 SamplerState smp        : register(s0);
 
@@ -247,6 +248,13 @@ float4 Fxaa(float2 uv, float2 size, float2 d, float alpha)
     ).xyz, alpha);
 }
 
+//ブラー
+float4 Blur(float2 uv, float diff = 0.01f)
+{
+    float3 color = tex.Sample(smp, uv - diff).rgb + tex.Sample(smp, uv + diff).rgb;
+    return float4(color / 2, 1.0f);
+}
+
 //ピクセルシェーダ
 float4 BasicPS(Out o) : SV_TARGET
 {
@@ -291,5 +299,5 @@ float4 BasicPS(Out o) : SV_TARGET
     //return FrostedGlass(o.uv, float2(w, h));
     //return Spiral(o.uv, float2(w, h), 200.0f, 8.0f);
     return Fxaa(o.uv, float2(w, h), d, texColor.a);
-
+    //return Blur(o.uv, 0.002f);
 }
