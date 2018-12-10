@@ -260,6 +260,8 @@ float4 BasicPS(Out o) : SV_TARGET
 {
     //リソースカラー
     float4 texColor = tex.Sample(smp, o.uv);
+
+    //深度値
     float dep = pow(depth.Sample(smp, o.uv), 200);
     
     //リソースのサイズを取得

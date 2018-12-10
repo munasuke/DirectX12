@@ -97,11 +97,12 @@ void Application::Initialize() {
 	//pmd->Load("PMD/reimu/reimu_F01.pmd");
 	//pmd->Load("PMD/luka/巡音ルカ.pmd");
 	//pmd->Load("PMD/hibiki/我那覇響v1_グラビアミズギ.pmd");
-	pmd->Load("PMD/asuka/飛鳥Ver1.10.pmd");
+	//pmd->Load("PMD/asuka/飛鳥Ver1.10.pmd");
 	//pmd->Load("PMD/yagyu/柳生Ver1.12.pmd");
 	//pmd->Load("PMD/katuragi/葛城Ver1.10.pmd");
 	//pmd->Load("PMD/ikaruga/斑鳩Ver1.10.pmd");
 	//pmd->Load("PMD/hibari/雲雀Ver1.10.pmd");
+	pmd->Load("PMD/yukisakura/mikuXS靴下.pmd");
 
 	//VMD
 	//vmd->Load("Motion/swing2.vmd");
@@ -249,13 +250,10 @@ void Application::Run() {
 		//RTVのセット
 		list->OMSetRenderTargets(rtvHandle.size(), rtvHandle.data(), false, &depth->GetHeap()->GetCPUDescriptorHandleForHeapStart());
 
+		//背景色
 		const FLOAT color[] = { 0.4f, 0.4f, 0.4f, 1.0f };
 
-		D3D12_RECT rec = {};
-		rec.top		= 0;
-		rec.bottom	= WIN_HEIGHT;
-		rec.left	= 0;
-		rec.right	= WIN_WIDTH;
+		const D3D12_RECT rec = { 0, 0, WIN_WIDTH, WIN_HEIGHT };
 		//RTVのクリア
 		for(auto& rtv : rtvHandle) {
 			list->ClearRenderTargetView(rtv, color, 1, &rec);
@@ -356,11 +354,7 @@ void Application::UpdatePera() {
 
 	const FLOAT color[] = { 1.0f, 0.0f, 0.0f, 1.0f };
 
-	D3D12_RECT rec = {};
-	rec.top		= 0;
-	rec.bottom	= WIN_HEIGHT;
-	rec.left	= 0;
-	rec.right	= WIN_WIDTH;
+	const D3D12_RECT rec = { 0, 0, WIN_WIDTH, WIN_HEIGHT };
 	command->GetCommandList()->ClearRenderTargetView(rtvHandle, color, 0, &rec);
 	
 	//SRVのヒープセット

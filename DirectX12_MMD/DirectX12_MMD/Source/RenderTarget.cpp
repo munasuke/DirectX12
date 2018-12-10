@@ -90,12 +90,12 @@ void RenderTarget::InitBloomRTVSRV(ID3D12Device * _dev) {
 	D3D12_DESCRIPTOR_HEAP_DESC descHeap = {};
 	descHeap.Flags			= D3D12_DESCRIPTOR_HEAP_FLAGS::D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 	descHeap.NodeMask		= 0;
-	descHeap.NumDescriptors = 1;
+	descHeap.NumDescriptors = 2;
 
 	//RTV用ヒープ
 	descHeap.Type = D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
 	_dev->CreateDescriptorHeap(&descHeap, IID_PPV_ARGS(&heapForBloom["RTV"]));
-
+	
 	//SRV用ヒープ
 	descHeap.Type	= D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 	descHeap.Flags	= D3D12_DESCRIPTOR_HEAP_FLAGS::D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;

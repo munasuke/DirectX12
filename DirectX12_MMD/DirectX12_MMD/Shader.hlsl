@@ -101,7 +101,7 @@ float3 CreateSpecular(float3 light, float3 normal, float3 rray)
     float spec = saturate(dot(mirror, rray));
 
     //スペキュラの強さ
-    spec = pow(spec, specular.a);
+    spec = pow(spec,1);
 
     return spec;
 }
@@ -119,7 +119,7 @@ POutput BasicPS(Out o)
     float3 rray = -ray;
 
 	//ライト
-    float3 light = float3(-1.0f, 1.0f, -1.0f);
+    const float3 light = float3(-1.0f, 1.0f, -1.0f);
     
     //円周率
     const float pi = 3.14159265359f;
