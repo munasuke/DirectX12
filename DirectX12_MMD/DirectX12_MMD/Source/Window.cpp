@@ -1,15 +1,25 @@
 #include "Window.h"
+#include "../imgui/imgui.h"
 #include <tchar.h>
 
 
 LRESULT WindowProcedure(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam);
+
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 LRESULT WindowProcedure(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
 	if (msg == WM_DESTROY) {//ウィンドウが破棄されたら呼ばれる
 		PostQuitMessage(0);	//OSに対してアプリの終了を伝える
 		return 0;
 	}
-	return DefWindowProc(hwnd, msg, wparam, lparam);//規定の処理を行う
+
+	auto result = IMGUI_IMPL_API::ImGui_ImplWin32_WndProcHandler(hwnd, msg, wparam, lparam);
+	if (result == 0){
+		return DefWindowProc(hwnd, msg, wparam, lparam);//規定の処理を行う
+	}
+	else {
+		return result;
+	}
 }
 
 Window::Window() {
