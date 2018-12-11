@@ -101,6 +101,10 @@ void RenderTarget::InitBloomRTVSRV(ID3D12Device * _dev) {
 	descHeap.Flags	= D3D12_DESCRIPTOR_HEAP_FLAGS::D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
 	_dev->CreateDescriptorHeap(&descHeap, IID_PPV_ARGS(&heapForBloom["SRV"]));
 
+	//各ハンドルの開始地点
+	auto rtvH = heapForBloom["RTV"]->GetCPUDescriptorHandleForHeapStart();
+	auto srvH = heapForBloom["SRV"]->GetCPUDescriptorHandleForHeapStart();
+
 	D3D12_HEAP_PROPERTIES hProp = {};
 	hProp.Type					= D3D12_HEAP_TYPE::D3D12_HEAP_TYPE_DEFAULT;
 	hProp.CPUPageProperty		= D3D12_CPU_PAGE_PROPERTY::D3D12_CPU_PAGE_PROPERTY_UNKNOWN;

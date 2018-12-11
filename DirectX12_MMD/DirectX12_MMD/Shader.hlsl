@@ -144,7 +144,9 @@ POutput BasicPS(Out o)
     float3 color = saturate(tToon.rgb * diffuse.rgb * brightness + specular.rgb * spec + ambient.rgb);
 
     POutput output;
+    //í èÌ
     output.col = float4(pow(texColor * color, 2.2f), diffuse.a);
+    //çÇãPìx
     output.hbr = float4(o.uv.xy, 0.5f, 1.0f);
 
     return output;

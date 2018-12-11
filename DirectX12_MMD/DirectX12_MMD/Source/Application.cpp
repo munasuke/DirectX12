@@ -97,12 +97,13 @@ void Application::Initialize() {
 	//pmd->Load("PMD/reimu/reimu_F01.pmd");
 	//pmd->Load("PMD/luka/„‰¹ƒ‹ƒJ.pmd");
 	//pmd->Load("PMD/hibiki/‰ä“ß”e‹¿v1_ƒOƒ‰ƒrƒAƒ~ƒYƒM.pmd");
-	//pmd->Load("PMD/asuka/”ò’¹Ver1.10.pmd");
+	pmd->Load("PMD/asuka/”ò’¹Ver1.10.pmd");
 	//pmd->Load("PMD/yagyu/–ö¶Ver1.12.pmd");
 	//pmd->Load("PMD/katuragi/Š‹éVer1.10.pmd");
 	//pmd->Load("PMD/ikaruga/”Á”µVer1.10.pmd");
 	//pmd->Load("PMD/hibari/‰_Ver1.10.pmd");
-	pmd->Load("PMD/yukisakura/mikuXSŒC‰º.pmd");
+	//pmd->Load("PMD/yukisakura/mikuXSŒC‰º.pmd");
+	//pmd->Load("PMD/yukisakura/mikuXSáƒ~ƒN.pmd");
 
 	//VMD
 	//vmd->Load("Motion/swing2.vmd");
