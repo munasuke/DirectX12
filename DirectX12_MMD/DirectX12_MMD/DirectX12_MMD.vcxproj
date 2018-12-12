@@ -136,6 +136,7 @@
     <ClCompile Include="Source\DescriptorRange.cpp" />
     <ClCompile Include="Source\Device.cpp" />
     <ClCompile Include="Source\Fence.cpp" />
+    <ClCompile Include="Source\Gui.cpp" />
     <ClCompile Include="Source\ImageLoader.cpp" />
     <ClCompile Include="Source\Index.cpp" />
     <ClCompile Include="Source\main.cpp" />
@@ -179,6 +180,7 @@
     <ClInclude Include="Source\DescriptorRange.h" />
     <ClInclude Include="Source\Device.h" />
     <ClInclude Include="Source\Fence.h" />
+    <ClInclude Include="Source\Gui.h" />
     <ClInclude Include="Source\ImageLoader.h" />
     <ClInclude Include="Source\Index.h" />
     <ClInclude Include="Source\Matrix.h" />

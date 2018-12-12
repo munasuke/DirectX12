@@ -26,6 +26,7 @@
 #include "VMDMotion.h"
 #include "PrimitiveCreator.h"
 #include "ShadowMap.h"
+#include"Gui.h"
 
 #include <DirectXMath.h>
 
@@ -60,11 +61,15 @@ Application::Application() {
 void Application::Initialize() {
 	CoInitializeEx(nullptr, COINIT_MULTITHREADED);
 
+	gui.reset(new Gui());
+
 	//ウィンドウ
 	window->InitWindow();
 
 	//コマンド周り
 	command->InitCommand(device->GetDevice());
+
+	gui->Initialize(device->GetDevice(), window->GetHandleWindow());
 
 	//スワップチェイン
 	swapChain->InitSwapChain(command->GetCommandQueue(), window->GetHandleWindow());
@@ -380,6 +385,10 @@ void Application::UpdatePera() {
 
 	//描画
 	command->GetCommandList()->DrawInstanced(4, 1, 0, 0);
+
+	//ImGuiの描画
+	gui->BeforeDrawing();
+	gui->Draw(command->GetCommandList());
 
 	//バリア
 	command->GetCommandList()->ResourceBarrier(
