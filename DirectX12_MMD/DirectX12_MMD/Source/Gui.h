@@ -15,5 +15,7 @@ public:
 private:
 	ID3D12DescriptorHeap* heap;
 	ID3D12RootSignature* rs;
+
+	bool flag;
 };
 
