@@ -20,7 +20,10 @@ public:
 	//プリミティブ用のパイプラインのセット。描画前に必ず呼ぶ
 	void SetPrimitiveDrawMode(ID3D12GraphicsCommandList* list);
 
+	//描画
 	void Draw(ID3D12GraphicsCommandList* list);
+
+	void SetVertices(ID3D12GraphicsCommandList* list);
 
 	/**
 	* @brief 平面オブジェクトの生成

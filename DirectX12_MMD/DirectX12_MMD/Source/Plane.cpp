@@ -40,8 +40,17 @@ void Plane::Draw(ID3D12GraphicsCommandList* list) {
 	list->DrawInstanced(4, 1, 0, 0);
 }
 
+void Plane::SetVertices(ID3D12GraphicsCommandList * list) {
+	list->IASetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	list->IASetVertexBuffers(0, 1, &vbView);
+}
+
 ID3D12Resource* Plane::GetVBuffer() {
 	return vBuffer;
+}
+
+D3D12_VERTEX_BUFFER_VIEW Plane::GetVBV() {
+	return vbView;
 }
 
 

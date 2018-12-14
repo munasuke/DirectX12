@@ -16,7 +16,9 @@ public:
 	Plane(ID3D12Device* dev, const XMFLOAT3& pos, const float width, const float depth, const XMFLOAT4& color);
 
 	void Draw(ID3D12GraphicsCommandList* list);
+	void SetVertices(ID3D12GraphicsCommandList* list);
 	ID3D12Resource* GetVBuffer();
+	D3D12_VERTEX_BUFFER_VIEW GetVBV();
 
 	~Plane();
 private:

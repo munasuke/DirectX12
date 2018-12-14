@@ -212,6 +212,12 @@ void PrimitiveManager::Draw(ID3D12GraphicsCommandList* list) {
 	}
 }
 
+void PrimitiveManager::SetVertices(ID3D12GraphicsCommandList * list) {
+	for (auto prim : obj) {
+		prim->SetVertices(list);
+	}
+}
+
 std::shared_ptr<Plane> PrimitiveManager::CreatePlane(const XMFLOAT3& pos, const float width, const float depth, const XMFLOAT4& color) {
 	auto ret = std::make_shared<Plane>(dev, pos, width, depth, color);
 	obj.emplace_back(ret);

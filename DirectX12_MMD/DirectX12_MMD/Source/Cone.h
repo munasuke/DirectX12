@@ -23,7 +23,9 @@ public:
 	* @return ‚È‚µ
 	*/
 	void Draw(ID3D12GraphicsCommandList* list);
+	void SetVertices(ID3D12GraphicsCommandList* list);
 	ID3D12Resource* GetVBuffer();
+	D3D12_VERTEX_BUFFER_VIEW GetVBV();
 
 	~Cone();
 private:

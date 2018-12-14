@@ -57,8 +57,17 @@ void Cone::Draw(ID3D12GraphicsCommandList * list) {
 	list->DrawInstanced(vertices.size(), 1, 0, 0);
 }
 
+void Cone::SetVertices(ID3D12GraphicsCommandList * list) {
+	list->IASetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY::D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	list->IASetVertexBuffers(0, 1, &vbView);
+}
+
 ID3D12Resource * Cone::GetVBuffer() {
 	return vBuffer;
+}
+
+D3D12_VERTEX_BUFFER_VIEW Cone::GetVBV() {
+	return vbView;
 }
 
 

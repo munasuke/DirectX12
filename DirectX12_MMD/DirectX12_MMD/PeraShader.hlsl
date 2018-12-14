@@ -278,7 +278,7 @@ float4 BasicPS(Out o) : SV_TARGET
     if (o.uv.x + o.uv.y < 0.9f)
     {
         //return float4(dep, dep, dep, 1.0f);
-        //return texColor;
+        return texColor;
     }
     //return float4(dep, dep, dep, 1.0f);
 
@@ -288,7 +288,8 @@ float4 BasicPS(Out o) : SV_TARGET
 
     //return tex.Sample(smp, pos * 0.5f + 0.5f);
 
-
+    //float2 tuv = float2(cos(o.uv.x) - o.uv.x, sin(o.uv.y) + o.uv.y);
+    //return tex.Sample(smp, tuv);
     //return texColor;
     //return Monochrome(texColor.rgb);
     //return Emboss(texColor, o.uv, d);
@@ -298,7 +299,7 @@ float4 BasicPS(Out o) : SV_TARGET
     //return AveragingFilter(texColor, d, o.uv);
     //return GaussianFilter(texColor, d, o.uv);
     //return ExtractOutline(texColor, d, o.uv, 6.0f);
-    //return FrostedGlass(o.uv, float2(w, h));
+    return FrostedGlass(o.uv, float2(w, h));
     //return Spiral(o.uv, float2(w, h), 200.0f, 8.0f);
     return Fxaa(o.uv, float2(w, h), d, texColor.a);
     //return Blur(o.uv, 0.002f);

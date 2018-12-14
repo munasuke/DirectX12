@@ -35,7 +35,9 @@ public:
 	PrimitiveObject();
 
 	virtual void Draw(ID3D12GraphicsCommandList* list) = 0;
+	virtual void SetVertices(ID3D12GraphicsCommandList* list) = 0;
 	virtual ID3D12Resource* GetVBuffer() = 0;
+	virtual D3D12_VERTEX_BUFFER_VIEW GetVBV() = 0;
 
 	virtual ~PrimitiveObject();
 

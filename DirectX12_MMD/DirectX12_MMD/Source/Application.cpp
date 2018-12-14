@@ -204,7 +204,6 @@ void Application::Run() {
 
 		//モデルの頂点バッファのセット
 		list->IASetVertexBuffers(0, 1, &vertex->GetVBV());
-
 		//モデルのインデックスバッファのセット
 		list->IASetIndexBuffer(&index->GetIndexBufferView());
 
@@ -212,8 +211,11 @@ void Application::Run() {
 		shadowMap->Setup(list, model->GetBoneBuffer());
 		//ライトビュー用カメラのセット
 		camera->SetDescriptor(list, device->GetDevice());
-		//シャドウマップの描画
+		//モデルの影を描画
 		shadowMap->Draw(list, pmd->GetIndices().size());
+		//プリミティブの影
+		//prim->Draw(list);
+
 
 		list->ResourceBarrier(
 			1,
@@ -277,7 +279,7 @@ void Application::Run() {
 		depth->SetDescriptor(list);
 
 		//カメラの更新
-		//camera->UpdateWVP();
+		camera->UpdateWVP();
 		//カメラのセット
 		camera->SetDescriptor(list, device->GetDevice());
 
