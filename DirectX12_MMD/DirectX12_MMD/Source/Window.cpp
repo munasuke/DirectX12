@@ -37,7 +37,7 @@ void Window::InitWindow() {
 	//ウィンドウ生成
 	hwnd = CreateWindow(
 		w.lpszClassName,		//クラス名の指定
-		_T("DirectX12"),		//タイトルバーの文字
+		_T("1601296_宗岡春佳"),	//タイトルバーの文字
 		WS_OVERLAPPEDWINDOW,	//タイトルバーと境界線があるウィンドウ
 		CW_USEDEFAULT,			//表示X座標をOSに任せる
 		CW_USEDEFAULT,			//表示Y座標をOSに任せる

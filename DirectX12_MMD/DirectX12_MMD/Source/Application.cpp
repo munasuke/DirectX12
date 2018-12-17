@@ -262,6 +262,7 @@ void Application::Run() {
 		const FLOAT color[] = { 0.4f, 0.4f, 0.4f, 1.0f };
 
 		const D3D12_RECT rec = { 0, 0, WIN_WIDTH, WIN_HEIGHT };
+
 		//RTV‚ÌƒNƒŠƒA
 		for(auto& rtv : rtvHandle) {
 			list->ClearRenderTargetView(rtv, color, 1, &rec);
@@ -360,7 +361,7 @@ void Application::UpdatePera() {
 
 	command->GetCommandList()->OMSetRenderTargets(1, &rtvHandle, false, nullptr);
 
-	const FLOAT color[] = { 1.0f, 0.0f, 0.0f, 1.0f };
+	const FLOAT color[] = { 1.0f, 1.0f, 0.0f, 1.0f };
 
 	const D3D12_RECT rec = { 0, 0, WIN_WIDTH, WIN_HEIGHT };
 	command->GetCommandList()->ClearRenderTargetView(rtvHandle, color, 0, &rec);

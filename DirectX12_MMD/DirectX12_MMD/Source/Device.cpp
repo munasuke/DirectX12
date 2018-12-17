@@ -33,8 +33,7 @@ Device::Device() : dev(nullptr)/*, adapter(nullptr)*/
 
 	//マシンにあったバージョンを選ぶ
 	for (auto i : levels) {
-		result = D3D12CreateDevice(nullptr, i, IID_PPV_ARGS(&dev));
-		if (result == S_OK) {
+		if (D3D12CreateDevice(nullptr, i, IID_PPV_ARGS(&dev)) == S_OK) {
 			level = i;
 			break;
 		}

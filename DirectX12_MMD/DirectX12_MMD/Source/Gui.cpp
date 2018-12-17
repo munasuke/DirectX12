@@ -95,17 +95,17 @@ void Gui::BeforeDrawing() {
 }
 
 void Gui::Draw(ID3D12GraphicsCommandList * list) {
-	//処理の開始
-	ImGui::Begin("test");
-
 	//UIウィンドウのサイズを指定。ImGuiCond_Always（常に）
 	ImGui::SetNextWindowSize({ 400.0f, 500.0f }, ImGuiCond_Always);
 
 	//UIウィンドウの座標を指定。ImGuiCond_Once（実行時に一度のみ）
 	ImGui::SetWindowPos({ 50, 60 }, ImGuiCond_Once);
 
+	//処理の開始
+	ImGui::Begin("test");
+
 	//点とテキスト
-	ImGui::BulletText("buhi");
+	ImGui::BulletText("Munaoka");
 
 	//点のみ
 	ImGui::Bullet();
@@ -113,7 +113,7 @@ void Gui::Draw(ID3D12GraphicsCommandList * list) {
 	ImGui::TextColored({ 0.0f, 1.0f, 0.0f, 1.0f }, "Green");
 
 	//文字入力できるようにする
-	static char str[128] = "Fuck You !!!";
+	static char str[128] = "DirectX12";
 	ImGui::InputText("InputText", str, IM_ARRAYSIZE(str));
 
 	//矢印ボタン。ImGuiDir_Down（下）

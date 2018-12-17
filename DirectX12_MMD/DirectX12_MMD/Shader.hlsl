@@ -4,7 +4,8 @@ Texture2D<float4> sph   : register(t1); //乗算テクスチャ
 Texture2D<float4> spa   : register(t2); //加算テクスチャ
 Texture2D<float4> toon  : register(t3); //トゥーンテクスチャ
 
-SamplerState smp : register(s0);//サンプラ
+//サンプラ
+SamplerState smp : register(s0);
 
 //カメラ
 cbuffer wvp : register(b0)
@@ -30,6 +31,18 @@ cbuffer bones : register(b2)
     matrix boneMatrix[512];
 };
 
+//入力
+struct In
+{
+    float4      pos     : POSITION;
+    float4      normal  : NORMAL;
+    float2      uv      : TEXCOORD;
+    min16uint2  boneno  : BONENO;
+    min16uint2  weight  : WEIGHT;
+    uint        iid     : SV_InstanceID;
+};
+
+//出力
 struct Out
 {
     float4 svpos    : SV_POSITION;
@@ -41,24 +54,26 @@ struct Out
 };
 
 //頂点シェーダ
-Out BasicVS(float4 pos : POSITION, float4 normal : NORMAL, float2 uv : TEXCOORD, min16uint2 boneno : BONENO, min16uint weight : WEIGHT)
+Out BasicVS(In i)
 {
+    //出力変数
     Out o;
+
 	//ワールドビュープロジェクション
     float4x4 vp = mul(projection, view);
     float4x4 wvp = mul(vp, world);
 
     //ウェイト
-    float w = weight / 100.0f;
+    float w = i.weight / 100.0f;
 
     //ボーンの影響度
-    matrix boneImpact = boneMatrix[boneno.x] * w + boneMatrix[boneno.y] * (1 - w);
-    pos = mul(boneImpact, pos);
+    matrix boneImpact = boneMatrix[i.boneno.x] * w + boneMatrix[i.boneno.y] * (1 - w);
+    i.pos = mul(boneImpact, i.pos);
 
-    o.pos       = mul(world, pos);
-    o.svpos     = mul(wvp, pos);
-    o.normal    = mul(world, normal);
-    o.uv        = uv;
+    o.pos       = mul(world, i.pos);
+    o.svpos     = mul(wvp, i.pos);
+    o.normal    = mul(world, i.normal);
+    o.uv        = i.uv;
     o.weight    = float2(w, 1 - w);
 
     return o;
