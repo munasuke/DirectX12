@@ -36,9 +36,9 @@ namespace {
 
 Application::Application() {
 	window			= std::make_shared<Window>();
-	device			= std::make_shared<Device>();
-	command			= std::make_shared<Command>();
 	swapChain		= std::make_shared<SwapChain>();
+	device			= std::make_shared<Device>(swapChain->GetFactory());
+	command			= std::make_shared<Command>();
 	descriptor		= std::make_shared<Descriptor>();
 	renderTarget	= std::make_shared<RenderTarget>();
 	sampler			= std::make_shared<Sampler>();

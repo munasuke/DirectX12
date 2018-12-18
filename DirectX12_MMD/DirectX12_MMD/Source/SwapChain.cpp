@@ -7,11 +7,10 @@
 
 SwapChain::SwapChain() : factory(nullptr), swapChain(nullptr)
 {
+	result = CreateDXGIFactory(IID_PPV_ARGS(&factory));
 }
 
 void SwapChain::InitSwapChain(ID3D12CommandQueue* _commandQueue, HWND _hwnd) {
-	result = CreateDXGIFactory(IID_PPV_ARGS(&factory));
-
 	swapChainDesc.Width					= WIN_WIDTH;
 	swapChainDesc.Height				= WIN_HEIGHT;
 	swapChainDesc.Format				= DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -40,6 +39,10 @@ DXGI_SWAP_CHAIN_DESC1 SwapChain::GetSwapChainDesc()
 IDXGISwapChain3 * SwapChain::GetSwapChain()
 {
 	return swapChain;
+}
+
+IDXGIFactory4 * SwapChain::GetFactory() {
+	return factory;
 }
 
 

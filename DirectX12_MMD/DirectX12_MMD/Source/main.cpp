@@ -3,9 +3,6 @@
 #include <iostream>
 
 int main() {
-
-	std::cout << "‚Ô‚½" << std::endl;
-
 	auto& app = Application::Instance();
 	app.Initialize();
 	app.Run();

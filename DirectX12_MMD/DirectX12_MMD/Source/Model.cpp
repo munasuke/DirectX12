@@ -176,7 +176,7 @@ void Model::Draw(ID3D12GraphicsCommandList * _list, ID3D12Device * _dev) {
 		handle.ptr += 5 * _dev->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
 		//マテリアル別に描画
-		_list->DrawIndexedInstanced(material[i].indexCount, 3, offset, 0, 0);
+		_list->DrawIndexedInstanced(material[i].indexCount, 1, offset, 0, 0);
 
 		//次のマテリアルまでオフセットする
 		offset += material[i].indexCount;
