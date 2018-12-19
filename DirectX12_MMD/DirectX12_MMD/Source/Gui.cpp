@@ -5,7 +5,7 @@
 
 #include <cassert>
 
-Gui::Gui() : heap(nullptr), rs(nullptr), flag(false) {
+Gui::Gui() : heap(nullptr), rs(nullptr), rotationFlag(false) {
 	ImGui::CreateContext();
 }
 
@@ -94,50 +94,46 @@ void Gui::BeforeDrawing() {
 	ImGui::NewFrame();
 }
 
-void Gui::Draw(ID3D12GraphicsCommandList * list) {
+void Gui::GuiParam(float angle, float rotSpeed) {
+	rotationAngle = angle;
+	rotationSpeed = rotSpeed;
 	//UIウィンドウのサイズを指定。ImGuiCond_Always（常に）
-	ImGui::SetNextWindowSize({ 400.0f, 500.0f }, ImGuiCond_Always);
+	ImGui::SetNextWindowSize({ 400.0f, 100.0f }, ImGuiCond_Always);
 
 	//UIウィンドウの座標を指定。ImGuiCond_Once（実行時に一度のみ）
 	ImGui::SetWindowPos({ 50, 60 }, ImGuiCond_Once);
 
 	//処理の開始
-	ImGui::Begin("test");
-
-	//点とテキスト
-	ImGui::BulletText("Munaoka");
-
-	//点のみ
-	ImGui::Bullet();
-	//テキストを着色
-	ImGui::TextColored({ 0.0f, 1.0f, 0.0f, 1.0f }, "Green");
-
-	//文字入力できるようにする
-	static char str[128] = "DirectX12";
-	ImGui::InputText("InputText", str, IM_ARRAYSIZE(str));
-
-	//矢印ボタン。ImGuiDir_Down（下）
-	if(ImGui::ArrowButton("type", ImGuiDir_Down)) {
-		flag = !flag;
-	}
-	//改行しない
-	ImGui::SameLine();
-	ImGui::Text("Click Here");
-
-	if (flag) {
-		ImGui::Bullet();
-		ImGui::TextColored({ 1.0f, 0.0f, 0.0f, 1.0f }, "Hello !!!");
-	}
+	ImGui::Begin("Camera");
+	//チェックボックス。
+	ImGui::Checkbox("Auto Rotation", &rotationFlag);
+	static auto tmp = 0.0f;
+	ImGui::SliderFloat("Rotation", &rotationAngle, 0.0f, 360.0f);
+	ImGui::SliderFloat("Rotation Speed", &rotationSpeed, 0.0f, 10.0f);
 
 	//処理の終了
 	ImGui::End();
 
 	//処理の描画
 	ImGui::Render();
+}
 
-	list->SetGraphicsRootSignature(rs);
+void Gui::Draw(ID3D12GraphicsCommandList * list) {
+	//list->SetGraphicsRootSignature(rs);
 	list->SetDescriptorHeaps(1, &heap);
 	ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), list);
+}
+
+bool Gui::GetFlag() {
+	return rotationFlag;
+}
+
+float Gui::GetRotationAngle() {
+	return rotationAngle;
+}
+
+float Gui::GetRotationSpeed() {
+	return rotationSpeed;
 }
 
 

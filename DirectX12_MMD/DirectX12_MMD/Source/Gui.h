@@ -9,13 +9,20 @@ public:
 
 	void Initialize(ID3D12Device* dev, HWND hwnd);
 	void BeforeDrawing();
+	void GuiParam(float angle, float rotSpeed);
 	void Draw(ID3D12GraphicsCommandList* list);
+
+	bool GetFlag();
+	float GetRotationAngle();
+	float GetRotationSpeed();
 
 	~Gui();
 private:
 	ID3D12DescriptorHeap* heap;
 	ID3D12RootSignature* rs;
 
-	bool flag;
+	bool rotationFlag;
+	float rotationAngle;
+	float rotationSpeed;
 };
 

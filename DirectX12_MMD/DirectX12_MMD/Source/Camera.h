@@ -17,6 +17,9 @@ public:
 	void Initialize(ID3D12Device* _dev);
 	void UpdateWVP();
 	void SetDescriptor(ID3D12GraphicsCommandList* _list, ID3D12Device* _dev);
+	float& GetRotaSpeed();
+	float angle;
+	float rotationSpeed;
 
 	~Camera();
 private:

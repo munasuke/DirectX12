@@ -3,7 +3,7 @@
 
 using namespace DirectX;
 
-Camera::Camera() {
+Camera::Camera() : angle(0.0f), rotationSpeed(1.0f){
 }
 
 void Camera::Initialize(ID3D12Device * _dev) {
@@ -63,14 +63,20 @@ void Camera::Initialize(ID3D12Device * _dev) {
 }
 
 void Camera::UpdateWVP() {
-	static FLOAT angle = 0.0f;
+	if (angle > 360) {
+		angle = 0.0f;
+	}
 	mt.world = XMMatrixRotationY(angle * DirectX::XM_PI / 180.0f);
 	memcpy(data, &mt, sizeof(mt));
-	++angle;
+	//angle += rotationSpeed;
 }
 
 void Camera::SetDescriptor(ID3D12GraphicsCommandList * _list, ID3D12Device * _dev) {
 	_list->SetGraphicsRootConstantBufferView(0, resource->GetGPUVirtualAddress());
+}
+
+float& Camera::GetRotaSpeed() {
+	return rotationSpeed;
 }
 
 

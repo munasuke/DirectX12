@@ -279,7 +279,15 @@ void Application::Run() {
 
 		depth->SetDescriptor(list);
 
+		gui->BeforeDrawing();
+		gui->GuiParam(camera->angle, camera->rotationSpeed);
+		camera->angle = gui->GetRotationAngle();
+		camera->rotationSpeed = gui->GetRotationSpeed();
+
 		//カメラの更新
+		if (gui->GetFlag()){
+			camera->angle += camera->rotationSpeed;
+		}
 		camera->UpdateWVP();
 		//カメラのセット
 		camera->SetDescriptor(list, device->GetDevice());
@@ -390,7 +398,6 @@ void Application::UpdatePera() {
 	command->GetCommandList()->DrawInstanced(4, 1, 0, 0);
 
 	//ImGuiの描画
-	gui->BeforeDrawing();
 	gui->Draw(command->GetCommandList());
 
 	//バリア
